@@ -491,7 +491,11 @@ check('M15. self-found sources and reported strings get their fixed labels; the 
     assert.ok(between.some(l => l.endsWith(f.search_string)), f.search_string);
     assert.ok(between.some(l => l.endsWith(f.summary)), f.summary);
   }
-  const rule = "A hat's own searches follow a prompt rule only. No code checked them before they left the machine.";
+  // Phase 400.2.1 (S5): the run armed the reader search screen, so the line names the screen, not the prompt rule.
+  assert.equal(run.ledger().reader_search_screen, 'armed');
+  const rule = "A hat's own searches passed the reader search screen of the door before they left the machine. The screen blocks room words; it cannot catch a figure or a detail with no screened word.";
+  assert.equal(L.reader_screen_rule, rule);
+  assert.equal(lines.includes(L.prompt_rule), false, 'the prompt-rule line is for a run with no armed screen');
   const after = lines.slice(iStr + 1);
   for (const s of strings) assert.ok(after.some(l => l.endsWith(s)), s);
   assert.equal(lines.filter(l => l === rule).length, 1);

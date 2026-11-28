@@ -2,6 +2,7 @@
 'use strict';
 // Phase 400.2-09: the tension rulings of the door (scripts/persona-hats.cjs cmdRecordRuling, readRulingsStore, the
 // settled mark of cmdMerge). Legs G1 to G10; G11 to G14 are extra legs (router, a second call, the corrupt store).
+// Legs G20 to G22 (Phase 400.2.1, S6): the delegated ruling.
 // Every leg passes homeDir, tmpDir, now and randomHex as options. No test sends a network request.
 const fs = require('node:fs');
 const os = require('node:os');
@@ -177,6 +178,7 @@ check('G1. merge creates no store; record-ruling side_a writes one key with its 
   const r = doRule(run, [{ tension_id: t.id, ruling: 'side_a', reason: 'Black has the better case.' }]);
   assert.equal(r.ok, true, JSON.stringify(r));
   const store = readStore(run.room);
+  // Phase 400.2.1 (S6, N3): a store with no delegated entry stays schema 1; schema 2 only when one is delegated.
   assert.equal(store.schema, 'mos.persona-tension-rulings/1');
   assert.deepEqual(Object.keys(store.rulings), [t.id]);
   const e = store.rulings[t.id];
@@ -628,6 +630,104 @@ check('G19. WR-09 NEGATIVE: two navigators who rule on two runs of one room at t
   const reopen = door.cmdRecordRuling({ roomDir: a.room, runId: a.res.run_id, answerPath: writeAnswer(a, [{ tension_id: ta.id, ruling: 'defer', reopen: true }]) }, Object.assign(a.env.opts(), { _lockWaitMs: 50 }));
   assert.equal(reopen.ok, true, JSON.stringify(reopen));
   assert.deepEqual(Object.keys(readStore(room).rulings), [tb.id]);
+});
+
+// Phase 400.2.1 (S6): the delegated ruling. Owner ruling 2026-11-26: "Larry picks, you confirm". Larry states the pick
+// and one reason, the navigator confirms in one word, and the door stores a normal ruling with delegated: true.
+check('G20. 400.2.1 S6: a confirmed delegated ruling stores the pick of Larry with delegated true; the output, the event and the artifact say so', async () => {
+  const run = mkRun({ pos: ONE });
+  const roomDbMod = require(path.join(ROOT, 'lib', 'core', 'room-db.cjs'));
+  roomDbMod.closeRoomDb(roomDbMod.openRoomDb(run.room));
+  const out = await doMerge(run);
+  const t = out.tensions[0];
+  const r = doRule(run, [{ tension_id: t.id, ruling: 'delegated', larry_pick: 'both_hold', navigator_confirmed: true, reason: 'The navigator said: Larry decides; then yes.' }]);
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.recorded, [{ tension_id: t.id, ruling: 'both_hold', side_hat: null, delegated: true }]);
+  const store = readStore(run.room);
+  assert.equal(store.schema, 'mos.persona-tension-rulings/2');
+  const e = store.rulings[t.id];
+  assert.equal(e.ruling, 'both_hold');
+  assert.equal(e.delegated, true);
+  assert.deepEqual(Object.keys(e).sort(), ['delegated', 'lines', 'pair', 'reason', 'ruled_at', 'ruling', 'run_id', 'sub_question_text']);
+  assert.equal(door.readRulingsStore(run.room).ok, true, 'a store with a delegated entry is valid');
+  const lt = run.ledger().tensions.find(x => x.id === t.id);
+  assert.equal(lt.state, 'settled');
+  assert.equal(lt.ruling, 'both_hold');
+  assert.equal(lt.delegated, true);
+  assert.equal(r.memory_event.state, 'logged');
+  const ev = roomDbEvents(run.room);
+  assert.equal(ev.length, 1);
+  assert.equal(ev[0].props.delegated, true);
+  assert.equal(ev[0].props.ruling, 'both_hold');
+  assert.equal(ev[0].props.dedupe_key, 'persona-ruling:' + t.id + ':both_hold:delegated');
+  const lines = readArtifact(run).split('\n').map(l => l.trimEnd());
+  const at = lines.indexOf('## Rulings');
+  assert.deepEqual(lines.slice(at + 1).filter(l => l !== ''), ['tension id: ' + t.id, 'ruling: both_hold', 'side hat: none', 'delegated to Larry: yes', 'ruled on: 2026-11-25']);
+});
+
+check('G21. 400.2.1 S6 NEGATIVE: no store write without the navigator: an unconfirmed delegated ruling and every bad larry_pick are refused', async () => {
+  const run = mkRun({ pos: ONE });
+  const out = await doMerge(run);
+  const t = out.tensions[0];
+  assert.deepEqual(doRule(run, [{ tension_id: t.id, ruling: 'delegated', larry_pick: 'side_a' }]), { ok: false, reason: 'delegated_not_confirmed' }, 'Larry alone cannot store a ruling');
+  assert.deepEqual(doRule(run, [{ tension_id: t.id, ruling: 'delegated', larry_pick: 'side_a', navigator_confirmed: false }]), { ok: false, reason: 'schema_invalid:rulings.0.navigator_confirmed' });
+  assert.deepEqual(doRule(run, [{ tension_id: t.id, ruling: 'delegated', navigator_confirmed: true }]), { ok: false, reason: 'schema_invalid:rulings.0.larry_pick' });
+  assert.deepEqual(doRule(run, [{ tension_id: t.id, ruling: 'delegated', larry_pick: 'defer', navigator_confirmed: true }]), { ok: false, reason: 'schema_invalid:rulings.0.larry_pick' });
+  assert.deepEqual(doRule(run, [{ tension_id: t.id, ruling: 'side_a', larry_pick: 'side_b' }]), { ok: false, reason: 'schema_invalid:rulings.0.larry_pick' });
+  assert.deepEqual(doRule(run, [{ tension_id: t.id, ruling: 'defer', reopen: true, larry_pick: 'nonsense' }]), { ok: false, reason: 'schema_invalid:rulings.0.larry_pick' }, 'a present larry_pick is always checked');
+  assert.deepEqual(doRule(run, [{ tension_id: t.id, ruling: 'side_a', navigator_confirmed: true }]), { ok: false, reason: 'schema_invalid:rulings.0.navigator_confirmed' });
+  assert.equal(fs.existsSync(storePath(run.room)), false, 'a refused answer stores nothing');
+  const r = doRule(run, [{ tension_id: t.id, ruling: 'delegated', larry_pick: 'side_a', navigator_confirmed: true }]);
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.recorded, [{ tension_id: t.id, ruling: 'side_a', side_hat: 'black', delegated: true }]);
+});
+
+check('G22. 400.2.1 S6: a later run renders a delegated settled tension with "(delegated to Larry)"; reopen drops the flag; a schema 1 store still reads, and a schema 1 store with delegated is refused', async () => {
+  const room = makeRoom();
+  const a = mkRun({ room, pos: ONE });
+  const outA = await doMerge(a);
+  const id = outA.tensions[0].id;
+  assert.equal(doRule(a, [{ tension_id: id, ruling: 'delegated', larry_pick: 'side_b', navigator_confirmed: true }]).ok, true);
+  const b = mkRun({ room, pos: ONE, now: LATER });
+  const outB = await doMerge(b);
+  assert.ok(outB.ok, JSON.stringify(outB));
+  const tb = b.ledger().tensions.find(x => x.id === id);
+  assert.equal(tb.state, 'settled');
+  assert.equal(tb.delegated, true);
+  const art = readArtifact(b).split('\n').map(l => l.trimEnd());
+  assert.ok(art.includes('settled on 2026-11-25: side_b (delegated to Larry)'), art.join('\n'));
+  assert.equal(door.ARTIFACT_LABELS.settled_on_delegated, 'settled on {date}: {ruling} (delegated to Larry)');
+  const re = doRule(b, [{ tension_id: id, ruling: 'defer', reopen: true }]);
+  assert.equal(re.ok, true, JSON.stringify(re));
+  assert.equal('delegated' in b.ledger().tensions.find(x => x.id === id), false);
+  assert.equal(readArtifact(b).includes('(delegated to Larry)'), false, 'reopen drops the settled line');
+  // Read compatibility: a schema 1 store (written by beta.92) is valid; the next write upgrades it to schema 2.
+  const st = readStore(room);
+  st.schema = 'mos.persona-tension-rulings/1';
+  fs.writeFileSync(storePath(room), JSON.stringify(st), 'utf8');
+  assert.equal(door.readRulingsStore(room).ok, true);
+  assert.equal(doRule(b, [{ tension_id: id, ruling: 'delegated', larry_pick: 'side_a', navigator_confirmed: true }]).ok, true);
+  assert.equal(readStore(room).schema, 'mos.persona-tension-rulings/2', 'a delegated entry upgrades the store to schema 2');
+  const st2 = readStore(room);
+  st2.schema = 'mos.persona-tension-rulings/1';
+  fs.writeFileSync(storePath(room), JSON.stringify(st2), 'utf8');
+  assert.deepEqual(door.readRulingsStore(room), { ok: false, reason: 'rulings_store_invalid' }, 'schema 1 has no delegated key');
+  st2.schema = 'mos.persona-tension-rulings/2';
+  st2.rulings[id].delegated = false;
+  fs.writeFileSync(storePath(room), JSON.stringify(st2), 'utf8');
+  assert.deepEqual(door.readRulingsStore(room), { ok: false, reason: 'rulings_store_invalid' }, 'delegated is always true when present');
+});
+
+check('G23. 400.2.1 N3: the store is schema 1 with no delegated entry, schema 2 while one is delegated, and schema 1 again after it is reopened', async () => {
+  const run = mkRun({ pos: TWO });
+  const out = await doMerge(run);
+  const [t1, t2] = out.tensions;
+  assert.equal(doRule(run, [{ tension_id: t1.id, ruling: 'side_a' }]).ok, true);
+  assert.equal(readStore(run.room).schema, 'mos.persona-tension-rulings/1');
+  assert.equal(doRule(run, [{ tension_id: t2.id, ruling: 'delegated', larry_pick: 'both_hold', navigator_confirmed: true }]).ok, true);
+  assert.equal(readStore(run.room).schema, 'mos.persona-tension-rulings/2');
+  assert.equal(doRule(run, [{ tension_id: t2.id, ruling: 'defer', reopen: true }]).ok, true);
+  assert.equal(readStore(run.room).schema, 'mos.persona-tension-rulings/1');
 });
 
 (async () => {

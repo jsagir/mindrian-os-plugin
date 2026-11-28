@@ -8,14 +8,22 @@ layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "The dominant design is identified as a single next-move call."
 serves_jtbd: ["understand-market"]
+job_when: "I am not sure whether my market has settled on a winning design"
+job_want: "to place the market in its design cycle"
+job_so: "decide whether to ride the winning design or break it"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the product category previews the competing-
 # variant census structure before the navigator invests further).
 interactive_first_reward: schema_preview
 teaching: "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it. Tells you whether to ride the wave or break it. The deep dive can open with a sourced research pass: four evidence lanes, searched only after you approve the queries, every claim with its source."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
-frameworks: ["Dominant Design"]
+frameworks: ["Dominant Design", "Era of Ferment Analysis"]
 produces: "room/**/dominant-designs/*"
 inputs: []
 autonomous_safe: true
@@ -27,8 +35,14 @@ autonomous_safe: true
 # after the query gate card; allowed-tools is a pre-approval list, not a
 # restriction list, so this removes the per-spawn permission prompt rather
 # than granting a capability the command lacked.
-allowed-tools: Read Write Bash Glob AskUserQuestion Task
-# --- Phase 144.1 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+  - Task
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -147,10 +161,10 @@ Then run the six phases on top of the kept rows, using the structure named by `s
 
 #### Research mode, filing (only after the navigator says yes)
 
-Ask: "File this to competitive-analysis?" first. On yes, run:
+Ask: "File this to competitive-analysis?" first. On yes, write a JSON object with the keys `room_label` (the room name) and `stage` (the venture stage) to `<scratch>/header.json` with the Write tool, then run:
 
 ```bash
-node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/dominant-design-research.cjs" file-pack --pack <scratch> --room <room dir> --domain-slug <slug> --date <YYYY-MM-DD> --room-label "<room name>" --stage "<stage>"
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/dominant-design-research.cjs" file-pack --pack <scratch> --room <room dir> --domain-slug <slug> --date <YYYY-MM-DD> --header-file <scratch>/header.json
 ```
 
 This writes one evidence artifact per approved lane under `<room>/competitive-analysis/dominant-designs/` (an empty lane still gets its artifact with its `## Searched, not found` list), files each lane's sourced rows through `navigation.fileEvidenceWithReadback`, and prints the 4-zone filing report. Show that report as-is, including any lane marked NOT LANDED and a missing room.db.

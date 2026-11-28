@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "voice-fixture-generation",
+  "run_kind": "voice",
+  "label": "406-p3-before",
+  "generator": "scripts/eval-larry-voice.cjs",
+  "commit": "a9517dcf68b5c815bdcdc1d68aae8e10da2e7c27",
+  "plugin_version": "2.0.0-beta.96",
+  "claude_version": "2.1.332 (Claude Code)",
+  "probes_sha256": "3c95f4b8bc0372e9f8bbfb2179f1a65da4ed1467299894875ac8cefe6d7fb191",
+  "rubric_sha256": "484354965a1181ce5eada7728ac928783cf8bb3762a5522d9560e94572ccb64f",
+  "agent_body_sha256": "c9fd7a5d0e39eccf0cb4a1377e0d2314ca4848b1b5cf8fd6b0f46f317682185a",
+  "cells": [
+    "2t"
+  ],
+  "statuses": {
+    "A": {
+      "2t": "complete"
+    },
+    "C": {
+      "2t": "complete"
+    },
+    "D": {
+      "2t": "complete"
+    },
+    "E": {
+      "2t": "complete"
+    },
+    "F": {
+      "2t": "complete"
+    },
+    "G": {
+      "2t": "complete"
+    },
+    "H": {
+      "2t": "complete"
+    },
+    "I": {
+      "2t": "complete"
+    },
+    "K": {
+      "2t": "complete"
+    }
+  },
+  "replies_sha256": "83aa41727e40efb894912189604ff19d8a86a8049a57259495f49a538a5e9774",
+  "inputs_clean": true,
+  "executables": {
+    "node": "~/.nvm/versions/node/v22.23.1/bin/node",
+    "claude": "~/.local/share/claude/versions/2.1.332"
+  },
+  "created": "2026-11-28T03:49:13.148Z",
+  "samples": 1,
+  "model": "opus",
+  "skipped": {},
+  "credential_route": "host_login",
+  "seal": "617ab736a7c27deee39ce20299f6d9725a076efcf598560d4d37c27efc29be9a"
+}

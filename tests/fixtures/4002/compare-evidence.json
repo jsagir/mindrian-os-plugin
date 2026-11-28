@@ -1,25 +1,25 @@
 {
   "schema": "mos.persona-compare-evidence/1",
   "synthetic": true,
-  "note": "Synthetic envelopes for the recorded comparison of plan 400.2-16. Every URL uses the host example.org or example.com. No page exists behind them.",
+  "note": "Synthetic envelopes for the recorded comparison of plan 400.2-16. Every URL uses the host example.org or example.com. No page exists behind them. Phase 400.2.1: each abstract names the handle of its hat, so that it meets the relevance floor of the door.",
   "by_hat": {
     "white": [
-      { "title": "Synthetic report on repeat purchase in craft mail order", "url": "https://example.org/synthetic/white/repeat-purchase", "abstract": "A made-up summary of repeat purchase rates in small craft mail order." },
-      { "title": "Synthetic table of box shipping costs", "url": "https://example.org/synthetic/white/shipping-costs", "abstract": "A made-up table of shipping costs for a two skein box." },
-      { "title": "Synthetic note on pausing a subscription", "url": "https://example.org/synthetic/white/pause-rules", "abstract": "A made-up note on how often buyers pause a monthly plan." }
+      { "title": "Synthetic report on repeat purchase in craft mail order", "url": "https://example.org/synthetic/white/repeat-purchase", "abstract": "A made-up summary of repeat purchase rates in small craft mail order, a note on subscription box retention." },
+      { "title": "Synthetic table of box shipping costs", "url": "https://example.org/synthetic/white/shipping-costs", "abstract": "A made-up table of shipping costs for a two skein box, a note on subscription box retention." },
+      { "title": "Synthetic note on pausing a subscription", "url": "https://example.org/synthetic/white/pause-rules", "abstract": "A made-up note on how often buyers pause a monthly plan, a note on subscription box retention." }
     ],
     "black": [
-      { "title": "Synthetic case of a craft box that closed", "url": "https://example.org/synthetic/black/closed-box", "abstract": "A made-up case of a craft box that closed after late shipments." },
-      { "title": "Synthetic study of subscription cancellation", "url": "https://example.com/synthetic/black/cancellation", "abstract": "A made-up study of why monthly buyers cancel in the first quarter." }
+      { "title": "Synthetic case of a craft box that closed", "url": "https://example.org/synthetic/black/closed-box", "abstract": "A made-up case of a craft box that closed after late shipments, a note on subscription cancellation causes." },
+      { "title": "Synthetic study of subscription cancellation", "url": "https://example.com/synthetic/black/cancellation", "abstract": "A made-up study of why monthly buyers cancel in the first quarter, a note on subscription cancellation causes." }
     ],
     "yellow": [
-      { "title": "Synthetic case of a yarn club that grew", "url": "https://example.org/synthetic/yellow/yarn-club", "abstract": "A made-up case of a yarn club that kept most members for a year." },
-      { "title": "Synthetic report on planned dye batches", "url": "https://example.org/synthetic/yellow/planned-batches", "abstract": "A made-up report on waste saved when batches follow open orders." },
-      { "title": "Synthetic interview with a club organiser", "url": "https://example.com/synthetic/yellow/organiser", "abstract": "A made-up interview about a pause rule that kept members." }
+      { "title": "Synthetic case of a yarn club that grew", "url": "https://example.org/synthetic/yellow/yarn-club", "abstract": "A made-up case of a yarn club that kept most members for a year, a note on craft club membership." },
+      { "title": "Synthetic report on planned dye batches", "url": "https://example.org/synthetic/yellow/planned-batches", "abstract": "A made-up report on waste saved when batches follow open orders, a note on craft club membership." },
+      { "title": "Synthetic interview with a club organiser", "url": "https://example.com/synthetic/yellow/organiser", "abstract": "A made-up interview about a pause rule that kept members, a note on craft club membership." }
     ],
     "green": [
-      { "title": "Synthetic overview of shared harvest subscriptions", "url": "https://example.org/synthetic/green/shared-harvest", "abstract": "A made-up overview of farms that sell a share of the season in advance." },
-      { "title": "Synthetic note on seat sales in small theatres", "url": "https://example.com/synthetic/green/season-seats", "abstract": "A made-up note on selling a season of seats before the first show." }
+      { "title": "Synthetic overview of shared harvest subscriptions", "url": "https://example.org/synthetic/green/shared-harvest", "abstract": "A made-up overview of farms that sell a share of the season in advance, a note on advance season sales." },
+      { "title": "Synthetic note on seat sales in small theatres", "url": "https://example.com/synthetic/green/season-seats", "abstract": "A made-up note on selling a season of seats before the first show, a note on advance season sales." }
     ]
   }
 }

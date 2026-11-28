@@ -9,16 +9,26 @@ hitl_shape: "F.5"
 hitl_why: "Ventures are compared as parallel branches the navigator resolves among."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 4): first delivery at commands/compare-ventures.md:89, similar ventures, the framework sequences they used, and the patterns that correlated with outcomes.
 interactive_first_reward: methodology_reframe
-serves_jtbd: ["compare-options"]
+serves_jtbd: ["compare-options", "decide-pursue"]
+job_when: "other ventures have tried an approach close to mine"
+job_want: "to line them up against my approach on the dimensions that matter"
+job_so: "learn from their results without repeating their mistakes"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter. Saves you from re-learning their lessons."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["PWS Triple Validation Compass"]
 produces: "room/competitive-analysis/comparison/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher mcp__mindrian-brain__brain_search AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - AskUserQuestion
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -77,9 +87,9 @@ This returns frameworks that co-occur with the current set, plus example project
 
 ### 3. Semantic Search for Similar Ventures
 
-Call `brain_search_semantic` via `mcp__mindrian-brain__brain_search` (if the call returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries via `mcp__mindrian-brain__read_neo4j_cypher` instead) with:
-- `$search_text` = venture description from room
-- `top_k` = 10
+Call `mcp__mindrian-brain__brain_search` with framework names and the problem type only (nothing that the room holds crosses to the Brain):
+- `query` = the framework names from step 2 and the problem type, in at most 12 words
+- `topK` = 10
 
 This returns semantically similar items from the Brain's embedding index -- ventures, frameworks, and concepts that match the user's work.
 
@@ -101,7 +111,7 @@ Combine pattern matches and semantic results. Present:
 ### 5. Privacy Rules
 
 **CRITICAL:** Do NOT expose individual student names, personal data, or identifiable project details. All findings must be presented as aggregate patterns:
-- "3 of 5 similar projects..." not "Sarah's project..."
+- "{k} of {n} similar projects..." not "Sarah's project..."
 - "Projects in the healthcare domain..." not "[specific project name]..."
 - Grade distributions and percentiles are fine. Individual grades tied to names are not.
 

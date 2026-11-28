@@ -8,15 +8,23 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Cross-domain analogies are returned as an unordered set of candidates to pick from in any order."
 serves_jtbd: ["connect-domains"]
+job_when: "the answer to my problem might already exist in another field"
+job_want: "to match the structure of my problem against solutions from other fields"
+job_so: "borrow a proven structure instead of inventing one"
+job_sentence_status: "provisional"
+fits_domains: ["complex"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Step 1-2 flow: the abstracted functional pattern previews the
 # SAPPhIRE/TRIZ candidate structure before the navigator invests in the
 # gated External Mode fetch).
 interactive_first_reward: schema_preview
 teaching: "When the answer might live in another field, /mos:find-analogies runs SAPPhIRE and TRIZ against your problem to surface cross-domain matches. Most breakthroughs are borrowed structure."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
-frameworks: ["Four Lenses of Innovation"]
+frameworks: ["Four Lenses of Innovation", "TRIZ / Genrich Altshuller Innovation Algorithm"]
 produces: "room/**/analogies/*"
 inputs: []
 autonomous_safe: true
@@ -29,8 +37,15 @@ ui_reference: skills/ui-system/SKILL.md
 # restriction list (frontmatter contract), so this removes the per-spawn permission prompt
 # rather than granting a capability the command did not already have. Scoped to the invoking
 # turn; clears on the next message.
-allowed-tools: Read Write Glob Bash mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher mcp__mindrian-brain__brain_search mcp__tavily__tavily-search AskUserQuestion Task
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Glob
+  - Bash
+  - mcp__tavily__tavily-search
+  - AskUserQuestion
+  - Task
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -164,7 +179,7 @@ ORDER BY bridge IS NOT NULL DESC
 LIMIT 15
 ```
 
-3. Run `brain_search_semantic` with the abstract function description as query text
+3. Call `mcp__mindrian-brain__brain_search` with a generic domain handle only as `query` (the TRIZ parameter names, or one to three plain keywords that name a field); when no generic handle exists, ask the person and send nothing
 
 4. Merge Brain results with LLM candidates, deduplicate, rank by structural fitness
 
@@ -323,17 +338,76 @@ For the top 2 analogies, provide a brief structural mapping:
 - What principle transfers
 - What does NOT transfer (known limitations)
 
+## Plan-run route (search the literature for what this found)
+
+**Body Shape:** E (Action Report). The planner CLI prints JSON only; read each answer and act on it. Every argument is a room path, a run id, a tag or an enum value, never room text. This is the same route `/mos:eureka` uses (Canon Part 7: reuse before build); nothing leaves the room until the navigator approves the exact searches on a card.
+
+### Route step 1: Recall the structural analogies and build the plan
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" perspective-recall --room ROOM_DIR --perspective analogies --mode quick
+```
+
+Read `run_tag`, `counts`, `top` and `plan` from the JSON. When `plan` is null, the room has nothing to search for yet: say so in one line, name what was looked for (two things in different sections that share structure without sharing words) and `counts`, and stop. When `plan.ok` is false, or `plan.status` is not `ready`, say the plan was not made ready, say in plain words what `plan.errors` names, and stop; never approve a plan that is not ready. Otherwise keep `plan.run_id`.
+
+Then run the local gates, with no model judge (the judge stays a dev-time tool; you, the host, read what comes back):
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" perspective-judge --room ROOM_DIR --perspective analogies --tag <run_tag> --judge none
+```
+
+Say the one-line judge state it returns (`line`) as it is, and the next move it names.
+
+### Route step 2: Plan review card (F.6), then the one search approval
+
+Read the plan from `ROOM_DIR/.mindrian/research-runs/<run_id>/plan.json` and show it: each leaf question, the falsifier for each, its source, the budget, and every search under the leaf's `queries` (the `q` values) exactly as it will be sent. Fire the F.6 Plan Review card with AskUserQuestion (Run this plan / Stop without running). Never take a typed yes as the answer: only the card answers it. On a yes:
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" review approve <run_id> --room ROOM_DIR --approved-via cli
+```
+
+This writes the approval for this one run; it covers exactly the searches the card listed, and an approval only lets the run fetch, it never files anything. On a stop, say the plan is saved and nothing was fetched, then stop.
+
+### Route step 3: Run
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" run-quick <run_id> --room ROOM_DIR
+```
+
+Run it straight after the approval. A `reask` answer means the approval does not cover one of these exact searches, or has lapsed: fire the F.0 card it returns with AskUserQuestion, never work around it.
+
+### Route step 4: Write the result
+
+`status: done` gives an evidence card. Write the result from that card in the four zones (header, the answer line, the strip, the footer), in plain words naming what was searched and what was not (the answer line already says which). Every factual statement ends with its row id. Never render a score, similarity, differential or percentage. Never grade or praise a finding.
+
+### Route step 5: File (F.8, only on the navigator's yes)
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" basket <run_id> --room ROOM_DIR
+```
+
+Fire the F.8 basket with AskUserQuestion, multi-select over the items the card lists (an empty pick files nothing). Only on a card yes, Write `{"approved": true, "items": [<the picked item ids>]}` to a scratch `selection.json` and file:
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" file-run <run_id> <selection.json> --room ROOM_DIR --approved-via cli
+```
+
+Show the filing report as is, including anything that did not land.
+
+
 ## Step 6: Suggest Next Steps
 
 Based on results:
 
-1. **Strong analogy found (fitness > 0.6):** "This looks promising. Want to run the full pipeline (`/mos:pipeline analogy`) to build correspondence tables and stress-test the mapping?"
+1. **Strong analogy found (fitness > 0.6):** "This looks promising. Want to run the full pipeline (`/mos:pipeline analogy`) to build correspondence tables and stress-test the mapping?" These become the options of the one AskUserQuestion card that closes this step.
 
-2. **Multiple candidates:** "I found [N] candidates across [domains]. Pick one to explore deeper with `/mos:pipeline analogy`, or I can `/mos:structure-argument` to build the transfer case."
+2. **Multiple candidates:** "I found [N] candidates across [domains]. Pick one to explore deeper with `/mos:pipeline analogy`, or I can `/mos:structure-argument` to build the transfer case." These become the options of the one AskUserQuestion card that closes this step.
 
-3. **Weak results:** "The direct analogies are weak. Try `/mos:explore-domains` to map adjacent territories, or `/mos:find-connections` to discover unexpected bridges in the Brain graph."
+3. **Weak results:** "The direct analogies are weak. Try `/mos:explore-domains` to map adjacent territories, or `/mos:find-connections` to discover unexpected bridges in the Brain graph." These become the options of the one AskUserQuestion card that closes this step.
 
-4. **TRIZ principles found:** "Your contradiction maps to TRIZ Principles [N, M]. These are well-studied resolution patterns -- want me to explain them?"
+4. **TRIZ principles found:** "Your contradiction maps to TRIZ Principles [N, M]. These are well-studied resolution patterns -- want me to explain them?" These become the options of the one AskUserQuestion card that closes this step.
+
+Close Step 6 with ONE AskUserQuestion call: a Shape F.1 (Next Move) card composed with the SAME verb/option shape `lib/hmi/shape-f1-renderer.cjs` (`renderShapeF1`) produces and `lib/hmi/selector-dispatcher.cjs` (`appendAskUserQuestionTrailer`) fires -- no hand-built JSON. Its options are those of the one class above that applies to this result (label = the move, description = that class's quoted line as its framing, the first option marked ` (Recommended)`, at least 2 and at most 4 options, the Other slot free text): class 1, `/mos:pipeline analogy` (Recommended) and `Not now`; class 2, `/mos:pipeline analogy` on the chosen candidate (Recommended) and `/mos:structure-argument`; class 3, `/mos:explore-domains` (Recommended) and `/mos:find-connections`; class 4, `Explain these TRIZ principles` (Recommended) and `Not now`. On a surface that cannot fire the card, the quoted line of the applicable class is the text floor.
 
 ### Write-back offer (human-gated, temporal-aware)
 

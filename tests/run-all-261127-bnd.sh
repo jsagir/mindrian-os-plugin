@@ -145,9 +145,9 @@ run "build-orchestration-projection check" node scripts/build-orchestration-proj
 run "build-harness-manifest check" node scripts/build-harness-manifest.cjs --check
 run "render coverage check" node scripts/check-render-coverage.cjs --check
 
-run "substrate baseline is 202" bash -c '
+run "substrate baseline is 199" bash -c '
   out=$(node scripts/check-substrate.cjs --baseline 2>&1)
-  printf "%s\n" "$out" | grep -qF "Found 202 violation(s)" || { printf "%s\n" "$out" | tail -3; exit 1; }'
+  printf "%s\n" "$out" | grep -qF "Found 199 violation(s)" || { printf "%s\n" "$out" | tail -3; exit 1; }'
 
 run "no em-dash or en-dash in 261127-bnd files" bash -c '
   files="

@@ -1,0 +1,2 @@
+{"type": "user", "message": {"role": "user", "content": "neutral prompt"}, "uuid": "u1"}
+{"type": "assistant", "message": {"role": "assistant", "content": [{"type": "text", "text": "⬛ Your call: neutral choice"}]}, "uuid": "a1"}

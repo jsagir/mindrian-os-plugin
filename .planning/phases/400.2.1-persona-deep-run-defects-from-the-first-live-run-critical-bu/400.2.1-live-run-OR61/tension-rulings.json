@@ -1,0 +1,66 @@
+{
+  "schema": "mos.persona-tension-rulings/2",
+  "rulings": {
+    "fc2ab8c2e93dbe3aff5099f9d343fbf10d4a9556ba12d47afa0c0ef47fa19d69": {
+      "ruling": "both_hold",
+      "reason": "The navigator handed this ruling to Larry and confirmed the pick.",
+      "ruled_at": "2026-11-28T01:46:15.901Z",
+      "run_id": "20261128-011450-fef2",
+      "sub_question_text": "What check shows that the formal statement matches the theorem as mathematicians state it?",
+      "pair": [
+        "black",
+        "green"
+      ],
+      "lines": {
+        "black": "Unchecked statement fidelity kills acceptance: the kernel certifies proof of the written statement, not that it is the real theorem. Only outside review closes this.",
+        "green": "Hypothesis: a blind back-translation of the formal statement to plain words, plus a short human-readable spec checked mechanically, exposes mismatches before any journal."
+      },
+      "delegated": true
+    },
+    "7257a241fb07b0fb524ae03005ca6f5d0645c28a1623a294cb4df6322524104b": {
+      "ruling": "both_hold",
+      "reason": "",
+      "ruled_at": "2026-11-28T01:46:15.901Z",
+      "run_id": "20261128-011450-fef2",
+      "sub_question_text": "What check shows that the formal statement matches the theorem as mathematicians state it?",
+      "pair": [
+        "black",
+        "yellow"
+      ],
+      "lines": {
+        "black": "Unchecked statement fidelity kills acceptance: the kernel certifies proof of the written statement, not that it is the real theorem. Only outside review closes this.",
+        "yellow": "A short formal statement can be read by outside experts; in the Lean-checked Scholze case the statement sat in one challenge file for review."
+      }
+    },
+    "8b7a3aea69f18e72ba4e0ac0e2f47cf44f7762c7e86e6f08907fbbbf65a892dd": {
+      "ruling": "side_a",
+      "reason": "",
+      "ruled_at": "2026-11-28T01:46:15.901Z",
+      "run_id": "20261128-011450-fef2",
+      "sub_question_text": "Must people be able to read and understand the proof, or is a machine check enough?",
+      "pair": [
+        "black",
+        "green"
+      ],
+      "lines": {
+        "black": "A bare machine check is not enough: with 40,000 unreviewed lines, nobody can inspect definitions for a misstated claim, so readable key definitions are needed.",
+        "green": "Hypothesis: a short human-readable layer (statement plus key lemmas) may give understanding without reading all 40,000 lines; test whether referees can follow it."
+      }
+    },
+    "4b3f102b9fac889444260568667d81843d54576f011b97b87c971451febeb82c": {
+      "ruling": "both_hold",
+      "reason": "",
+      "ruled_at": "2026-11-28T01:46:15.901Z",
+      "run_id": "20261128-011450-fef2",
+      "sub_question_text": "Must people be able to read and understand the proof, or is a machine check enough?",
+      "pair": [
+        "black",
+        "yellow"
+      ],
+      "lines": {
+        "black": "A bare machine check is not enough: with 40,000 unreviewed lines, nobody can inspect definitions for a misstated claim, so readable key definitions are needed.",
+        "yellow": "When referees could not certify computer steps, the formal proof settled that part; machine check plus a readable statement and blueprint helped."
+      }
+    }
+  }
+}

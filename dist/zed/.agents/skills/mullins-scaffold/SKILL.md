@@ -12,7 +12,7 @@ description: >
   conversation (or routes through /mos:ignite's front door). Backed by
   skills/mullins-scaffold/scaffold.json (the section definitions and prompts).
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -28,6 +28,10 @@ hitl_shape: "F.1"
 hitl_why: "Each of the seven domain folders is offered at an F.1 Decision Gate before creation, never auto-imposed on the room."
 layer: "harness"
 layer_why: "Creates the Seven Domains room-scaffolding folders on the navigator's F.1 confirmation; adding room scaffolding is the rubric's own step 3 signal verbatim."
+job_when: "I need to judge how attractive an opportunity is"
+job_want: "to scaffold my room around the seven domains of attractive opportunities"
+job_so: "see which domains are strong and which still lack evidence"
+job_sentence_status: "provisional"
 ---
 
 <!-- mos:firing-block v2 -->

@@ -1,0 +1,153 @@
+{
+  "started": "2026-11-28T04:23:32.575Z",
+  "worktree_head": "e6976cb3579db7f0d321210f36ab9cfd4296eb2a",
+  "sessions": [
+    {
+      "name": "forks",
+      "session_id": "2ce72acd-a4b7-427a-8ec3-0d95c79b021c",
+      "plugins": [
+        "mos",
+        "cc-plugin-agents-md",
+        "cc-plugin-telemetry",
+        "cc-plugin-privacy",
+        "cc-plugin-plugin-authoring"
+      ],
+      "output_style": "default",
+      "turns_sent": 6,
+      "exit": 0,
+      "timeout": false,
+      "cost_usd": 0.191654,
+      "cards_allowed": 3,
+      "tools_denied": {},
+      "results": [
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 2
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 2
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 2
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        }
+      ],
+      "cwd_left": [],
+      "rows": [
+        {
+          "turn_id": "c4d1c295-ceab-4542-964c-f7f9af0c4d44",
+          "glyph_color": "black",
+          "post_glyph_color": "red",
+          "gate_turn": true,
+          "gate_source": "ask_user_question",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "8b8c10b7-a224-483b-916e-eaabbc2c3d29",
+          "glyph_color": "black",
+          "post_glyph_color": null,
+          "gate_turn": true,
+          "gate_source": "your_call",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "d7ed530e-ade3-4146-85a1-88ef30030da7",
+          "glyph_color": "black",
+          "post_glyph_color": "red",
+          "gate_turn": true,
+          "gate_source": "ask_user_question",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "e2b3090a-f29b-4285-9f3e-6d84d604de5d",
+          "glyph_color": "black",
+          "post_glyph_color": null,
+          "gate_turn": true,
+          "gate_source": "your_call",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "71de018f-9d98-498d-ad1b-cc35a2409d91",
+          "glyph_color": "black",
+          "post_glyph_color": "blue",
+          "gate_turn": true,
+          "gate_source": "ask_user_question",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "069fc53f-4fba-4765-91d0-76fbf3d5196d",
+          "glyph_color": "black",
+          "post_glyph_color": null,
+          "gate_turn": true,
+          "gate_source": "your_call",
+          "glyph_correct": true
+        }
+      ],
+      "counts": {
+        "rows": 6,
+        "gate": 6,
+        "gate_black": 6,
+        "gate_correct": 6,
+        "gate_by_source": {
+          "ask_user_question": 3,
+          "your_call": 3
+        },
+        "nongate": 0,
+        "nongate_black": 0,
+        "nongate_correct": 0,
+        "missing_glyph": 0,
+        "invalid_glyph": 0,
+        "post_answer": 3,
+        "post_answer_black": 0,
+        "colors": {
+          "black": 6
+        }
+      },
+      "removed_from_real_home": [
+        "~/.mindrian/next-move/2ce72acd-a4b7-427a-8ec3-0d95c79b021c.json",
+        "~/.claude/session-env/2ce72acd-a4b7-427a-8ec3-0d95c79b021c"
+      ]
+    }
+  ],
+  "total_cost_usd": 0.191654,
+  "totals": {
+    "rows": 6,
+    "gate": 6,
+    "gate_black": 6,
+    "gate_correct": 6,
+    "gate_by_source": {
+      "ask_user_question": 3,
+      "your_call": 3
+    },
+    "nongate": 0,
+    "nongate_black": 0,
+    "nongate_correct": 0,
+    "missing_glyph": 0,
+    "invalid_glyph": 0,
+    "post_answer": 3,
+    "post_answer_black": 0,
+    "colors": {
+      "black": 6
+    }
+  },
+  "finished": "2026-11-28T04:24:27.660Z"
+}

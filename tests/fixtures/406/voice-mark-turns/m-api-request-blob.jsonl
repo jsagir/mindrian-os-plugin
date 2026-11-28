@@ -1,0 +1,6 @@
+{"type":"user","message":{"role":"user","content":"typed prompt"},"uuid":"m-u1"}
+{"type":"api-request-blob","sessionId":"session","hash":"user-blob","message":{"role":"user","content":[{"type":"text","text":"neutral replayed user text"}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"⬛ neutral opener"},{"type":"tool_use","name":"AskUserQuestion","id":"m-question","input":{}}]},"uuid":"m-a1"}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"m-question","content":"neutral answer"}]},"uuid":"m-u2","toolUseResult":{}}
+{"type":"api-request-blob","sessionId":"session","hash":"assistant-blob","message":{"role":"assistant","content":[{"type":"text","text":"⬛ neutral opener"},{"type":"tool_use","name":"AskUserQuestion","id":"m-question","input":{}}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"🟦 neutral continuation"}]},"uuid":"m-a2"}

@@ -2,7 +2,7 @@
 name: client-discovery-interview
 description: Use ONLY when the navigator explicitly signals they are starting a new client engagement (a website, brand, or UX build) and wants the discovery interview before any design begins -- not a casual remark about an existing site. Do NOT use for general conversation about a live product. Triggers (in a new-client-engagement context) - new-client kickoff, discovery phase, creative or design brief, brand discovery, client questionnaire, defining user personas and jobs-to-be-done, "understand the client before we design", "what should this site be".
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -18,6 +18,10 @@ hitl_shape: "F.1"
 hitl_why: "Each of the six discovery movements closes with an F.1 Next Move choice (continue the movement, reframe, or move to the Discovery Brief), never silently auto-advancing."
 layer: "loop"
 layer_why: "Runs a fixed six-movement discovery interview to a stopping condition, filing a Discovery Brief artifact with an F.1 next-move gate between movements; a single agent cycle, not a multi-step coordination graph."
+job_when: "I start a new client engagement for a website or brand"
+job_want: "to run a structured discovery interview before any design begins"
+job_so: "design from the goals and users of the client, not my guesses"
+job_sentence_status: "provisional"
 ---
 
 <!-- mos:firing-block v2 -->

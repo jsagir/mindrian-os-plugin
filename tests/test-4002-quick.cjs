@@ -463,6 +463,19 @@ checkAsync('Q14. record-ruling accepts a ruling for a tension of a merged quick 
   assert.equal(e.reason, 'step_out_of_order:merge');
 });
 
+checkAsync('Q14b. 400.2.1 S6 NEGATIVE: a quick run refuses a delegated ruling (delegated_not_in_quick_mode) and stores nothing', async () => {
+  const room = makeRoom();
+  const env = mkEnv();
+  const run = startRun('quick', room, env);
+  const out = await mergeQuick(run, quickResultOf(run, ONE_TENSION));
+  assert.equal(out.ok, true, JSON.stringify(out));
+  const ap = path.join(mkTmp('ruling'), 'ruling.json');
+  fs.writeFileSync(ap, JSON.stringify({ schema: 'mos.persona-ruling-answer/1', run_id: run.res.run_id, rulings: [{ tension_id: out.tensions[0].id, ruling: 'delegated', larry_pick: 'side_a', navigator_confirmed: true }] }), 'utf8');
+  const r = door.cmdRecordRuling({ roomDir: room, runId: run.res.run_id, answerPath: ap }, env.opts());
+  assert.deepEqual(r, { ok: false, reason: 'delegated_not_in_quick_mode' });
+  assert.equal(fs.existsSync(path.join(room, '.mindrian', 'hats', 'tension-rulings.json')), false);
+});
+
 checkAsync('Q15. NEGATIVE: a URL or an evidence claim id in a quick line is citation_outside_sources; quick has no source to cite', async () => {
   const room = makeRoom();
   const env = mkEnv();

@@ -9,9 +9,17 @@ hitl_shape: "F.8"
 hitl_why: "Coverage gaps are surfaced as an independent set examined in any order."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 24, navigator-ruled): first delivery at commands/whitespace.md:152, the map subcommand's density grid pairing each gap with a recommended framework.
 interactive_first_reward: methodology_reframe
-serves_jtbd: ["connect-domains", "find-problem"]
+serves_jtbd: ["connect-domains", "find-problem", "audit-room"]
+job_when: "I suspect my room misses part of a domain"
+job_want: "to scan my artifacts for zones that are under explored"
+job_so: "fill the gaps before they weaken my case"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries. A gap that spans two sections can become a research plan that checks whether the literature is missing it too."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["HSI Semantic Surprise Analysis Assistant"]
 produces: "room/opportunity-bank/whitespace/*"
@@ -19,8 +27,12 @@ inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
 # Phase 363-19: Write is a pre-approval for the research subcommand only; it writes the question-set JSON to a scratch dir outside the room.
-allowed-tools: Bash Read Write AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Bash
+  - Read
+  - Write
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -430,10 +442,27 @@ Every shown row also prints a verification stamp block, same shape as `map`'s, o
 
 **Body Shape:** E (Action Report)
 
-### Step 1: Run External Pipeline
+<!-- approval-step-begin -->
+### Step 0: Show the search list and wait for approval
+
+The external scan sends short keyword searches, built from the room's words, to Semantic Scholar. The navigator sees the exact list first.
+
+1. Run the dispatcher with no token. It prints the numbered search list and one approval line, and it sends nothing:
 
 ```bash
 node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/whitespace-command.cjs" ROOM_DIR external
+```
+
+2. Show that list to the navigator through this command's existing gate card shape (F.8 as declared). Say that nothing leaves this machine until they approve. If the dispatcher printed no list (the cache answered, or the room has no words yet), go straight to Step 1.
+3. Run Step 1 again with the token from the approval line, only after the navigator approves: `external --approve <token>`. If the navigator changes or declines the list, send nothing. A changed list needs a new token.
+
+A search that holds a credential-shaped value is refused before anything is sent. Each search that is sent gets one line in the room's audit record.
+<!-- approval-step-end -->
+
+### Step 1: Run External Pipeline
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/whitespace-command.cjs" ROOM_DIR external --approve TOKEN
 ```
 
 If the scripts are not yet installed, the dispatcher shows:
@@ -496,7 +525,7 @@ All three signals can appear together when partial results still surface cross-d
 
 Semantic Scholar free tier enforces a max of 1 request per second. When burst queries trigger 429 responses, rate-limited queries are logged and skipped; the pipeline continues with whatever papers returned. The Zone 3 warning surfaces `N of M queries rate-limited` so the user knows coverage may be partial and the cause is external throttling, not empty-result. Per-query outcomes (`ok` / `rate_limited` / `api_error` / `network_error` / `timeout` / `not_attempted`) are persisted in `.mindrian/external-papers.json` under the top-level `queries[]` array so the dispatcher shows real telemetry rather than guessing. Retrying after 60 seconds typically recovers the full set because the cache (7-day TTL) preserves successful results from the first pass.
 
-Canon Part 8 Graph Boundary: external papers are SIGNAL (public data) per canon Part 8. They flow LOCAL only (to `{roomDir}/.mindrian/external-papers.json`), never to Brain. No user-specific strings are ever sent to Semantic Scholar or Brain in this pipeline. The query keywords are extracted from local artifact titles and framework names, sent to the public Semantic Scholar API over HTTPS, and the returned abstracts stay on disk in the room.
+Canon Part 8 Graph Boundary: external papers are SIGNAL (public data) per canon Part 8. They flow LOCAL only (to `{roomDir}/.mindrian/external-papers.json`), never to Brain. Nothing in this pipeline goes to the Brain. Semantic Scholar does receive words from this room: the searches are built from the titles and section names of the room's artifacts and from framework names, and when no keyword is found the room folder name is used. Nothing is sent until the navigator approves the exact search list (Step 0 of `external`). The searches go to the public Semantic Scholar API over HTTPS, and the returned abstracts stay on disk in the room.
 
 ## Subcommand: discover
 

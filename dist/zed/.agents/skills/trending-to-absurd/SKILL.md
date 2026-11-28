@@ -23,7 +23,7 @@ reach_id: context_block            # one of the frozen 6 - NEVER a 7th
 framework: "Trending to the Absurd"      # the generic Brain handle (Part 8); equals the command frameworks[0] (primary)
 filing: fileEvidenceWithReadback
 allowed-tools: Read Write Bash Glob
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

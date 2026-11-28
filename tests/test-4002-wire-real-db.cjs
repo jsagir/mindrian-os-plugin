@@ -93,7 +93,7 @@ check('W2. the same string in a new run of the same room adds zero EvidenceClaim
 check('W3. black and yellow fetch a string that returns the same URL: 2 nodes with 2 different ids, one for each session id', async () => {
   await fx.withEnvAsync(NO_KEYS, async () => {
     const ctx = fx.planned();
-    const seam = fx.makeSeam((a) => fx.okEnv(a.source, [{ title: 'One shared page', url: FIXED_URL, abstract: 'About the field.' }]));
+    const seam = fx.makeSeam((a) => fx.okEnv(a.source, [{ title: 'One shared page', url: FIXED_URL, abstract: 'About ' + a.query + '.' }]));
     const hats = {
       black: fx.approveHat(ctx.plan, 'black', [ctx.plan.hats.black.strings[0].q_hash]),
       yellow: fx.approveHat(ctx.plan, 'yellow', [ctx.plan.hats.yellow.strings[0].q_hash]),

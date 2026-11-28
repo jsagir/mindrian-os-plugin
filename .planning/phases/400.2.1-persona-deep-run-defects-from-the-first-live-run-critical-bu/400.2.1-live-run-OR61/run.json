@@ -1,0 +1,398 @@
+{
+  "schema": "mos.persona-run/1",
+  "run_id": "20261128-011450-fef2",
+  "mode": "deep",
+  "brief_hash": "98319c2d9549075c9373feec5ffcb8b34d03ebb59b32b6dd2f953b8415b49b13",
+  "target": "room",
+  "target_content_hash": "8e05f5779339dd1145bcc9aba04487e4a984b770eabfdee0842dfc3cc8e4edf7",
+  "room_fingerprint": "8e05f5779339dd1145bcc9aba04487e4a984b770eabfdee0842dfc3cc8e4edf7",
+  "sub_questions": [
+    {
+      "id": "sq-80678c02",
+      "text": "What check shows that the formal statement matches the theorem as mathematicians state it?"
+    },
+    {
+      "id": "sq-6ddbfa73",
+      "text": "How far must acceptance rest on trust in the proof assistant itself and its logical foundations?"
+    },
+    {
+      "id": "sq-2b437b23",
+      "text": "Must people be able to read and understand the proof, or is a machine check enough?"
+    },
+    {
+      "id": "sq-fec38016",
+      "text": "Does an independent check, in another proof assistant or by an outside team, change acceptance?"
+    }
+  ],
+  "brief": {
+    "governing_question": "What must be true before mathematicians accept a result that only a computer has checked?",
+    "reading_list": [
+      "problem-definition/the-claim.md",
+      "competitive-analysis/what-we-do-not-know.md"
+    ],
+    "triage": {
+      "recommended": "deep",
+      "reason": "The question needs outside evidence on how computer-checked proofs have been received, and the navigator asked for deep."
+    }
+  },
+  "steps": {
+    "start": {
+      "state": "done",
+      "at": "2026-11-28T01:14:50.573Z",
+      "seq": 1
+    },
+    "write_persona": {
+      "state": "done",
+      "at": "2026-11-28T01:15:56.995Z",
+      "seq": 2
+    },
+    "accept_persona": {
+      "state": "done",
+      "at": "2026-11-28T01:19:19.071Z",
+      "seq": 3
+    },
+    "plan_research": {
+      "state": "done",
+      "at": "2026-11-28T01:22:18.628Z",
+      "seq": 4
+    },
+    "run_research": {
+      "state": "done",
+      "at": "2026-11-28T01:42:54.587Z",
+      "seq": 5
+    },
+    "check": {
+      "state": "done",
+      "at": "2026-11-28T01:44:28.820Z",
+      "seq": 6
+    },
+    "merge": {
+      "state": "done",
+      "at": "2026-11-28T01:44:58.330Z",
+      "seq": 7
+    },
+    "record_ruling": {
+      "state": "done",
+      "at": "2026-11-28T01:46:15.901Z",
+      "seq": 8
+    }
+  },
+  "hats": {
+    "white": {
+      "persona": "built_accepted",
+      "rebuilds": 0,
+      "spec_sha256": "f12244fd7a7389aa631a628d879b4ef584ad7d9834578895e8e9e8ade554b611",
+      "persona_file": "white-quokka-scratch.md",
+      "persona_file_sha256": "63112a1e7211718bc9b9579b4f699afb9a7af81a84cf3300076b9fe6cab1bbd8",
+      "research": "ran_with_results",
+      "dropped_below_floor": 21,
+      "reading": "ran",
+      "reading_sha256": "a50280947a4698a811f6808e9d94ef89ec4bb3d6bfccba6d46179ce775bc868a",
+      "rule_lines": [
+        "white_no_evidence"
+      ],
+      "evidence_items": 0,
+      "positions_taken": 0,
+      "self_search_strings": [],
+      "self_found_sources": 0
+    },
+    "red": {
+      "persona": "built_accepted",
+      "rebuilds": 0,
+      "spec_sha256": "3e3f44fefb83b1eb69e4866ad7f720c341107346cb7a822f0ae4cc64ad4e8435",
+      "persona_file": "red-quokka-scratch.md",
+      "persona_file_sha256": "72652fd27108d3fc6f908ba82ff725f9f34a46543ba7e2af836d1ee772880448",
+      "research": "never_searches",
+      "reading": "ran",
+      "reading_sha256": "349eb1877e018b91c43db58b7354dabc7b4530bed622149d9a09b159de5a80e4",
+      "rule_lines": [],
+      "evidence_items": 0,
+      "positions_taken": 4,
+      "self_search_strings": [],
+      "self_found_sources": 0
+    },
+    "black": {
+      "persona": "built_accepted",
+      "rebuilds": 0,
+      "spec_sha256": "b345b53ed9258ad6c451b7190830ca6be4cfb3bff1556b47ecd5b185f5ce6b45",
+      "persona_file": "black-quokka-scratch.md",
+      "persona_file_sha256": "05948597ce20519a181220a2c059cf467fe133859e6f9ae2d0754ee497f3012a",
+      "research": "ran_with_results",
+      "dropped_below_floor": 19,
+      "reading": "ran",
+      "reading_sha256": "bfb37aa26684877829e74bd13aa3ba8778f2c96c5240c06f15394f2aa50758d2",
+      "rule_lines": [],
+      "evidence_items": 6,
+      "positions_taken": 4,
+      "self_search_strings": [
+        "formal proof mathematicians accept misformalized statement independent kernel checker"
+      ],
+      "self_found_sources": 3
+    },
+    "yellow": {
+      "persona": "built_accepted",
+      "rebuilds": 0,
+      "spec_sha256": "e821e6baaaf669adcfdfa7b0feb22dd05a53c93a2ecb626c461a0de0edaedd33",
+      "persona_file": "yellow-quokka-scratch.md",
+      "persona_file_sha256": "fdcd3fcc3de8a6ef41e5e262881ddaa8caa205b9a44337028f362b6ba0b228d4",
+      "research": "ran_with_results",
+      "dropped_below_floor": 18,
+      "reading": "ran",
+      "reading_sha256": "be1e4149bf201a40f45cead14aa410543233efd9ef3999a6eddb76935af7c566",
+      "rule_lines": [],
+      "evidence_items": 3,
+      "positions_taken": 4,
+      "self_search_strings": [
+        "formal proof Kepler conjecture Flyspeck completed referees could not certify",
+        "Liquid Tensor Experiment Lean formal verification result Scholze"
+      ],
+      "self_found_sources": 3
+    },
+    "green": {
+      "persona": "built_accepted",
+      "rebuilds": 0,
+      "spec_sha256": "ee80c4b58e66d922de1beb66486ed7e2ede414c3dc61a2ddade681a39213530b",
+      "persona_file": "green-quokka-scratch.md",
+      "persona_file_sha256": "db1931ddab88d27dade8d492b9e25f13fcf402c5213cd4ab961fa1fb79a6b0e4",
+      "research": "fetched_not_wired",
+      "dropped_below_floor": 5,
+      "research_reason": "below_relevance_floor",
+      "nature_research": "not_planned:handle_not_generic_shape",
+      "reading": "ran",
+      "reading_sha256": "354317dd613534d20394a674f0d8e982bfe6f2bce0c4c9a2e823fbf357e23315",
+      "rule_lines": [],
+      "evidence_items": 2,
+      "positions_taken": 4,
+      "self_search_strings": [
+        "formal verification theorem statement fidelity review independent formalization proof assistant"
+      ],
+      "self_found_sources": 2
+    },
+    "blue": {
+      "persona": "built_accepted",
+      "rebuilds": 0,
+      "spec_sha256": "4198f29dff1cfeedf4a455be94dfc194d73a7e3bcc9192c69273b8c5dfaddea8",
+      "persona_file": "blue-quokka-scratch.md",
+      "persona_file_sha256": "b6ab9d2e060c770a71e5bb8abd8e653dac1ed84ef6755211284713dae50414b5",
+      "research": "never_searches",
+      "reading": "ran",
+      "reading_sha256": "ae0efaa4c3df6c93517353a54e6bf9d874c424b774f9fdd0d7bdb1f6adc1d1ae"
+    }
+  },
+  "to_build": [
+    "white",
+    "red",
+    "black",
+    "yellow",
+    "green",
+    "blue"
+  ],
+  "to_accept": [],
+  "timestamps": {
+    "started_at": "2026-11-28T01:14:50.573Z",
+    "merged_at": "2026-11-28T01:44:58.330Z"
+  },
+  "plan_sha256": "405654049b5857593618b047ee58129258fd83fb92bfc32d3be255828005aab8",
+  "research": {
+    "strings_approved": 7,
+    "strings_refused": 3
+  },
+  "packs": {
+    "schema": "mos.persona-pack-hashes/1",
+    "shared_white": "b6309e78543344019e86cdc0dfc5cbaeaf36bdd51efa58bc4b8e1ca4c7770452",
+    "evidence": {
+      "white": "b6309e78543344019e86cdc0dfc5cbaeaf36bdd51efa58bc4b8e1ca4c7770452",
+      "black": "1e12f1019c7260cc0466e0e9332b38aab66d48a2d8d1489f7f704cbd43cdbb92",
+      "yellow": "6b238f97816677bddb0f0de48f69b4fd32d5673dacab1d79472ed1a17c8916bc",
+      "green": "2b22afa5e4aafcbe8bff46196dc7f0a0cc8a4b4c86645a0aa87396e3ed4ddbd4"
+    }
+  },
+  "reader_search_screen": "armed",
+  "positions": {
+    "sq-80678c02": {
+      "white": {
+        "value": "no_position",
+        "line": ""
+      },
+      "red": {
+        "value": "mixed",
+        "line": "Uneasy. Nobody outside has looked, and that sits in my stomach."
+      },
+      "black": {
+        "value": "opposes",
+        "line": "Unchecked statement fidelity kills acceptance: the kernel certifies proof of the written statement, not that it is the real theorem. Only outside review closes this."
+      },
+      "yellow": {
+        "value": "favours",
+        "line": "A short formal statement can be read by outside experts; in the Lean-checked Scholze case the statement sat in one challenge file for review."
+      },
+      "green": {
+        "value": "alternative_offered",
+        "line": "Hypothesis: a blind back-translation of the formal statement to plain words, plus a short human-readable spec checked mechanically, exposes mismatches before any journal."
+      }
+    },
+    "sq-6ddbfa73": {
+      "white": {
+        "value": "no_position",
+        "line": ""
+      },
+      "red": {
+        "value": "mixed",
+        "line": "A quiet dread of leaning on a machine I can't see into."
+      },
+      "black": {
+        "value": "mixed",
+        "line": "Foundation trust is a real but smaller risk; kernel and checker bugs exist, yet specification errors are the likelier failure and need outside kernels to rule out."
+      },
+      "yellow": {
+        "value": "favours",
+        "line": "Machine checking shrinks trust to a small kernel; the Kepler formal proof re-verifies in about five hours from the proof scripts."
+      },
+      "green": {
+        "value": "alternative_offered",
+        "line": "Hypothesis: re-checking with a second small independent kernel and listing the axioms used shrinks the trusted base to something auditable."
+      }
+    },
+    "sq-2b437b23": {
+      "white": {
+        "value": "no_position",
+        "line": ""
+      },
+      "red": {
+        "value": "favours",
+        "line": "I want to feel the proof, not just be told it passed."
+      },
+      "black": {
+        "value": "opposes",
+        "line": "A bare machine check is not enough: with 40,000 unreviewed lines, nobody can inspect definitions for a misstated claim, so readable key definitions are needed."
+      },
+      "yellow": {
+        "value": "favours",
+        "line": "When referees could not certify computer steps, the formal proof settled that part; machine check plus a readable statement and blueprint helped."
+      },
+      "green": {
+        "value": "alternative_offered",
+        "line": "Hypothesis: a short human-readable layer (statement plus key lemmas) may give understanding without reading all 40,000 lines; test whether referees can follow it."
+      }
+    },
+    "sq-fec38016": {
+      "white": {
+        "value": "no_position",
+        "line": ""
+      },
+      "red": {
+        "value": "favours",
+        "line": "Relief at the thought of a second pair of eyes."
+      },
+      "black": {
+        "value": "favours",
+        "line": "Independent checks by another assistant or outside team are the cheapest falsifier and should change acceptance; the room says none exists yet."
+      },
+      "yellow": {
+        "value": "favours",
+        "line": "Outside checks add value: Kepler was formalised after referee doubt, and the Lean project was led by a team separate from the author."
+      },
+      "green": {
+        "value": "alternative_offered",
+        "line": "Hypothesis: if a second team formalizes the statement blind in another assistant, a match raises confidence and a mismatch locates the weak point."
+      }
+    }
+  },
+  "tensions": [
+    {
+      "id": "fc2ab8c2e93dbe3aff5099f9d343fbf10d4a9556ba12d47afa0c0ef47fa19d69",
+      "sub_question": "sq-80678c02",
+      "pair": [
+        "black",
+        "green"
+      ],
+      "lines": {
+        "black": "Unchecked statement fidelity kills acceptance: the kernel certifies proof of the written statement, not that it is the real theorem. Only outside review closes this.",
+        "green": "Hypothesis: a blind back-translation of the formal statement to plain words, plus a short human-readable spec checked mechanically, exposes mismatches before any journal."
+      },
+      "state": "settled",
+      "ruling": "both_hold",
+      "ruled_at": "2026-11-28T01:46:15.901Z",
+      "delegated": true
+    },
+    {
+      "id": "7257a241fb07b0fb524ae03005ca6f5d0645c28a1623a294cb4df6322524104b",
+      "sub_question": "sq-80678c02",
+      "pair": [
+        "black",
+        "yellow"
+      ],
+      "lines": {
+        "black": "Unchecked statement fidelity kills acceptance: the kernel certifies proof of the written statement, not that it is the real theorem. Only outside review closes this.",
+        "yellow": "A short formal statement can be read by outside experts; in the Lean-checked Scholze case the statement sat in one challenge file for review."
+      },
+      "state": "settled",
+      "ruling": "both_hold",
+      "ruled_at": "2026-11-28T01:46:15.901Z"
+    },
+    {
+      "id": "8b7a3aea69f18e72ba4e0ac0e2f47cf44f7762c7e86e6f08907fbbbf65a892dd",
+      "sub_question": "sq-2b437b23",
+      "pair": [
+        "black",
+        "green"
+      ],
+      "lines": {
+        "black": "A bare machine check is not enough: with 40,000 unreviewed lines, nobody can inspect definitions for a misstated claim, so readable key definitions are needed.",
+        "green": "Hypothesis: a short human-readable layer (statement plus key lemmas) may give understanding without reading all 40,000 lines; test whether referees can follow it."
+      },
+      "state": "settled",
+      "ruling": "side_a",
+      "ruled_at": "2026-11-28T01:46:15.901Z"
+    },
+    {
+      "id": "4b3f102b9fac889444260568667d81843d54576f011b97b87c971451febeb82c",
+      "sub_question": "sq-2b437b23",
+      "pair": [
+        "black",
+        "yellow"
+      ],
+      "lines": {
+        "black": "A bare machine check is not enough: with 40,000 unreviewed lines, nobody can inspect definitions for a misstated claim, so readable key definitions are needed.",
+        "yellow": "When referees could not certify computer steps, the formal proof settled that part; machine check plus a readable statement and blueprint helped."
+      },
+      "state": "settled",
+      "ruling": "both_hold",
+      "ruled_at": "2026-11-28T01:46:15.901Z"
+    }
+  ],
+  "same_position": [
+    {
+      "sub_question": "sq-2b437b23",
+      "value": "favours",
+      "hats": [
+        "red",
+        "yellow"
+      ]
+    },
+    {
+      "sub_question": "sq-fec38016",
+      "value": "favours",
+      "hats": [
+        "red",
+        "black",
+        "yellow"
+      ]
+    }
+  ],
+  "sources": {
+    "white": 9,
+    "red": 0,
+    "black": 10,
+    "yellow": 10,
+    "green": 0,
+    "blue": 0
+  },
+  "audit": {
+    "edited_strings": [],
+    "cards": 12,
+    "stops": 3,
+    "agent_runs": 16,
+    "reported_by": "command"
+  }
+}

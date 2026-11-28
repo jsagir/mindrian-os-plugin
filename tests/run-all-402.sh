@@ -95,6 +95,7 @@ run_if "402 K3: hook stdout shape" tests/test-402-hook-stdout-shape.cjs node tes
 # --- Group "Larry pins (406-P1)" --------------------------------------------
 run "359 prose budget" node tests/test-359-prose-budget.cjs
 run "3696 voice-first budget" node tests/test-3696-voice-first-budget.cjs
+run "406 voice mark log" node tests/test-406-voice-mark-log.cjs
 
 # --- Group "known red, report only" ------------------------------------------
 report_only "ga4 card-fire e2e 179" node tests/test-ga4-card-fire-e2e-179.cjs

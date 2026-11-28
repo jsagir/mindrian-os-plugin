@@ -326,6 +326,12 @@
         "method": "cell 2 plus the rendered tool-noise transcript",
         "manifest_fields": ["agent_body_sha256", "session_start_capture_sha256", "transcript_sha256", "init_event.agent", "init_event.plugins", "init_event.mcp_servers", "init_event.tools", "init_event.output_style"]
       },
+      "2t": {
+        "name": "Terminal truth cell",
+        "composition": "Cell 2 plus the output style and the per-turn capture, with no skill.",
+        "method": "cell 2 plus the output style and the per-turn capture, no skill (terminal truth cell, map N1)",
+        "manifest_fields": ["agent_body_sha256", "session_start_capture_sha256", "output_style_sha256", "user_prompt_capture_sha256", "init_event.agent", "init_event.plugins", "init_event.mcp_servers", "init_event.tools", "init_event.output_style"]
+      },
       "2s": {
         "name": "Shipped twin of cell 2",
         "composition": "Cell 2 plus the full text of every skill the agent frontmatter lists, the body of output-styles/destijl.md and the captured UserPromptSubmit additionalContext that scripts/intent-classifier.cjs emits for the probe's prompt in the same scratch room.",
@@ -379,7 +385,7 @@
       },
       "na_operation_on_voice_cell": {
         "items": ["OP2", "OP3", "OP4", "OP5"],
-        "cells": ["1", "2", "3", "2s", "3s"],
+        "cells": ["1", "2", "3", "2s", "3s", "2t"],
         "when": "voice cells have no tool log by design"
       }
     },

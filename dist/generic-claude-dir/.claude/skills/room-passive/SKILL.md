@@ -14,10 +14,14 @@ paths:
   - "**/ROOM.md"
   - "**/MindrianRooms/**"
   - "**/.rooms/**"
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Ambient always-on infra. The passive room-listening skill runs every turn to capture insights; an always-on capture substrate with no discrete trigger."
+job_when: "I work in an active room and add new material"
+job_want: "to have each item filed in the right section with the room structure kept intact"
+job_so: "find every piece later where it belongs"
+job_sentence_status: "provisional"
 ---
 
 # Room Passive -- Awareness + Filing Intelligence
@@ -142,7 +146,7 @@ Every filed artifact MUST include frontmatter: methodology, created, depth, prob
 - Track assumption validity across sessions
 - Cascade awareness via `cascade_sections:` field
 
-For ad-hoc meeting mentions, suggest `/mos:file-meeting` for structured filing.
+When the navigator brings up a meeting in passing and a structured filing would serve the job in hand, explain in plain words what filing it would let them do (assumptions and decisions tracked across sessions). The step to run is `/mos:file-meeting`, given only when the navigator wants it filed, never on a timer or a quota.
 
 ## UDS Cross-Instance Listener Stubs (READY-03)
 
@@ -171,4 +175,4 @@ When `tengu_harbor` env var is `true` or `room/.mindrian/uds-active` exists, che
 
 ## Wiki Dashboard Awareness
 
-When room has 2+ sections with content, mention wiki once per session after filing, analyzing, or first methodology output: "`/mos:wiki` for live wiki view." Sharing: `/mos:wiki --export` for static HTML bundle.
+When the room has 2+ sections with content and a live view of it would serve the navigator's current job (seeing the whole room at once, or sharing it), explain in plain words what the wiki view lets them do, after the answer and never again once the navigator declines. The step to run is `/mos:wiki` (`/mos:wiki --export` for a static bundle to share), given only when the navigator wants that view, never on a timer or a quota.

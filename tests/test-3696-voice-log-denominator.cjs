@@ -118,7 +118,18 @@ check('B5 rows exist to check', all.length >= 8, String(all.length));
 check('B5 every row carries template_version equal to the larry-identity VERSION', all.every(function (r) { return r.template_version === identity.VERSION; }), identity.VERSION);
 check('B5 every row carries a non-empty policy_id', all.every(function (r) { return typeof r.policy_id === 'string' && r.policy_id.length > 0; }));
 const ALLOWED_KEYS = ['ts', 'timestamp', 'policy_id', 'version', 'template_version', 'result', 'detail', 'session_id'];
-check('B5 no row has a key outside the schema', all.every(function (r) { return Object.keys(r).every(function (k) { return ALLOWED_KEYS.indexOf(k) !== -1; }); }));
+// 406-P4: the voice mark fields ride the denominator row only.
+const VOICE_MARK_KEYS = ['turn_id', 'glyph_color', 'post_glyph_color', 'gate_turn', 'gate_source', 'glyph_correct'];
+check('B5 no row has a key outside the schema', all.every(function (r) {
+  return Object.keys(r).every(function (k) {
+    return ALLOWED_KEYS.indexOf(k) !== -1 ||
+      (r.policy_id === 'voice-turn-evaluated' && VOICE_MARK_KEYS.indexOf(k) !== -1);
+  });
+}));
+check('B5 voice mark fields appear only on denominator rows', all.every(function (r) {
+  return r.policy_id === 'voice-turn-evaluated' ||
+    !Object.keys(r).some(function (k) { return VOICE_MARK_KEYS.indexOf(k) !== -1; });
+}));
 const FORBIDDEN = ['Jobs to Be Done', 'Six Hats', 'Lean Canvas', 'graph_query', 'room.db', 'pet product', 'pricing', 'Theo suggests', 'one clean sentence'];
 const blob = fs.readFileSync(LOG_PATH, 'utf8');
 check('B5 no row holds reply text or user text', FORBIDDEN.every(function (f) { return blob.indexOf(f) === -1; }), FORBIDDEN.filter(function (f) { return blob.indexOf(f) !== -1; }).join(','));

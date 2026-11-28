@@ -10,15 +10,26 @@ hitl_why: "Candidate connections across the room are returned as an independent 
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 8): first delivery at commands/find-connections.md:88, the aha moments: unexpected cross-domain links and the analogy handed back in the navigator's own terms.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["connect-domains"]
+job_when: "I suspect my work touches a pattern in another field"
+job_want: "to trace links between my room and other fields"
+job_so: "find connections I did not know to look for"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph. Surfaces the connections you did not know to look for."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
-frameworks: ["Usher's Model of Cumulative Synthesis"]
+frameworks: ["Usher's Model of Cumulative Synthesis", "Extensive Searching"]
 produces: "room/**/analogies/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Bash mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Bash
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -64,14 +75,14 @@ You are Larry. This command uses the Brain graph to discover surprising cross-do
 
 If the user provided a concept or domain with the command (e.g., `/mos:find-connections healthcare`), use that.
 
-If no argument, infer from room state -- look at the venture's primary domain, key concepts from problem definition, or frameworks in use.
+If no argument, do not take a concept from the room. The name of a framework in use is the only room-derived value that may go to the Brain; otherwise ask the question below.
 
 If neither is available, ask: "What concept or domain do you want to explore? Or tell me two fields and I'll find what bridges them."
 
 ### 2. Query Immediate Connections
 
 Call `brain_concept_connect` with:
-- `$concept` = the user's concept or domain
+- `$concept` = a generic domain handle only: one to three plain words that name a field or a framework (for example `healthcare`), never a venture name, a room name or room wording; when no generic handle exists, ask the person and send nothing
 
 This returns all immediate graph neighbors with relationship types.
 
@@ -105,6 +116,55 @@ For each interesting connection found, suggest a methodology command that could 
 - Market parallel -> `/mos:explore-trends` to trace the trend
 - Problem pattern -> `/mos:root-cause` to dig deeper
 - Cross-domain bridge -> `/mos:explore-domains` to map the intersection
+
+## Plan-run route (search the literature for what this found)
+
+**Body Shape:** E (Action Report). The planner CLI prints JSON only; read each answer and act on it. Every argument is a room path, a run id, a tag or an enum value, never room text. This is the same route `/mos:eureka` uses (Canon Part 7: reuse before build); nothing leaves the room until the navigator approves the exact searches on a card.
+
+### Route step 1: Recall the cross-domain connections and build the plan
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" perspective-recall --room ROOM_DIR --perspective connections --mode quick
+```
+
+Read `run_tag`, `counts`, `top` and `plan` from the JSON. When `plan` is null, the room has nothing to search for yet: say so in one line, name what was looked for (two things whose framework names the graph can resolve) and `counts`, and stop. When `plan.ok` is false, or `plan.status` is not `ready`, say the plan was not made ready, say in plain words what `plan.errors` names, and stop; never approve a plan that is not ready. Otherwise keep `plan.run_id`.
+
+### Route step 2: Plan review card (F.6), then the one search approval
+
+Read the plan from `ROOM_DIR/.mindrian/research-runs/<run_id>/plan.json` and show it: each leaf question, the falsifier for each, its source, the budget, and every search under the leaf's `queries` (the `q` values) exactly as it will be sent. Fire the F.6 Plan Review card with AskUserQuestion (Run this plan / Stop without running). Never take a typed yes as the answer: only the card answers it. On a yes:
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" review approve <run_id> --room ROOM_DIR --approved-via cli
+```
+
+This writes the approval for this one run; it covers exactly the searches the card listed, and an approval only lets the run fetch, it never files anything. On a stop, say the plan is saved and nothing was fetched, then stop.
+
+### Route step 3: Run
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" run-quick <run_id> --room ROOM_DIR
+```
+
+Run it straight after the approval. A `reask` answer means the approval does not cover one of these exact searches, or has lapsed: fire the F.0 card it returns with AskUserQuestion, never work around it.
+
+### Route step 4: Write the result
+
+`status: done` gives an evidence card. Write the result from that card in the four zones (header, the answer line, the strip, the footer), in plain words naming what was searched and what was not (the answer line already says which). Every factual statement ends with its row id. Never render a score, similarity, differential or percentage. Never grade or praise a finding.
+
+### Route step 5: File (F.8, only on the navigator's yes)
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" basket <run_id> --room ROOM_DIR
+```
+
+Fire the F.8 basket with AskUserQuestion, multi-select over the items the card lists (an empty pick files nothing). Only on a card yes, Write `{"approved": true, "items": [<the picked item ids>]}` to a scratch `selection.json` and file:
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" file-run <run_id> <selection.json> --room ROOM_DIR --approved-via cli
+```
+
+Show the filing report as is, including anything that did not land.
+
 
 ## Voice
 

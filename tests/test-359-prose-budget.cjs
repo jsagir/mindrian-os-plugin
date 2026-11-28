@@ -76,7 +76,8 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-10 Task 2 (D-04), 2026-10-30: was 8c91b97411cb...4a9d (memory, stamps and onboarding move to references/personality/memory-and-findings.md and onboarding.md; inline lines, References list)
   // re-based by 369.6-11 Task 1 (D-36, D-38, D-39, R-09, R-16, R-17), 2026-10-30: was 1c4a980e2b8200d57b696d9d2ca3c5fb5ed9247b758f2945bd9ee3f87df70f82 (the Thinking Trace shrinks to the on-request rule, Integration Offers become job-tied, spaced double hyphen pauses are retired)
   // re-based by 406-P1 (OR-67 O-A), 2026-11-28: was 5c5ba25e4970...74e3 (accepted: 0ed2f6d41 386-43 Brain call pointer; 4b1b9bab1 400-03 job keys; 2a772e4db F1 CIRS comment line; the item-5 line is unchanged)
-  SKILL_OUTSIDE_ITEM5: '8b0989e84151ff8e59965b0344b5c993ec34ba702283cc7bc3267ffee11c9154',
+  // re-based by 404-04 Task 2 (OR-30, exception E1 of 406-P2), 2026-11-28: was 8b0989e84151...9154 (the run-and-label sentence of 404-DESIGN.md line 810, added after the paragraph of the stated refusal; nothing else in the skill changed)
+  SKILL_OUTSIDE_ITEM5: '26d4268e14a2f69e1cfda149508f977b38af025ecae50e3f9b99b3ad49c828f9',
   // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then after the 261029-sof TMPDIR change merged with lx3 on this branch; any later edit of session-start moves this pin again)
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 5be7b46dc897...2670 (the identity rule line spells PwS)
   // re-based at the origin/main merge (beta.77: c94 preflight floor lines, phase 381) on 2026-10-30

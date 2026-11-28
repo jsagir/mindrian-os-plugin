@@ -19,17 +19,29 @@ hitl_stages:
 hitl_why: "intel-pipeline halts at three navigator decision surfaces: calibrate (F.1) confirms the room JTBD orientation before any dispatch, fan-approve (F.1) is the explicit cost control over how wide the research fan runs, and synthesize (F.5) ratifies the bull/bear ruling before anything is written to the graph."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 20): first delivery at commands/intel-pipeline.md:99, the fan-approve card's derived research dimensions and sized fan, a structure the pipeline then goes on to dispatch and execute.
 interactive_first_reward: schema_preview
-serves_jtbd: ["plan-execution"]
+serves_jtbd: ["plan-execution", "decide-pursue", "prepare-pitch", "understand-market", "validate-idea"]
+job_when: "I have a room and a question but no time to research by hand"
+job_want: "to split my active job into research lines and gather scored evidence"
+job_so: "rule on the findings and file them"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you have a room and a question but no time to run the research by hand, /mos:intel-pipeline reads your active JTBD, breaks it into research dimensions, fans out a small set of evidence passes, scores them, and closes the loop into your graph. You approve three things along the way: the orientation, the fan size, and the final ruling. It never writes to the graph or re-points your JTBD without you."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: meta
 frameworks: []
 produces: null
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools: Read Write Glob Bash mcp__mindrian-brain__brain_ask mcp__mindrian-brain__brain_search
-# --- Phase 223 CIRS connector ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Glob
+  - Bash
+# == Phase 223 CIRS connector ==
 # /mos:intel-pipeline is a standing meta-orchestrator: the spine OFFERS a governed
 # research pass, the navigator CONFIRMS it at the F.1 calibrate gate. It is NOT a
 # 7th reach (Canon Part 11 R3/R4). reach_id 'context_block' is in the frozen 6
@@ -111,6 +123,8 @@ Assemble the bull/bear + ACH-skeptic payload (claims, relations, killed claims, 
 ### 7. Close
 
 ONE `writeCloseLoop` call with surface `intel-pipeline` (Req 4's shared contract, the same spine `/mos:bono` terminates through). D-01's dual write (bank .md first, room.db node second, one shared artifact id) and D-02's proposed edges live INSIDE the writer, never here. Then run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/compute-opportunity-state" <roomDir>` so the opportunity bank is aware.
+
+When the close runs outside `runIntelPipeline` (for example Larry assembled the payload by hand), the same door runs it from a shell with `--surface intel-pipeline`: `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/close-loop.cjs" close --room <roomDir> --surface intel-pipeline --payload <payload.json>`. Same behavior as the bono close: one room transaction or nothing, every node born `proposed`, a re-run chains to the prior conclusion only when a human already confirmed it, exit 1 with every failure listed. Claude Desktop has no shell and no MCP tool wraps this spine today (a grep of `lib/mcp` for `writeCloseLoop` and `close-loop-writer` finds nothing), so there Larry says the close cannot run rather than writing the graph by hand.
 
 ## Hard rules (in-body)
 

@@ -17,6 +17,14 @@ hitl_stages:
     mode: "gate"
 hitl_why: "Single-pass mode (the default) reaches ONE gate: file-verdict (F.8) -- each rubric criterion is scored independently against the pasted draft or room, an unordered basket of scoring jobs, same shape as /mos:grade's six components. The opt-in Reviewer panel examination mode ALSO reaches hypothesis-confirm (F.1, anchoring the panel's what-if before the seven category reviewers debate it) and ruling (F.5, resolving the governed reviewer positions into a verb) -- ruling's APPROVE doubles as the file-verdict confirmation in panel mode, so panel mode never stacks a redundant fourth gate on top (see the Session Flow's Reviewer panel examination sub-choice)."
 serves_jtbd: ["prepare-pitch", "decide-pursue"]
+job_when: "I have a grant draft ready and the deadline is near"
+job_want: "to score the draft against the rubric the reviewers use before I submit"
+job_so: "close the gaps a reviewer would flag"
+job_sentence_status: "provisional"
+fits_domains: ["clear","complicated"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 interactive_first_reward: schema_preview
 teaching: "Grant reviewers score against a fixed rubric whether you see it or not. /mos:grade-grant runs that rubric on your draft BEFORE you submit, so the gaps a human reviewer would flag show up here first. Starts with Tnufa (Israel Innovation Authority); the same engine scores any IIA program once its rubric is filled in."
 kind: methodology

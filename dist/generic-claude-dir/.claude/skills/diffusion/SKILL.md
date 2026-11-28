@@ -7,7 +7,15 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "Adoption is traced through its ordered diffusion stages, a fixed-order walk."
-serves_jtbd: ["understand-market"]
+serves_jtbd: ["understand-market", "decide-pursue"]
+job_when: "I have a dual use or deep technology innovation and must pick a market"
+job_want: "to estimate who adopts it first and how fast it spreads"
+job_so: "commit to a market and a timing window"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-22 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the innovation package previews the 2x2
 # typology structure (step 6) before the navigator invests in the full
@@ -15,7 +23,7 @@ serves_jtbd: ["understand-market"]
 # Phase 265-13 wired onto its four consumers.
 interactive_first_reward: schema_preview
 teaching: "When you are working on a dual-use or deep-tech innovation and need to know if it will actually spread - and to whom first - /mos:diffusion runs the Adoption-Capacity Engine over it. Best before you commit to a market or a timing window. It can also plan research on who adopts first, absorptive capacity, the civil and defense crossing, and timing."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Adoption-Capacity Theory"]
 produces: "room/**/timing/*"
@@ -34,8 +42,13 @@ requires_evidence:
   on: [market-analysis]
   dispatch: /mos:research
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 144.1 / 170 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 144.1 / 170 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

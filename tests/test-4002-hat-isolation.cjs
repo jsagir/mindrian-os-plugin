@@ -169,6 +169,8 @@ check('H7. a final slash or a final full stop does not matter; any other differe
 
 const CMD_TEXT = fs.readFileSync(path.join(ROOT, 'commands', 'persona.md'), 'utf8');
 const FS3 = 'Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it.';
+// Phase 400.2.1 (S5): the reader contract names the reader search screen hook instead of "No code checks it.".
+const FS3_READER = 'Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. While this run is open, a hook of the plugin also screens each WebSearch query and each WebFetch url for room words before it leaves the machine, and blocks a search that holds one.';
 const NO_WEB = 'this step makes no web search: do not call WebSearch or WebFetch.';
 function contract(name) {
   const a = CMD_TEXT.indexOf('<!-- contract:' + name + ':start -->');
@@ -182,7 +184,7 @@ check('H8. every contract holds both Brain bans and FS-3; the builder, Blue and 
   for (const name of ['builder', 'reader', 'blue']) {
     const c = contract(name);
     assert.ok(/Do not call brain_search or brain_query/.test(c), name + ': both Brain bans');
-    assert.ok(c.includes(FS3), name + ': FS-3 word for word');
+    assert.ok(c.includes(name === 'reader' ? FS3_READER : FS3), name + ': FS-3 word for word');
     assert.ok(c.toLowerCase().includes(NO_WEB.toLowerCase()), name + ': the step makes no web search');
   }
   // The four searching hats may use the two web tools in the reader contract only.

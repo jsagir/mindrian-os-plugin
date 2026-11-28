@@ -10,7 +10,7 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 #   disallowed-tools, arguments, context, background), and no code in this plugin reads it
 #   either. Kept as a comment so the INTENT survives; it never gated anything. Pinned by
 #   tests/test-skill-frontmatter-inert-keys.cjs.
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 # intern-w1-mode-gate-skip fix NOTE (kept, not removed -- see below): this
 # connector.excluded:true is TRUE and REQUIRED for the R1 connector-coverage
 # ledger (data/connector-coverage-ledger.json, enforced HARD-FAIL by
@@ -34,6 +34,10 @@ connector:
   reason: "Ambient always-on infra. The Shape F.1 lane-picker / mode-selection skill runs every turn to set the conversational mode; substrate, not a triggered reach."
 hitl_shape: "F.1"
 hitl_why: "The lane picker (Just Talk / Explore+Capture / Build a Room) is an explicit F.1 Decision Gate, never an inferred persona classification."
+job_when: "I start a session without a room and have not chosen how to work"
+job_want: "to pick between just talking, brainstorming and building a room"
+job_so: "get the kind of help that fits my intent"
+job_sentence_status: "provisional"
 ---
 
 # Conversation Mode -- No-Room Session Behavior
@@ -153,9 +157,9 @@ When you identify a well-defined problem + mirror solution pair during Mode 2 co
 
 1. Extract from the user's own words: problem statement, proposed solution, domain
 2. Confirm with the user: "I am catching a pattern: [problem]. And a potential approach: [solution]. Want me to bank that?"
-3. If user confirms, run:
+3. If user confirms, write this JSON to a file in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/opportunity.json`, with the Write tool; the words never go on a command line: `{"problem":"<extracted>","mirror_solution":"<extracted>","domain":"<detected>","evidence":"conversation with user","source_framework":"conversation","knight_position":"uncertainty","confidence":0.5}`. Run the command below. Then remove that directory, also when the person declines.
    ```bash
-   node bin/mindrian-tools.cjs bank-opportunity '{"problem":"<extracted>","mirror_solution":"<extracted>","domain":"<detected>","evidence":"conversation with user","source_framework":"conversation","knight_position":"uncertainty","confidence":0.5}'
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" bank-opportunity --file "<dir>/opportunity.json"
    ```
 4. Tell the user: "Banked. You have [N] opportunities captured so far."
 5. Do NOT bank vague ideas. Only bank when both problem AND solution are articulated clearly enough to seed a room section.

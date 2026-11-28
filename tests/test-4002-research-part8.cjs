@@ -444,8 +444,8 @@ check('E16. a hat whose handles are all refused is not planned; the plan holds t
     assert.equal(out.hats.black, 'not_planned:no_valid_handle');
     assert.deepEqual(out.planned, ['white', 'yellow', 'green']);
     assert.deepEqual(out.refused_shown, [
-      { hat: 'black', text: 'harbor pricing', reason: 'room_identity_word' },
-      { hat: 'black', text: 'pricing 2030', reason: 'handle_has_digit' },
+      { hat: 'black', text: 'harbor pricing', reason: 'room_identity_word', guidance: door.REFUSAL_GUIDANCE.room_identity_word },
+      { hat: 'black', text: 'pricing 2030', reason: 'handle_has_digit', guidance: door.REFUSAL_GUIDANCE.handle_has_digit },
     ]);
     const b = out.plan.hats.black;
     assert.deepEqual(b.refused, [{ reason: 'room_identity_word' }, { reason: 'handle_has_digit' }]);
@@ -927,7 +927,7 @@ function makeSeam(perCall) {
     const n = perCall || 2;
     const items = [];
     for (let i = 1; i <= n; i += 1) {
-      items.push({ title: 'Title ' + i + ' of ' + args.source, url: 'https://example.org/' + args.source + '/' + i + '/' + fam.qHash(args.query).slice(7, 15), abstract: 'About the field, item ' + i + '.' });
+      items.push({ title: 'Title ' + i + ' of ' + args.source, url: 'https://example.org/' + args.source + '/' + i + '/' + fam.qHash(args.query).slice(7, 15), abstract: 'About ' + args.query + ', item ' + i + '.' });
     }
     return okEnv(args.source, items);
   };

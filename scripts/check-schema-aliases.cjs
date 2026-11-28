@@ -6,10 +6,11 @@
  *
  * Implements: RECONCILE-108-05 (D-05 enforcement layer).
  *
- * Behavior: scans staged file content (passed in as args, or read via
+ * Behavior: scans only added lines of the staged diff (read via
  * `git diff --cached --unified=0` when invoked with no args) for CREATE
  * TABLE / CREATE INDEX / ALTER TABLE ADD COLUMN statements. Fails (exit 1)
  * if a new table name is not in the canonical alias resolution column.
+ * Phase 401 guard fix: a commit that deletes DDL is not refused.
  * Passes (exit 0) for ALTER TABLE ADD COLUMN (additive per D-05) and for
  * CREATE INDEX whose target table exists in the allowed set.
  *
@@ -17,6 +18,7 @@
  *   node scripts/check-schema-aliases.cjs                  # read from git diff --cached
  *   node scripts/check-schema-aliases.cjs --sql 'CREATE TABLE foo (...)'  # test against literal SQL
  *   node scripts/check-schema-aliases.cjs --file path.sql   # test against a file
+ *   node scripts/check-schema-aliases.cjs --diff-file path.diff # test added diff lines
  *
  * Performance budget (per RESEARCH section 6 "Hook performance"): under 200ms warm.
  * Implementation: zero new deps; in-house YAML parser; native node:fs + node:child_process.
@@ -277,6 +279,14 @@ function readStagedContent_default() {
   return { content: result.stdout || '', files: [] };
 }
 
+// Extract added diff content while ignoring file headers and removed lines.
+function addedLinesOfDiff(diffText) {
+  return diffText.split('\n')
+    .filter((line) => line.startsWith('+') && !line.startsWith('+++'))
+    .map((line) => line.slice(1))
+    .join('\n');
+}
+
 // ----------------------------------------------------------------------------
 // Public API: check a single SQL string against the alias set.
 // Used by tests/test-precommit-hook-aliases.cjs.
@@ -286,7 +296,7 @@ function checkSqlAgainstAliases(sqlText, filePath) {
   return scanSql(sqlText, filePath || '<inline>', allowed);
 }
 
-module.exports = { checkSqlAgainstAliases, parseAliasesYaml, buildAllowedTableSet, formatViolation, ALLOWED_EXISTING_TABLES };
+module.exports = { checkSqlAgainstAliases, parseAliasesYaml, buildAllowedTableSet, formatViolation, addedLinesOfDiff, ALLOWED_EXISTING_TABLES };
 
 // ============================================================================
 // Phase 109-06 - --check-chokepoint subcommand. Scans staged JS/CJS/MJS files
@@ -515,9 +525,12 @@ if (require.main === module) {
   } else if (args[0] === '--file' && args[1]) {
     filePath = args[1];
     sqlText = fs.readFileSync(args[1], 'utf8');
+  } else if (args[0] === '--diff-file' && args[1]) {
+    filePath = '<diff>';
+    sqlText = addedLinesOfDiff(fs.readFileSync(args[1], 'utf8'));
   } else {
     const staged = readStagedContent_default();
-    sqlText = staged.content;
+    sqlText = addedLinesOfDiff(staged.content);
   }
 
   const violations = checkSqlAgainstAliases(sqlText, filePath);

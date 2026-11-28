@@ -10,17 +10,25 @@ hitl_why: "Diagnostics offers one next move on what to inspect."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 6): first delivery at commands/diagnostics.md:62, a one-screen scalar dashboard of four computed room metrics, a status roster rather than a reasoned reframe.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
+job_when: "I need a numeric read on my room beyond my own impression"
+job_want: "to measure its disruption, blind spots, novelty and surprise"
+job_so: "spot where the room is thin or unexpected"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex","disorder"]
+move_type: "probe"
+move_type_weak: true
+cynefin_label_status: "provisional"
 renaming_to: fingerprint
 renaming_target_version: "v1.14.0"
 teaching: "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Renaming to /mos:fingerprint in v1.14.0 (functional behavior unchanged)."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["HSI Semantic Surprise Analysis Assistant"]
 produces: "room/**/diagnostics/*"
 inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -33,7 +41,10 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-allowed-tools: Bash Read AskUserQuestion
+pending_tool_grants:
+  - Bash
+  - Read
+  - AskUserQuestion
 ---
 
 <!-- mos:firing-block v2 -->
@@ -184,7 +195,7 @@ Three-line pattern. Specific failures:
 ## Cross-Surface Adaptation
 
 - **CLI** -- Full power. Scripts invoked via Bash. 80-column terminal output. The Shape E table is rendered with the 12-glyph vocabulary.
-- **Desktop** -- Larry narrates conversationally in prose. Example: "Very simply, the room is consolidating (CD = -0.71), two-thirds mapped (coverage 0.667), low diversity (novelty 0.083), moderate recent surprise (max 0.312)." Numbers shown as markdown bullets, no tree chars per ui-system Section 9.
+- **Desktop** -- Larry narrates conversationally in prose. Example: "Very simply, the room is consolidating (CD = {cd}), mostly mapped (coverage {coverage}), low diversity (novelty {novelty}), moderate recent surprise (max {max_surprise})." Numbers shown as markdown bullets, no tree chars per ui-system Section 9.
 - **Cowork** -- Same as CLI. The four metrics are shared via `00_Context/` for team visibility. The intelligence strip becomes a shared "room health" snapshot.
 
 ## Canon References

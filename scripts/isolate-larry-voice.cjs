@@ -360,6 +360,26 @@ function spawnIsolated(scratch, cmd, args, o) {
   });
 }
 
+function hostLoginEnv(scratch, opts) {
+  const envOpts = opts || {};
+  const parentEnv = envOpts.parentEnv || process.env;
+  const env = isolatedEnv(scratch, envOpts);
+  env.HOME = path.resolve(envOpts.parentHome || os.homedir());
+  delete env.CLAUDE_CONFIG_DIR;
+  if (typeof parentEnv.MINDRIAN_BRAIN_URL === 'string') env.MINDRIAN_BRAIN_URL = parentEnv.MINDRIAN_BRAIN_URL;
+  else delete env.MINDRIAN_BRAIN_URL;
+  return env;
+}
+
+function spawnHostLogin(scratch, cmd, args, o) {
+  const opts = o || {};
+  const envOpts = opts.envOpts || {};
+  const env = hostLoginEnv(scratch, envOpts);
+  const cwd = path.join(scratch.root, 'host-login-cwd');
+  fs.mkdirSync(cwd, { recursive: true, mode: 0o700 });
+  return spawnSync(cmd, args, { cwd: cwd, env: env, input: opts.input === undefined ? '' : opts.input, encoding: 'utf8', timeout: opts.timeout || 120000, maxBuffer: 32 * 1024 * 1024 });
+}
+
 // opts.roomsOverride is a test seam: it sends the birth to another folder so the test can prove
 // that a room returned outside the scratch rooms root is refused.
 function bornScratchRoom(scratch, opts) {
@@ -770,6 +790,8 @@ module.exports = {
   sameSnapshot,
   filesNewerThan,
   spawnIsolated,
+  spawnHostLogin,
+  hostLoginEnv,
   hookKey,
   within,
 };

@@ -1,0 +1,14 @@
+{
+  "Red Teaming": {
+    "command": "/mos:challenge-assumptions",
+    "own_text": "references/methodology/challenge-assumptions.md",
+    "play": "own_text",
+    "play_reason": "pws_differs"
+  },
+  "Root Cause Analysis": {
+    "command": "/mos:root-cause",
+    "own_text": "references/methodology/root-cause.md",
+    "play": "own_text",
+    "play_reason": "pws_differs"
+  }
+}

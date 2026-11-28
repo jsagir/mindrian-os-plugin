@@ -12,6 +12,10 @@ hitl_why: "HMI status offers one next move on the current interface state."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 18): first delivery at commands/hmi-status.md:59, a soft-alias stub forwarding verbatim to doctor's already-ruled UI-compliance status scan.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
+job_when: "I suspect some screens and cards break the shared display rules"
+job_want: "to audit how well each screen complies with those rules"
+job_so: "know which screens to fix first"
+job_sentence_status: "provisional"
 deprecated: true
 deprecated_redirect: "doctor --ui-compliance --json"
 deprecated_removal: "v1.14.0"
@@ -20,7 +24,7 @@ canon_parts: [3, 7, 8]
 phase: 121.5-08
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. Inspects HMI / dial render status; an internal diagnostics surface the maintainer runs deliberately, not a contextual reach."

@@ -189,7 +189,7 @@ function failEnv(source, cls) {
 function itemsFor(args, n) {
   const out = [];
   for (let i = 1; i <= n; i += 1) {
-    out.push({ title: 'Title ' + i + ' of ' + args.source, url: 'https://example.org/' + args.source + '/' + i + '/' + fam.qHash(args.query).slice(7, 15), abstract: 'About the field, item ' + i + '.' });
+    out.push({ title: 'Title ' + i + ' of ' + args.source, url: 'https://example.org/' + args.source + '/' + i + '/' + fam.qHash(args.query).slice(7, 15), abstract: 'About ' + args.query + ', item ' + i + '.' });
   }
   return out;
 }
@@ -352,7 +352,7 @@ check('S4b. a provider with items and zero findings gives fetched_not_wired:filt
     assert.deepEqual(packOf(ctx, 'white').items, []);
     // Items with no URL reach the wirer, which refuses them.
     const ctx2 = planned();
-    const noUrl = makeSeam((a) => okEnv(a.source, [{ title: 'A title', abstract: 'x' }]));
+    const noUrl = makeSeam((a) => okEnv(a.source, [{ title: 'A title', abstract: 'About ' + a.query }]));
     const out2 = await go(ctx2, approvedFile(ctx2, { white: approveHat(ctx2.plan, 'white') }), noUrl);
     assert.equal(out2.ok, true, JSON.stringify(out2));
     assert.equal(out2.hats.white, 'fetched_not_wired', JSON.stringify(out2.strings.white));
