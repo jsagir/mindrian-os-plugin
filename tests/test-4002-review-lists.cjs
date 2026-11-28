@@ -486,7 +486,9 @@ check('V3 section 8 equals DEEP_RUN_BUDGET, and DEEP_RUN_BUDGET equals the value
 check('V4 fixed texts are byte-equal to their sources, and the registry labels of section 1 are true', () => {
   assert.ok(exists, 'missing review file');
   const cmd = readText(COMMAND_REL);
-  assert.ok(cmd.split(FS3).length - 1 >= 4, 'FS-3 is in the four dispatch contracts');
+  // Phase 400.2.1 (S5): the reader contract holds FS-3 with the screen hook sentence; the other three hold it as is.
+  assert.ok(cmd.split(FS3).length - 1 >= 3, 'FS-3 is in the builder, handle and Blue contracts');
+  assert.ok(cmd.includes(FS3.replace(' No code checks it.', ' While this run is open, a hook of the plugin also screens')), 'the reader contract names the screen hook');
   assert.equal(ops.HAT_DISCIPLINE.blue, fixedTexts().BLUE_FIXED_TEXT, 'the Blue fixed text of the command equals the Blue discipline');
   const errs = compareFixed(parsed, fixedTexts()).concat(compareRecheck(parsed, recheckComputed()));
   assert.deepEqual(errs, [], errs.join(' | '));
