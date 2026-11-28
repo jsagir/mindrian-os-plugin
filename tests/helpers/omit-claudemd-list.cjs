@@ -11,5 +11,6 @@ module.exports = {
     'dominant-design-researcher',
     'investor',
     'grading',
+    'persona-analyst',
   ],
 };
