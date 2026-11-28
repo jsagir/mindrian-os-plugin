@@ -1,7 +1,26 @@
 ## [Unreleased] -- v2.0.0-beta.96 (in progress)
 
-### Added
-- 
+### Fixed
+- **A decision card no longer blocks a turn by mistake.** The check waits a bounded time for the room file (Phase 402, card-fire fix).
+- **Commands no longer put a person's text on a shell command line.** No fixed command sends room text to the Brain. A room question in /mos:rs-explain is answered from the room's own file. The graph query tool reads only (the boundary fixes).
+- **The host now reads the full settings block at the top of 253 command, skill and agent files.** 109 files keep their tool lists under the key pending_tool_grants, so they stay inert, and no person gets fewer permission prompts. 22 Brain tool entries were removed from 10 commands (Phase 401, F1).
+- **Deep /mos:persona items that the beta.93 entry listed as Known are fixed.** Persona files take their name from the room. Off-topic search results are dropped and counted. A hat's own web search is screened before it is sent while a deep run is open. Larry can pick a tension ruling and the person confirms it (Phase 400.2.1; a live run by a delegated session passed. The relevance filter is an interim word match).
+
+### Changed
+- **Seven narrow helper agents start without the project instruction file.** The investor and grading reviewers and the persona analyst among them (Phase 403). Only the project instruction file is shown removed. No memory saving is claimed.
+- **The rule "run and label" stands beside the refusal rule.** A skill that has its own method text runs from it, with one fixed line that names the source (decision 18; Phase 404).
+- **Larry's first reply says MindrianOS first, a product with its own method and memory, and still names Claude.** A black-square rule for decision turns is in the loaded style. It is PARTIAL: right on prose forks, 11 of 11; right on cards, 6 of 11; never wrong on other turns, 0 of 24. A log checks it. A code-side fix for cards is the next cut.
+
+### Removed
+- **The old mcp-server-brain folder and 2 direct database write paths are removed.** The extra bundles under dist are built again (Phase 401).
+
+### Known
+- **The rulings file of the hats uses a new format when a ruling is delegated.** A plugin of 2.0.0-beta.92 or older cannot read that file.
+- **The step reader, recipe table and guard arm for method recipes are in (Phase 404).** No method plays from its own text yet. The chat work, the intent classifier and the rest of Phases 401, 402 and 404 come in the next cut.
+
+<!-- 400.5-IF-PASSED -->
+One process answers at each prompt in place of 6. When prompt help was skipped, the next prompt says so (Phase 400.5).
+<!-- /400.5-IF-PASSED -->
 
 ## [2.0.0-beta.95] - 2026-11-27
 
