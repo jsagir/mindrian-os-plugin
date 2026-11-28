@@ -10,6 +10,7 @@
 - **Seven narrow helper agents start without the project instruction file.** The investor and grading reviewers and the persona analyst among them (Phase 403). Only the project instruction file is shown removed. No memory saving is claimed.
 - **The rule "run and label" stands beside the refusal rule.** A skill that has its own method text runs from it, with one fixed line that names the source (decision 18; Phase 404).
 - **Larry's first reply says MindrianOS first, a product with its own method and memory, and still names Claude.** A black-square rule for decision turns is in the loaded style. It is PARTIAL: right on prose forks, 11 of 11; right on cards, 6 of 11; never wrong on other turns, 0 of 24. A log checks it. A code-side fix for cards is the next cut.
+- **One process answers at each prompt in place of 6.** When prompt help was skipped, the next prompt says so. A live load test on the large-room fixture (20 prompts, 12 busy loops, in two arms) had 0 cancelled hooks, with a p95 hook time of about 1.0 s under contention and about 1.8 s with the room database locked (Phase 400.5).
 
 ### Removed
 - **The old mcp-server-brain folder and 2 direct database write paths are removed.** The extra bundles under dist are built again (Phase 401).
@@ -17,10 +18,6 @@
 ### Known
 - **The rulings file of the hats uses a new format when a ruling is delegated.** A plugin of 2.0.0-beta.92 or older cannot read that file.
 - **The step reader, recipe table and guard arm for method recipes are in (Phase 404).** No method plays from its own text yet. The chat work, the intent classifier and the rest of Phases 401, 402 and 404 come in the next cut.
-
-<!-- 400.5-IF-PASSED -->
-One process answers at each prompt in place of 6. When prompt help was skipped, the next prompt says so (Phase 400.5).
-<!-- /400.5-IF-PASSED -->
 
 ## [2.0.0-beta.95] - 2026-11-27
 
