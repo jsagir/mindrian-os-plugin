@@ -146,6 +146,8 @@ const ALLOWED_FILE = new Set([
   // These files record that list, the recorded model run and the description baseline. The advisor table offers neither name.
   'data/run-step-capabilities.json', 'tests/fixtures/399/recorded-job-command-yes-no.json', 'tests/fixtures/400/description-bytes-baseline.json',
   'tests/test-400-capability-cynefin-labels.cjs', 'tests/test-400-job-sentences.cjs', 'tests/test-400-review-lists.cjs',
+  // Phase 401 and cut 1: the tool-grants table, the boundary shell-text pin and the measure tool name the two stub paths on purpose.
+  'data/tool-grants.json', 'tests/test-261127-bnd-shell-text.cjs', 'tools/401/measure.cjs',
   'CHANGELOG.md',
   'evals/eureka/211-room-report.md',
   'commands/mva-brief.md',
