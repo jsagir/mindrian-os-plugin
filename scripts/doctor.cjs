@@ -1242,7 +1242,7 @@ function buildAcceptanceChecklist(ctx) {
       // surface aborts here. Canon Part 8: both --check gates regenerate in
       // memory from LOCAL sources; zero Brain / network.
       id: 'coverage-gate',
-      label: 'connector + orchestration-projection + framework-vocabulary + render-coverage + skill-mirrors gates pass (no dark surface); shape-declaration and tool-honesty are advisory (WARNs inline, never blocks)',
+      label: 'connector + orchestration-projection + framework-vocabulary + render-coverage + skill-mirrors + frontmatter-split + tool-grants gates pass (no dark surface); shape-declaration and tool-honesty are advisory (WARNs inline, never blocks)',
       severity: 'blocker',
       applies_to: ['pre-tag', 'full'],
       run: async function () {
@@ -1273,6 +1273,13 @@ function buildAcceptanceChecklist(ctx) {
           // the script exits 1 on any missing/stale mirror or a deleted/reverted
           // SKIP_LIST skill. Canon Part 8: local byte compares only.
           { id: 'skill-mirrors', script: 'build-skill-mirrors.cjs' },
+          // Phase 401 plan F1 (quick 261127-f1a): a surface file with a triple
+          // dash inside its frontmatter, a host-read tool entry that
+          // data/tool-grants.json does not hold, a Brain tool in a tool list, or
+          // a hook or script that sets the permission decision to allow fails
+          // the release train (owner ruling O8; Codex Blockers 1 and 2).
+          { id: 'frontmatter-split', script: 'check-frontmatter-split.cjs' },
+          { id: 'tool-grants', script: 'check-tool-grants.cjs' },
           // Phase 190-04 (SFD-04/SFD-05, Canon Part 11 R16), softened by Phase 210
           // (item 210-A, navigator decision, CONTEXT addendum 1): the born-declared-shape
           // gate is ADVISORY. The script's --check exits 0 by default even on a
