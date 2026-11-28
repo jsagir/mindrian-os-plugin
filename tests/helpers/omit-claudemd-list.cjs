@@ -9,5 +9,7 @@ module.exports = {
     'analogy-query-fetcher',
     'competitor-watch-fetcher',
     'dominant-design-researcher',
+    'investor',
+    'grading',
   ],
 };
