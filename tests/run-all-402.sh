@@ -12,9 +12,9 @@
 # folder, so no leg writes the live ~/.mindrian. It never runs
 # node scripts/doctor.cjs --acceptance.
 #
-# Group "must pass": a FAILED leg fails the runner. Group "known red, report
-# only": the runner prints the result and does not count it in FAIL; the
-# quick 261127-k4f SUMMARY compares it with the measured baseline.
+# Group "must pass" and group "Larry pins (406-P1)": a FAILED leg fails the runner.
+# Group "known red, report only": the runner prints the result and does not count it in FAIL;
+# the quick 261127-k4f SUMMARY compares it with the measured baseline.
 #
 # House rule: hyphens only, no em dash, no en dash, no emoji.
 
@@ -92,11 +92,14 @@ run "k1u session-start envelope" node tests/test-k1u-session-start-envelope.cjs
 run "lx3 session-start skip" node tests/test-261029-lx3-sessionstart-skip.cjs
 run_if "402 K3: hook stdout shape" tests/test-402-hook-stdout-shape.cjs node tests/test-402-hook-stdout-shape.cjs
 
+# --- Group "Larry pins (406-P1)" --------------------------------------------
+run "359 prose budget" node tests/test-359-prose-budget.cjs
+run "3696 voice-first budget" node tests/test-3696-voice-first-budget.cjs
+
 # --- Group "known red, report only" ------------------------------------------
 report_only "ga4 card-fire e2e 179" node tests/test-ga4-card-fire-e2e-179.cjs
 report_only "card-fire relevance gate" node tests/test-card-fire-relevance-gate.cjs
 report_only "qef hook timeouts" node tests/test-261029-qef-hook-timeouts.cjs
-report_only "359 prose budget" node tests/test-359-prose-budget.cjs
 
 echo "======================================"
 echo "Phase 402: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"
