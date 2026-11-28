@@ -22,7 +22,7 @@ cynefin_label_status: "provisional"
 # gated External Mode fetch).
 interactive_first_reward: schema_preview
 teaching: "When the answer might live in another field, /mos:find-analogies runs SAPPhIRE and TRIZ against your problem to surface cross-domain matches. Most breakthroughs are borrowed structure."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Four Lenses of Innovation", "TRIZ / Genrich Altshuller Innovation Algorithm"]
 produces: "room/**/analogies/*"
@@ -45,7 +45,7 @@ pending_tool_grants:
   - mcp__tavily__tavily-search
   - AskUserQuestion
   - Task
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

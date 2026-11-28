@@ -19,14 +19,14 @@ move_type: "analyze"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When you have run several Six Hats sessions and need them consolidated, /mos:hat-briefing pulls the hat memory into one briefing. Best right before a stakeholder review."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Six Thinking Hats"]
 produces: "room/**/hat-briefing/*"
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-07]
@@ -39,7 +39,7 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-# --- Phase 130-03 lens-engine client frontmatter (READER, not rotator) ---
+# == Phase 130-03 lens-engine client frontmatter (READER, not rotator) ==
 lens_type: cognitive
 lens_set: six-hats
 rotation_mode: consume

@@ -21,7 +21,7 @@ canon_parts: [3, 7]
 phase: 121.5-08
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. The /mos namespace entry / index surface; a meta dispatcher the navigator invokes directly, carrying no problem-state trigger of its own."

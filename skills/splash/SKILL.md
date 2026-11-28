@@ -17,7 +17,7 @@ job_so: "give the session a clear visual opening"
 job_sentence_status: "provisional"
 teaching: "When you want the MindrianOS Mondrian banner, /mos:splash displays it. Mostly decorative; useful for screenshots and demo openings."
 allowed-tools: Bash AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Render command. Emits the splash / banner surface; a presentation-only render with no problem-state trigger."

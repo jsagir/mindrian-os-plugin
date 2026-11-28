@@ -29,7 +29,7 @@ interactive_first_reward: "--none (scripting only)"
 # command did not already have. Scoped to the invoking turn; clears on the next
 # message.
 allowed-tools: Read Write Glob Bash WebSearch mcp__tavily__tavily-search AskUserQuestion Task
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

@@ -27,7 +27,7 @@ cynefin_label_status: "provisional"
 # invests in scoring).
 interactive_first_reward: schema_preview
 teaching: "When you have a value proposition but no proof it holds, /mos:validate-proposition scores it against the three PWS VP gates with sequential math. A clean gate failure beats a vague pass."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["PWS Value Proposition"]
 produces: "room/business-model/value-proposition/*"
@@ -51,7 +51,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-06, SENS-07]

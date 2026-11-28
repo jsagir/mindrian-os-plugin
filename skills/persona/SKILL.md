@@ -34,13 +34,13 @@ move_type: "analyze"
 move_type_weak: true
 cynefin_label_status: "provisional"
 teaching: "When you need fresh perspectives on the room, /mos:persona generates Six-Hats lenses from your room data. Each persona argues from a different stance; you decide what holds."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Six Thinking Hats"]
 produces: "room/team/ai-personas/*"
 inputs: []
 autonomous_safe: true
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -53,7 +53,7 @@ connector:
   plan_gated: false
   web_scope: green
   surface: F.1
-# --- Phase 130-03 lens-engine client frontmatter ---
+# == Phase 130-03 lens-engine client frontmatter ==
 lens_type: cognitive
 lens_set: six-hats
 rotation_mode: parallel

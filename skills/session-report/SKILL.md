@@ -20,7 +20,7 @@ job_sentence_status: "provisional"
 teaching: "When you have finished a conversation with Larry and want to see whether it fired the right things at the right time -- did it reach a conclusion or circle, did it elevate across frames, did the gates fire -- run /mos:session-report. It emits a clean structured report you can forward, not a chat log. The tester-cohort report surface (2026-07-01 standup promise)."
 disable-model-invocation: false
 allowed-tools: ""
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Conversational extraction surface. Reads the session that already happened and emits a structured artifact; it fires no reach, opens no Brain wire, and writes nothing to the graph. LOCAL-only by construction (Part 8). Sibling to the tester-facing docs/testers/REPORT-PROMPT.md paste block."

@@ -19,7 +19,7 @@ job_sentence_status: "provisional"
 teaching: "When you want to ask the knowledge graph a question without writing Cypher, /mos:graph translates plain English into the right traversal. Larry walks the edges so you do not have to."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

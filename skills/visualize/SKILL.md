@@ -22,7 +22,7 @@ deprecated_removal: "v1.14.0"
 teaching: "Deprecated alias. Use /mos:dashboard --mermaid to open the De Stijl knowledge-graph viewer with Mermaid output; visualize folds into the dashboard surface. Scheduled removal: v1.14.0."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 172-16 CIRS R1 exclude (Canon Part 11; deprecated-redirect, navigator-directed 2026-06-23) ---
+# == Phase 172-16 CIRS R1 exclude (Canon Part 11; deprecated-redirect, navigator-directed 2026-06-23) ==
 connector:
   excluded: true
   reason: "Deprecated - redirects to /mos:dashboard --mermaid; scheduled removal v1.14.0. Retained only for compatibility, so it carries no problem-state trigger."

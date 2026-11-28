@@ -19,13 +19,13 @@ move_type: "analyze"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When an idea feels too clean, /mos:challenge-assumptions runs Devil's Advocate against the load-bearing claims. Catches the assumptions you stopped questioning."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Red Teaming", "Pre-mortem Analysis", "CIAs approach to challenging analytical assumptions", "Black Hat Thinking"]
 produces: "room/**/challenge/*"
 inputs: []
 autonomous_safe: true
-# --- Phase 130-03 lens-engine client frontmatter ---
+# == Phase 130-03 lens-engine client frontmatter ==
 lens_type: cognitive
 lens_set: ['black-hat']
 rotation_mode: single
@@ -36,7 +36,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

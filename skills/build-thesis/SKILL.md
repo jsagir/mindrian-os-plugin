@@ -21,7 +21,7 @@ cynefin_label_status: "provisional"
 # gate structure before the navigator invests in the Deep Dive).
 interactive_first_reward: schema_preview
 teaching: "When you need to know if this venture is worth pursuing, /mos:build-thesis runs the Ten-Questions investment thesis gate. The output is a defensible go / no-go with reasons."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["PWS Value Proposition"]
 produces: "room/**/thesis/*"
@@ -45,7 +45,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

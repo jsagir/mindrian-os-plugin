@@ -18,7 +18,7 @@ move_type: "categorize"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When you need the whole business model on one page, /mos:lean-canvas fills the nine boxes from your room data. The fastest way to get a defensible canvas in front of someone."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Lean Canvas"]
 produces: "room/business-model/lean-canvas/*"
@@ -30,7 +30,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

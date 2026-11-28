@@ -21,7 +21,7 @@ allowed-tools:
   - Bash
   - Read
   - AskUserQuestion
-# --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
+# == Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

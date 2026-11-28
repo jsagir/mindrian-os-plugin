@@ -19,7 +19,7 @@ job_sentence_status: "provisional"
 teaching: "When you have a meeting filed and want to know who said what, /mos:speakers shows the participants with their roles, attendance, and contribution patterns. The people layer of meeting intelligence."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Bash AskUserQuestion
-# --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
+# == Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

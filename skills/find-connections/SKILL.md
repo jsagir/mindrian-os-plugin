@@ -19,7 +19,7 @@ move_type: "probe"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph. Surfaces the connections you did not know to look for."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Usher's Model of Cumulative Synthesis", "Extensive Searching"]
 produces: "room/**/analogies/*"
@@ -29,7 +29,7 @@ pending_tool_grants:
   - Read
   - Bash
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

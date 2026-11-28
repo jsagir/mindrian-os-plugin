@@ -21,7 +21,7 @@ move_type: "slice"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When you cannot tell if this is an Ill-Defined or Well-Defined Problem, /mos:diagnose classifies it against the PWS matrix. Knowing the problem type picks the right methodology."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Problem Definition Transformation Framework"]
 produces: "room/problem-definition/diagnosis/*"
@@ -32,14 +32,14 @@ pending_tool_grants:
   - Write
   - Bash
   - Glob
-# --- Phase 143.3 connector frontmatter (Phase 157-04 Task 0: wire the diagnose orphan) ---
-# --- Phase 164-03 (D-164-S4): one reach, TWO sub_modes. problem-diagnosis (classify
+# == Phase 143.3 connector frontmatter (Phase 157-04 Task 0: wire the diagnose orphan) ==
+# == Phase 164-03 (D-164-S4): one reach, TWO sub_modes. problem-diagnosis (classify
 #     against the PWS matrix) stays the primary connector sub_mode; issue-tree
 #     (decompose-causally) rides the SAME reach_id / framework / filing / posture as
 #     a second mode documented in the body and listed in sub_modes below. The
 #     issue-tree mode rides ignite's sensor pair [SENS-01, SENS-06] so it is the
 #     natural first diagnostic reach right after ignite's B3 first-win gate. NO new
-#     reach_id is minted (one reach, two modes); the connector registry stays clean. ---
+#     reach_id is minted (one reach, two modes); the connector registry stays clean. ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-01, SENS-06]

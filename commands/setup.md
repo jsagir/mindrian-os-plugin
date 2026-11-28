@@ -21,7 +21,7 @@ allowed-tools:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. One-time configuration surface (graph / integrations) the navigator runs deliberately; setup is an operator action, not a contextual reach."

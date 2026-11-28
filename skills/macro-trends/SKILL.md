@@ -21,7 +21,7 @@ cynefin_label_status: "provisional"
 # structure before the navigator invests in the full scan).
 interactive_first_reward: schema_preview
 teaching: "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions. The wide-angle lens before you zoom in."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["PEST Analysis", "Macro Trends/Macro Trending"]
 produces: "room/**/trends/*"
@@ -45,7 +45,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

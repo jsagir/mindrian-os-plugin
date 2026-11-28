@@ -25,7 +25,7 @@ allowed-tools:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 155.06 connector frontmatter ---
+# == Phase 155.06 connector frontmatter ==
 # ignite is the canonical front door for new room creation (GAP-6).
 # reach_id 'context_block' is in the frozen 6 (Canon Appendix D entry 15).
 # posture 'push_forward' is in the frozen 3.

@@ -17,7 +17,7 @@ job_so: "rule on it before it misleads later work"
 job_sentence_status: "provisional"
 teaching: "When a governing thought you set has gone stale, or a fresh contradiction has just landed against a claim, your memory cortex has something to tell you. /mos:memory-cortex-reach is the navigator-facing surface the orchestrator dispatches to bring that signal to a Decision Gate. It does not re-implement the cortex; it joins the reach spine so the cortex becomes dispatchable."
 ui_reference: skills/ui-system/SKILL.md
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-08]

@@ -29,7 +29,7 @@ move_type: "probe"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When a trend feels safe, you have not pushed it far enough. /mos:trending-to-absurd seeds itself from your room's connective taxonomy, then extrapolates each trend to its absurd extreme across the 3-10 / 11-30 / 50yr horizons -- the disruptive opportunity shows up at the edge first."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Trending to the Absurd", "S-Curve Analysis"]
 produces: "room/opportunity-bank/trending-to-absurd/*"
@@ -40,7 +40,7 @@ pending_tool_grants:
   - Write
   - Bash
   - Glob
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-04]

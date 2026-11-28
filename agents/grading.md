@@ -8,7 +8,7 @@ tools:
   - mcp__plugin_mos_mindrian-brain__brain_ask
   - mcp__plugin_mos_mindrian-brain__brain_search
   - Read
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-07]

@@ -33,7 +33,7 @@ move_type: "slice"
 move_type_weak: true
 cynefin_label_status: "provisional"
 teaching: "When you have analyses on the table but no clear next step, /mos:act picks the best-fit methodology for your current room state and runs it. Saves you from analysis paralysis."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: meta
 frameworks: []
 produces: null
@@ -52,7 +52,7 @@ pending_tool_grants:
   - Glob
   - Bash
   - Task
-# --- Phase 172 CIRS connector ---
+# == Phase 172 CIRS connector ==
 # /mos:act is the standing meta-orchestrator: a PINNED selection suggestion, NOT a 7th reach
 # (Canon Part 11 R3/R4). It surfaces a governed SELECTION; reach_id 'context_block' is in the
 # frozen 6 (Canon Appendix D entry 15); posture 'hold' is in the frozen 3.

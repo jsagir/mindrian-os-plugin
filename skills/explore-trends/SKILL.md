@@ -21,7 +21,7 @@ cynefin_label_status: "provisional"
 # structure before the navigator invests in the full push).
 interactive_first_reward: schema_preview
 teaching: "When today's trends could become tomorrow's problems, /mos:explore-trends pushes them to extremes to surface the second-order effects. The future shows up at the edges first."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["S-Curve Analysis"]
 produces: "room/**/trends/*"
@@ -33,7 +33,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

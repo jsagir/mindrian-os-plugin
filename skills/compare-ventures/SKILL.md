@@ -19,7 +19,7 @@ move_type: "analyze"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter. Saves you from re-learning their lessons."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["PWS Triple Validation Compass"]
 produces: "room/competitive-analysis/comparison/*"
@@ -28,7 +28,7 @@ autonomous_safe: true
 pending_tool_grants:
   - Read
   - AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

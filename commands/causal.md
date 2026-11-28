@@ -19,13 +19,13 @@ move_type: "analyze"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When you suspect the visible problem is downstream of something else, /mos:causal traces causal edges in the room's graph. Surfaces the upstream causes worth fixing."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Root Cause Analysis"]
 produces: "room/**/causal/*"
 inputs: []
 autonomous_safe: true
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-02]

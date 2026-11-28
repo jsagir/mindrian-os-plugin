@@ -19,7 +19,7 @@ move_type: "analyze"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When you ran a Reverse Salient discovery earlier and want the thesis read back, /mos:rs-thesis surfaces the analytic conclusion in plain language. Best for revisiting old findings before a meeting."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Reverse Salient Analysis"]
 produces: "room/**/rs-thesis/*"
@@ -33,7 +33,7 @@ pending_tool_grants:
   # mcp__mindrian-brain__read_neo4j_cypher intentionally removed (BUG 2 fix):
   # RSDiscovery is USER DATA (Canon Part 8 -- LOCAL -> BRAIN: NO). The remote
   # Brain must never be called from this command. Always uses Tier 0 SQLite.
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

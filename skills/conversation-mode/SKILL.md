@@ -10,7 +10,7 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 #   disallowed-tools, arguments, context, background), and no code in this plugin reads it
 #   either. Kept as a comment so the INTENT survives; it never gated anything. Pinned by
 #   tests/test-skill-frontmatter-inert-keys.cjs.
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 # intern-w1-mode-gate-skip fix NOTE (kept, not removed -- see below): this
 # connector.excluded:true is TRUE and REQUIRED for the R1 connector-coverage
 # ledger (data/connector-coverage-ledger.json, enforced HARD-FAIL by

@@ -21,7 +21,7 @@ cynefin_label_status: "provisional"
 # previews before the navigator invests in scoring every need).
 interactive_first_reward: schema_preview
 teaching: "When you need to map what users actually want versus what they say they want, /mos:user-needs plots importance against satisfaction. The gap is where the opportunity lives."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Jobs to Be Done (JTBD)"]
 produces: "room/market-analysis/user-needs/*"
@@ -33,7 +33,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

@@ -26,7 +26,7 @@ move_type: "analyze"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "FeyMinto is the per-folder reasoning layer: its three faces are MINTO.md, FEYNMAN.md and BRAIN.md, and its brief is BRIEF.md. When a section needs its MINTO face generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["The Pyramid Principle"]
 produces: "room/**/reasoning/*"
@@ -46,7 +46,7 @@ pending_tool_grants:
   # command did not already have. Registry row: data/subagent-dispatch-grants.json
   # (commands/mos-reason.md, token Task, status pending until plan 265-23 ratifies).
   - Task
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-06]

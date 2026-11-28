@@ -20,7 +20,7 @@ cynefin_label_status: "provisional"
 # variant census structure before the navigator invests further).
 interactive_first_reward: schema_preview
 teaching: "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it. Tells you whether to ride the wave or break it. The deep dive can open with a sourced research pass: four evidence lanes, searched only after you approve the queries, every claim with its source."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Dominant Design", "Era of Ferment Analysis"]
 produces: "room/**/dominant-designs/*"
@@ -41,7 +41,7 @@ pending_tool_grants:
   - Glob
   - AskUserQuestion
   - Task
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-06, SENS-09]

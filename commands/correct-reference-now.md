@@ -20,7 +20,7 @@ allowed-tools:
   - Bash
   - Read
   - AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. A reference-correction maintenance action the navigator runs deliberately to fix a citation; an upkeep surface, not a problem-state reach."

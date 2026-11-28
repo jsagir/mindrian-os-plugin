@@ -18,7 +18,7 @@ job_so: "consult the expert with the confirmed record as its source"
 job_sentence_status: "provisional"
 teaching: "When you have a CONFIRMED SyntheticExpert in the graph and you want to talk to it as a persona anywhere in the room, /mos:skill projects that node's props (hat, name, beautiful question, research approach, evidence tier, provenance) into a room-scoped skills/<expert>/SKILL.md through the SHIPPED build-new-surface.cjs generator (kind=skill, --from-expert). The confirmed node is the source of truth; the skill is its projection."
 allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 # /mos:skill is the born-WIRED front door: it PROPOSES a materialization (a single
 # approve-or-reject Decision-Gate fork), so it declares the 11-key connector block
 # AND hitl_shape: F.0 (R16). A new tool identity rides sub_mode: expert-skill, never

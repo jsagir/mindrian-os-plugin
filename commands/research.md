@@ -37,13 +37,13 @@ move_type: "probe"
 move_type_weak: true
 cynefin_label_status: "provisional"
 teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume. The plan-run mode is the one place research plans run: quick and deep research runs, fetching only under a grant you approved, and filing findings only on your approval."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Hypothesis-Driven Problem Solving"]
 produces: "room/**/research/*"
 inputs: []
 autonomous_safe: true
-# --- Phase 131 source-lens pilot frontmatter ---
+# == Phase 131 source-lens pilot frontmatter ==
 # A calling methodology declares requires_evidence: to auto-dispatch /mos:research
 # (the inbound called-by handle). See "Invocation modes" below.
 emits_evidence_claims: true
@@ -57,7 +57,7 @@ pending_tool_grants:
   - WebSearch
   - WebFetch
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-04, SENS-15]

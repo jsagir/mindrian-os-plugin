@@ -5,11 +5,11 @@ description: >
   Proactive: surfaces contradictions and gaps. Theo is part of MindrianOS and
   needs no key, so this is active whenever Theo answers.
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Ambient always-on infra. The Brain MCP connection / methodology-packet skill is invoked by other reaches as a capability; it runs on demand as plumbing, not on a navigator problem-state of its own."
-# --- Phase 250-02 CIRS R16 Form B declaration (Canon Part 11) ---
+# == Phase 250-02 CIRS R16 Form B declaration (Canon Part 11) ==
 hitl_stages:
   - stage: "brain-refusal-fork"
     shapes: ["F.1"]

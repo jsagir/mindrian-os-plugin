@@ -21,7 +21,7 @@ cynefin_label_status: "provisional"
 # a sharper question before they invest in the full 5-Whys drill).
 interactive_first_reward: reframe_question
 teaching: "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree. Treats the cause, not the recurrence. Each why that rests on an assumption can become a research question with its own falsifier."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Root Cause Analysis", "5 Whys Technique", "Systems Thinking"]
 produces: "room/**/root-cause/*"
@@ -33,7 +33,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

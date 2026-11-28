@@ -16,7 +16,7 @@ job_want: "to name my need in plain words and get the matching view"
 job_so: "see the answer without learning the view names"
 job_sentence_status: "provisional"
 teaching: "When the room is full but you don't know which view answers your question, /mos:show asks your JOB in plain language -- know where I stand, find what's broken, make it land, get it into the world -- and runs the right view underneath. You name the need; the command stays hidden."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: mechanical
 frameworks: []
 produces: ""
@@ -27,7 +27,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

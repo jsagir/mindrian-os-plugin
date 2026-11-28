@@ -22,7 +22,7 @@ move_type_weak: true
 cynefin_label_status: "provisional"
 teaching: "When you need to manage grants as a live pipeline rather than a list, /mos:opportunities surfaces the Opportunity Bank with HSI scores and decision states. Funding deserves the same rigor as product."
 allowed-tools: Read Write Bash Glob Agent WebSearch AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

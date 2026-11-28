@@ -29,7 +29,7 @@ cynefin_label_status: "provisional"
 teaching: "When you have a wicked question and need a structured argument rather than one opinion, /mos:bono spawns a governed research swarm across the (subdomain x hat) grid, each persona bound to its hat's scrutiny discipline and its own wired sources, then debates the readings as a sequential inter-hat argument over a graph-proposed what-if hypothesis. The navigator confirms the topic, the hypothesis, and the ruling at three decision gates; the MECE-Minto synthesis files only on APPROVE and closes the loop into the room's logical graph."
 interactive_first_reward: reframe_question
 ui_reference: skills/ui-system/SKILL.md
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Six Thinking Hats"]
 produces: "room/solution-design/*"
@@ -43,8 +43,8 @@ pending_tool_grants:
   - WebSearch
   - WebFetch
   - AskUserQuestion
-# --- Phase 164-05 connector frontmatter (D-164-S4: the GENERATED front door) ---
-# --- /mos:bono rides the FROZEN hats reach with a NEW bono sub_mode. It is NEVER
+# == Phase 164-05 connector frontmatter (D-164-S4: the GENERATED front door) ==
+# == /mos:bono rides the FROZEN hats reach with a NEW bono sub_mode. It is NEVER
 #     a 7th reach: the inter-hat debate IS a Six Thinking Hats surface, so it
 #     shares the hats reach_id / framework with /mos:think-hats (six-hats) as a
 #     second sub_mode. The connector block is GENERATED, not hand-minted: run
@@ -55,7 +55,7 @@ pending_tool_grants:
 #     + ruling). web_scope: green, because the per-persona web research legs are now
 #     first-class (direction stays SIGNAL -> LOCAL, proven by the Part 8 egress
 #     guard: generic subdomain handles cross toward the public web, never LOCAL
-#     content toward the Brain). ---
+#     content toward the Brain). ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

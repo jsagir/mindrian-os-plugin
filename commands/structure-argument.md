@@ -29,7 +29,7 @@ cynefin_label_status: "provisional"
 # the navigator invests in filling each level).
 interactive_first_reward: schema_preview
 teaching: "When an argument is muddled and you cannot say why, /mos:structure-argument restructures it with Minto pyramid, SCQA, and MECE. The right structure usually surfaces the missing premise."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 # PRIMARY FRAMEWORK KEY (RETRO-05, audit item 56): this command declares two frameworks
 # (dual-framework). The resolver still resolves BOTH; the connector below keys its single
@@ -45,7 +45,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-06]

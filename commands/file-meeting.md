@@ -33,7 +33,7 @@ allowed-tools:
   - Glob
   - AskUserQuestion
   - Task
-# --- Phase 165 connector (close the file-meeting orphan; D-165-07) ---
+# == Phase 165 connector (close the file-meeting orphan; D-165-07) ==
 # The meeting-filing event dispatches the blind-spot trigger sensors. Rides the
 # EXISTING 'contradiction' reach (a filed meeting that contradicts a confident
 # claim = the oracle returning a true label). NO new reach_id (frozen bank = 6).

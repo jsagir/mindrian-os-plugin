@@ -38,7 +38,7 @@ cynefin_label_status: "provisional"
 teaching: "When you want to see where your room's ideas cross-pollinate into fundable opportunities, /mos:eureka recalls cross-domain pairs from your room's graph, researches them as a perspective of the research planner, and files the supported ones only on your yes."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Bash Write AskUserQuestion
-# --- Phase 216-03 connector frontmatter (born-wired, Canon Part 11 CIRS R1) ---
+# == Phase 216-03 connector frontmatter (born-wired, Canon Part 11 CIRS R1) ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

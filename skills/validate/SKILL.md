@@ -21,7 +21,7 @@ cynefin_label_status: "provisional"
 # before the navigator invests in scoring the full segment).
 interactive_first_reward: schema_preview
 teaching: "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Jobs to Be Done (JTBD)"]
 produces: "room/**/validation/*"
@@ -33,7 +33,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

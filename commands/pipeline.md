@@ -28,7 +28,7 @@ move_type: "probe"
 move_type_weak: true
 cynefin_label_status: "provisional"
 teaching: "When you want several methodologies chained instead of run one-by-one, /mos:pipeline executes a multi-step pipeline with the room as the connecting tissue. Week 7 pattern."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: meta
 frameworks: []
 produces: null
@@ -40,7 +40,7 @@ pending_tool_grants:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

@@ -21,7 +21,7 @@ teaching: "When you need to inspect or rotate Brain API keys, /mos:admin opens t
 ui_reference: skills/ui-system/SKILL.md
 visibility: admin
 allowed-tools: Read Bash Glob AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. Navigator-invoked maintenance surface (registry / config admin); it acts on operator request, not on a navigator problem-state, so no sensor triggers it."
