@@ -52,7 +52,7 @@ FAIL  install-state: install-state record present + snapshot matches a live spot
 PASS  eureka-optin-state: Eureka opt-in state reported honestly (reporter, never blocks)
 PASS  deployment-surfaces: every owned deployment surface reconciled
 PASS  version-of-record-repo: plugin.json / package.json / CHANGELOG top entry consistent (repo-file half of 5-way)
-FAIL  version-of-record-published: git tag exists + marketplace source.version pinned + npm view returns the version  -- marketplace.json unreadable: ENOENT: no such file or directory, open '/home/jsagi/dev/MindrianOS-Plugin-bnd/.planning/quick/261127-bnd-boundary-fixes/doctor-home/mindrian-marketplace/.claude-plugin/marketplace.json'
+FAIL  version-of-record-published: git tag exists + marketplace source.version pinned + npm view returns the version  -- marketplace.json unreadable: ENOENT: no such file or directory, open '$HOME/dev/MindrianOS-Plugin-bnd/.planning/quick/261127-bnd-boundary-fixes/doctor-home/mindrian-marketplace/.claude-plugin/marketplace.json'
 PASS  npx-roundtrip: npx @mindrian_os/cli round-trip resolves cleanly
 PASS  doctor-all: doctor --all exits 0
 PASS  coverage-gate: connector + orchestration-projection + framework-vocabulary + render-coverage + skill-mirrors gates pass (no dark surface); shape-declaration and tool-honesty are advisory (WARNs inline, never blocks)
@@ -72,6 +72,6 @@ PASS  mcp-surface-tool-count: MCP surface: live per-server tool count for both s
 PASS  icm-ruling-eval-fresh: ICM ruling eval freshness: evals/icm/last-run.json tracks the shipped plugin version and the 0.8 exact-agreement floor
 PASS  cross-connection-honesty: Cross-connection honesty: stamps degrade honestly and the 355 measurement records replay offline
 PASS  python-floor: room scripts hold the Python 3.9 floor: python3 version resolved, 0 Python 3.11-only APIs under scripts/
-PASS  real-room-run: a person read a real-room run for this HEAD: latest receipt sha equals HEAD (WARN when behind or absent)  -- WARN: no real-room receipt in /home/jsagi/dev/MindrianOS-Plugin-bnd/.planning/quick/261127-bnd-boundary-fixes/doctor-home/.mindrian/release-real-room; release.sh Step 2.6 will refuse a cut until a person runs node scripts/real-room-run.cjs --read-by "<your name>"
+PASS  real-room-run: a person read a real-room run for this HEAD: latest receipt sha equals HEAD (WARN when behind or absent)  -- WARN: no real-room receipt in $HOME/dev/MindrianOS-Plugin-bnd/.planning/quick/261127-bnd-boundary-fixes/doctor-home/.mindrian/release-real-room; release.sh Step 2.6 will refuse a cut until a person runs node scripts/real-room-run.cjs --read-by "<your name>"
 
 Acceptance full: 21/25 points passed; failed: install-state, version-of-record-published, session-start-active-version, activation-reached-the-wire.

@@ -1,0 +1,2420 @@
+{
+  "label": "dispatcher",
+  "arm": "contention",
+  "smoke": false,
+  "head": "bcf9502d4712e428ef52d8aeaceee26b805a2059",
+  "claude_version": "2.1.332 (Claude Code)",
+  "node": "v22.23.1",
+  "cores": 12,
+  "H": 1,
+  "host_command": "claude -p --input-format stream-json --output-format stream-json --verbose --include-hook-events --replay-user-messages --plugin-dir <repo root> --setting-sources project --model haiku --tools \"\" --session-id <uuid> --debug-file <scratch>/host-debug.log",
+  "removed_env_keys": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_SESSION_ID",
+    "MINDRIAN_BRAIN_KEY",
+    "MINDRIAN_EUREKA_ROOT",
+    "MOS_LIVE_LOAD"
+  ],
+  "plugins": [
+    {
+      "name": "mos",
+      "is_repo_root": true
+    },
+    {
+      "name": "cc-plugin-agents-md",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-telemetry",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-privacy",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-plugin-authoring",
+      "is_repo_root": false
+    }
+  ],
+  "seed_missed_turn": false,
+  "prompts": [
+    {
+      "i": 1,
+      "token": "t4005-033a21-1",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 474,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 24995
+    },
+    {
+      "i": 2,
+      "token": "t4005-033a21-2",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 824,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 14054
+    },
+    {
+      "i": 3,
+      "token": "t4005-033a21-3",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 764,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6405
+    },
+    {
+      "i": 4,
+      "token": "t4005-033a21-4",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1127,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 7113
+    },
+    {
+      "i": 5,
+      "token": "t4005-033a21-5",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 685,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 7169
+    },
+    {
+      "i": 6,
+      "token": "t4005-033a21-6",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 977,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6862
+    },
+    {
+      "i": 7,
+      "token": "t4005-033a21-7",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 657,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 5937
+    },
+    {
+      "i": 8,
+      "token": "t4005-033a21-8",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 821,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 7533
+    },
+    {
+      "i": 9,
+      "token": "t4005-033a21-9",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 825,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6198
+    },
+    {
+      "i": 10,
+      "token": "t4005-033a21-10",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 768,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6461
+    },
+    {
+      "i": 11,
+      "token": "t4005-033a21-11",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 617,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6290
+    },
+    {
+      "i": 12,
+      "token": "t4005-033a21-12",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1012,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6709
+    },
+    {
+      "i": 13,
+      "token": "t4005-033a21-13",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 870,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6890
+    },
+    {
+      "i": 14,
+      "token": "t4005-033a21-14",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 587,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6176
+    },
+    {
+      "i": 15,
+      "token": "t4005-033a21-15",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 958,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6559
+    },
+    {
+      "i": 16,
+      "token": "t4005-033a21-16",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 946,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 5811
+    },
+    {
+      "i": 17,
+      "token": "t4005-033a21-17",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 961,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 7003
+    },
+    {
+      "i": 18,
+      "token": "t4005-033a21-18",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 789,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6028
+    },
+    {
+      "i": 19,
+      "token": "t4005-033a21-19",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 814,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6113
+    },
+    {
+      "i": 20,
+      "token": "t4005-033a21-20",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 760,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 6120
+    }
+  ],
+  "per_hook": {
+    "(no command)": {
+      "runs": 20,
+      "cancels": 0,
+      "p95_duration_ms": null
+    }
+  },
+  "summary": {
+    "prompts_sent": 20,
+    "results": 20,
+    "cancel_total": 0,
+    "prompts_with_runs_below_H": 0,
+    "runs_source": "s2_hook_started",
+    "p50_overhead_ms": 814,
+    "p95_overhead_ms": 1012,
+    "skip_note_prompts": [],
+    "loadavg_min": 1.88,
+    "loadavg_max": 13.34,
+    "io_pressure_avg10_max": 1.13,
+    "writer": {
+      "cycles": 774,
+      "busy": 9,
+      "other": 0
+    },
+    "host_pids": 1,
+    "session_ids": [
+      "own"
+    ],
+    "real_rooms_touched": false,
+    "unmapped_attachments": 0
+  },
+  "sources": {
+    "s1_path": "<HOME>/.claude/projects/-tmp-mos-load-400-5-OrywBl-rooms-load-room-400-5/<UUID>.jsonl",
+    "s2_subtypes_seen": [
+      "hook_progress",
+      "hook_response",
+      "hook_started"
+    ],
+    "s2_field_names": [
+      "exit_code",
+      "hook_event",
+      "hook_id",
+      "hook_name",
+      "outcome",
+      "output",
+      "session_id",
+      "stderr",
+      "stdout",
+      "subtype",
+      "type",
+      "uuid"
+    ],
+    "s3_sample_masked": [
+      "2026-11-28T08:11:51.755Z [DEBUG] Hooks: Checking first line for async: {\"continue\":true,\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"Voice reminder: open with one move glyph and Larry | MindrianOS. Use 2 to 8 sentences, at most one question, no framework list unless ",
+      "2026-11-28T08:11:51.755Z [DEBUG] Hooks: Parsed initial response: {\"continue\":true,\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"Voice reminder: open with one move glyph and Larry | MindrianOS. Use 2 to 8 sentences, at most one question, no framework list unless asked,",
+      "2026-11-28T08:11:51.795Z [DEBUG] Hooks: UserPromptSubmit [node \"<REPO>/scripts/userprompt-dispatch.cjs\"] (plugin mos@inline) finished with status 0 (473ms)"
+    ],
+    "s3_unmapped_cancels": 0,
+    "s4_turns": 20
+  },
+  "trace_turns": [
+    [
+      {
+        "ev": "start",
+        "k": 1,
+        "t": 97
+      },
+      {
+        "ev": "begin",
+        "k": 1,
+        "id": "admin-command-gate",
+        "t": 97
+      },
+      {
+        "ev": "end",
+        "k": 1,
+        "id": "admin-command-gate",
+        "t": 99,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 1,
+        "id": "intent-classifier",
+        "t": 99
+      },
+      {
+        "ev": "end",
+        "k": 1,
+        "id": "intent-classifier",
+        "t": 280,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 1,
+        "id": "first-install-router",
+        "t": 280
+      },
+      {
+        "ev": "end",
+        "k": 1,
+        "id": "first-install-router",
+        "t": 396,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 1,
+        "id": "brain-derivation-drain",
+        "t": 396
+      },
+      {
+        "ev": "end",
+        "k": 1,
+        "id": "brain-derivation-drain",
+        "t": 406,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 1,
+        "id": "jtbd-update",
+        "t": 406
+      },
+      {
+        "ev": "end",
+        "k": 1,
+        "id": "jtbd-update",
+        "t": 409,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 1,
+        "id": "auto-explore-drain",
+        "t": 409
+      },
+      {
+        "ev": "end",
+        "k": 1,
+        "id": "auto-explore-drain",
+        "t": 410,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 1,
+        "t": 411,
+        "code": 0,
+        "elapsed_ms": 411
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 2,
+        "t": 102
+      },
+      {
+        "ev": "begin",
+        "k": 2,
+        "id": "admin-command-gate",
+        "t": 102
+      },
+      {
+        "ev": "end",
+        "k": 2,
+        "id": "admin-command-gate",
+        "t": 136,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 2,
+        "id": "intent-classifier",
+        "t": 137
+      },
+      {
+        "ev": "end",
+        "k": 2,
+        "id": "intent-classifier",
+        "t": 608,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 2,
+        "id": "first-install-router",
+        "t": 608
+      },
+      {
+        "ev": "end",
+        "k": 2,
+        "id": "first-install-router",
+        "t": 774,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 2,
+        "id": "brain-derivation-drain",
+        "t": 774
+      },
+      {
+        "ev": "end",
+        "k": 2,
+        "id": "brain-derivation-drain",
+        "t": 777,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 2,
+        "id": "jtbd-update",
+        "t": 777
+      },
+      {
+        "ev": "end",
+        "k": 2,
+        "id": "jtbd-update",
+        "t": 787,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 2,
+        "id": "auto-explore-drain",
+        "t": 787
+      },
+      {
+        "ev": "end",
+        "k": 2,
+        "id": "auto-explore-drain",
+        "t": 789,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 2,
+        "t": 790,
+        "code": 0,
+        "elapsed_ms": 790
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 3,
+        "t": 98
+      },
+      {
+        "ev": "begin",
+        "k": 3,
+        "id": "admin-command-gate",
+        "t": 99
+      },
+      {
+        "ev": "end",
+        "k": 3,
+        "id": "admin-command-gate",
+        "t": 100,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 3,
+        "id": "intent-classifier",
+        "t": 100
+      },
+      {
+        "ev": "end",
+        "k": 3,
+        "id": "intent-classifier",
+        "t": 504,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 3,
+        "id": "first-install-router",
+        "t": 504
+      },
+      {
+        "ev": "end",
+        "k": 3,
+        "id": "first-install-router",
+        "t": 694,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 3,
+        "id": "brain-derivation-drain",
+        "t": 694
+      },
+      {
+        "ev": "end",
+        "k": 3,
+        "id": "brain-derivation-drain",
+        "t": 697,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 3,
+        "id": "jtbd-update",
+        "t": 697
+      },
+      {
+        "ev": "end",
+        "k": 3,
+        "id": "jtbd-update",
+        "t": 714,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 3,
+        "id": "auto-explore-drain",
+        "t": 714
+      },
+      {
+        "ev": "end",
+        "k": 3,
+        "id": "auto-explore-drain",
+        "t": 716,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 3,
+        "t": 729,
+        "code": 0,
+        "elapsed_ms": 729
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 4,
+        "t": 91
+      },
+      {
+        "ev": "begin",
+        "k": 4,
+        "id": "admin-command-gate",
+        "t": 91
+      },
+      {
+        "ev": "end",
+        "k": 4,
+        "id": "admin-command-gate",
+        "t": 93,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 4,
+        "id": "intent-classifier",
+        "t": 93
+      },
+      {
+        "ev": "end",
+        "k": 4,
+        "id": "intent-classifier",
+        "t": 665,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 4,
+        "id": "first-install-router",
+        "t": 665
+      },
+      {
+        "ev": "end",
+        "k": 4,
+        "id": "first-install-router",
+        "t": 933,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 4,
+        "id": "brain-derivation-drain",
+        "t": 934
+      },
+      {
+        "ev": "end",
+        "k": 4,
+        "id": "brain-derivation-drain",
+        "t": 1043,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 4,
+        "id": "jtbd-update",
+        "t": 1043
+      },
+      {
+        "ev": "end",
+        "k": 4,
+        "id": "jtbd-update",
+        "t": 1063,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 4,
+        "id": "auto-explore-drain",
+        "t": 1063
+      },
+      {
+        "ev": "end",
+        "k": 4,
+        "id": "auto-explore-drain",
+        "t": 1065,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 4,
+        "t": 1065,
+        "code": 0,
+        "elapsed_ms": 1065
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 5,
+        "t": 86
+      },
+      {
+        "ev": "begin",
+        "k": 5,
+        "id": "admin-command-gate",
+        "t": 87
+      },
+      {
+        "ev": "end",
+        "k": 5,
+        "id": "admin-command-gate",
+        "t": 88,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 5,
+        "id": "intent-classifier",
+        "t": 88
+      },
+      {
+        "ev": "end",
+        "k": 5,
+        "id": "intent-classifier",
+        "t": 425,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 5,
+        "id": "first-install-router",
+        "t": 425
+      },
+      {
+        "ev": "end",
+        "k": 5,
+        "id": "first-install-router",
+        "t": 537,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 5,
+        "id": "brain-derivation-drain",
+        "t": 537
+      },
+      {
+        "ev": "end",
+        "k": 5,
+        "id": "brain-derivation-drain",
+        "t": 616,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 5,
+        "id": "jtbd-update",
+        "t": 617
+      },
+      {
+        "ev": "end",
+        "k": 5,
+        "id": "jtbd-update",
+        "t": 620,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 5,
+        "id": "auto-explore-drain",
+        "t": 620
+      },
+      {
+        "ev": "end",
+        "k": 5,
+        "id": "auto-explore-drain",
+        "t": 626,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 5,
+        "t": 627,
+        "code": 0,
+        "elapsed_ms": 627
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 6,
+        "t": 99
+      },
+      {
+        "ev": "begin",
+        "k": 6,
+        "id": "admin-command-gate",
+        "t": 99
+      },
+      {
+        "ev": "end",
+        "k": 6,
+        "id": "admin-command-gate",
+        "t": 112,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 6,
+        "id": "intent-classifier",
+        "t": 112
+      },
+      {
+        "ev": "end",
+        "k": 6,
+        "id": "intent-classifier",
+        "t": 654,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 6,
+        "id": "first-install-router",
+        "t": 654
+      },
+      {
+        "ev": "end",
+        "k": 6,
+        "id": "first-install-router",
+        "t": 852,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 6,
+        "id": "brain-derivation-drain",
+        "t": 853
+      },
+      {
+        "ev": "end",
+        "k": 6,
+        "id": "brain-derivation-drain",
+        "t": 864,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 6,
+        "id": "jtbd-update",
+        "t": 864
+      },
+      {
+        "ev": "end",
+        "k": 6,
+        "id": "jtbd-update",
+        "t": 874,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 6,
+        "id": "auto-explore-drain",
+        "t": 874
+      },
+      {
+        "ev": "end",
+        "k": 6,
+        "id": "auto-explore-drain",
+        "t": 876,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 6,
+        "t": 888,
+        "code": 0,
+        "elapsed_ms": 888
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 7,
+        "t": 65
+      },
+      {
+        "ev": "begin",
+        "k": 7,
+        "id": "admin-command-gate",
+        "t": 65
+      },
+      {
+        "ev": "end",
+        "k": 7,
+        "id": "admin-command-gate",
+        "t": 67,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 7,
+        "id": "intent-classifier",
+        "t": 67
+      },
+      {
+        "ev": "end",
+        "k": 7,
+        "id": "intent-classifier",
+        "t": 344,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 7,
+        "id": "first-install-router",
+        "t": 344
+      },
+      {
+        "ev": "end",
+        "k": 7,
+        "id": "first-install-router",
+        "t": 583,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 7,
+        "id": "brain-derivation-drain",
+        "t": 583
+      },
+      {
+        "ev": "end",
+        "k": 7,
+        "id": "brain-derivation-drain",
+        "t": 586,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 7,
+        "id": "jtbd-update",
+        "t": 586
+      },
+      {
+        "ev": "end",
+        "k": 7,
+        "id": "jtbd-update",
+        "t": 589,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 7,
+        "id": "auto-explore-drain",
+        "t": 589
+      },
+      {
+        "ev": "end",
+        "k": 7,
+        "id": "auto-explore-drain",
+        "t": 592,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 7,
+        "t": 595,
+        "code": 0,
+        "elapsed_ms": 595
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 8,
+        "t": 86
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "admin-command-gate",
+        "t": 86
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "admin-command-gate",
+        "t": 110,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "intent-classifier",
+        "t": 110
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "intent-classifier",
+        "t": 541,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "first-install-router",
+        "t": 541
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "first-install-router",
+        "t": 709,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "brain-derivation-drain",
+        "t": 709
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "brain-derivation-drain",
+        "t": 711,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "jtbd-update",
+        "t": 711
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "jtbd-update",
+        "t": 740,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "auto-explore-drain",
+        "t": 740
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "auto-explore-drain",
+        "t": 741,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 8,
+        "t": 742,
+        "code": 0,
+        "elapsed_ms": 742
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 9,
+        "t": 128
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "admin-command-gate",
+        "t": 128
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "admin-command-gate",
+        "t": 130,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "intent-classifier",
+        "t": 130
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "intent-classifier",
+        "t": 603,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "first-install-router",
+        "t": 603
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "first-install-router",
+        "t": 761,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "brain-derivation-drain",
+        "t": 761
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "brain-derivation-drain",
+        "t": 774,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "jtbd-update",
+        "t": 774
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "jtbd-update",
+        "t": 785,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "auto-explore-drain",
+        "t": 785
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "auto-explore-drain",
+        "t": 786,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 9,
+        "t": 787,
+        "code": 0,
+        "elapsed_ms": 787
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 10,
+        "t": 79
+      },
+      {
+        "ev": "begin",
+        "k": 10,
+        "id": "admin-command-gate",
+        "t": 79
+      },
+      {
+        "ev": "end",
+        "k": 10,
+        "id": "admin-command-gate",
+        "t": 82,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 10,
+        "id": "intent-classifier",
+        "t": 82
+      },
+      {
+        "ev": "end",
+        "k": 10,
+        "id": "intent-classifier",
+        "t": 486,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 10,
+        "id": "first-install-router",
+        "t": 486
+      },
+      {
+        "ev": "end",
+        "k": 10,
+        "id": "first-install-router",
+        "t": 651,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 10,
+        "id": "brain-derivation-drain",
+        "t": 651
+      },
+      {
+        "ev": "end",
+        "k": 10,
+        "id": "brain-derivation-drain",
+        "t": 654,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 10,
+        "id": "jtbd-update",
+        "t": 655
+      },
+      {
+        "ev": "end",
+        "k": 10,
+        "id": "jtbd-update",
+        "t": 687,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 10,
+        "id": "auto-explore-drain",
+        "t": 687
+      },
+      {
+        "ev": "end",
+        "k": 10,
+        "id": "auto-explore-drain",
+        "t": 688,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 10,
+        "t": 700,
+        "code": 0,
+        "elapsed_ms": 700
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 11,
+        "t": 51
+      },
+      {
+        "ev": "begin",
+        "k": 11,
+        "id": "admin-command-gate",
+        "t": 51
+      },
+      {
+        "ev": "end",
+        "k": 11,
+        "id": "admin-command-gate",
+        "t": 57,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 11,
+        "id": "intent-classifier",
+        "t": 57
+      },
+      {
+        "ev": "end",
+        "k": 11,
+        "id": "intent-classifier",
+        "t": 336,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 11,
+        "id": "first-install-router",
+        "t": 336
+      },
+      {
+        "ev": "end",
+        "k": 11,
+        "id": "first-install-router",
+        "t": 535,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 11,
+        "id": "brain-derivation-drain",
+        "t": 535
+      },
+      {
+        "ev": "end",
+        "k": 11,
+        "id": "brain-derivation-drain",
+        "t": 539,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 11,
+        "id": "jtbd-update",
+        "t": 539
+      },
+      {
+        "ev": "end",
+        "k": 11,
+        "id": "jtbd-update",
+        "t": 552,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 11,
+        "id": "auto-explore-drain",
+        "t": 552
+      },
+      {
+        "ev": "end",
+        "k": 11,
+        "id": "auto-explore-drain",
+        "t": 553,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 11,
+        "t": 561,
+        "code": 0,
+        "elapsed_ms": 561
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 12,
+        "t": 103
+      },
+      {
+        "ev": "begin",
+        "k": 12,
+        "id": "admin-command-gate",
+        "t": 113
+      },
+      {
+        "ev": "end",
+        "k": 12,
+        "id": "admin-command-gate",
+        "t": 123,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 12,
+        "id": "intent-classifier",
+        "t": 123
+      },
+      {
+        "ev": "end",
+        "k": 12,
+        "id": "intent-classifier",
+        "t": 631,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 12,
+        "id": "first-install-router",
+        "t": 632
+      },
+      {
+        "ev": "end",
+        "k": 12,
+        "id": "first-install-router",
+        "t": 904,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 12,
+        "id": "brain-derivation-drain",
+        "t": 904
+      },
+      {
+        "ev": "end",
+        "k": 12,
+        "id": "brain-derivation-drain",
+        "t": 913,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 12,
+        "id": "jtbd-update",
+        "t": 914
+      },
+      {
+        "ev": "end",
+        "k": 12,
+        "id": "jtbd-update",
+        "t": 921,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 12,
+        "id": "auto-explore-drain",
+        "t": 921
+      },
+      {
+        "ev": "end",
+        "k": 12,
+        "id": "auto-explore-drain",
+        "t": 927,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 12,
+        "t": 937,
+        "code": 0,
+        "elapsed_ms": 937
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 13,
+        "t": 151
+      },
+      {
+        "ev": "begin",
+        "k": 13,
+        "id": "admin-command-gate",
+        "t": 152
+      },
+      {
+        "ev": "end",
+        "k": 13,
+        "id": "admin-command-gate",
+        "t": 155,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 13,
+        "id": "intent-classifier",
+        "t": 156
+      },
+      {
+        "ev": "end",
+        "k": 13,
+        "id": "intent-classifier",
+        "t": 629,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 13,
+        "id": "first-install-router",
+        "t": 629
+      },
+      {
+        "ev": "end",
+        "k": 13,
+        "id": "first-install-router",
+        "t": 799,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 13,
+        "id": "brain-derivation-drain",
+        "t": 799
+      },
+      {
+        "ev": "end",
+        "k": 13,
+        "id": "brain-derivation-drain",
+        "t": 810,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 13,
+        "id": "jtbd-update",
+        "t": 810
+      },
+      {
+        "ev": "end",
+        "k": 13,
+        "id": "jtbd-update",
+        "t": 824,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 13,
+        "id": "auto-explore-drain",
+        "t": 824
+      },
+      {
+        "ev": "end",
+        "k": 13,
+        "id": "auto-explore-drain",
+        "t": 826,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 13,
+        "t": 827,
+        "code": 0,
+        "elapsed_ms": 827
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 14,
+        "t": 36
+      },
+      {
+        "ev": "begin",
+        "k": 14,
+        "id": "admin-command-gate",
+        "t": 36
+      },
+      {
+        "ev": "end",
+        "k": 14,
+        "id": "admin-command-gate",
+        "t": 38,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 14,
+        "id": "intent-classifier",
+        "t": 38
+      },
+      {
+        "ev": "end",
+        "k": 14,
+        "id": "intent-classifier",
+        "t": 330,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 14,
+        "id": "first-install-router",
+        "t": 330
+      },
+      {
+        "ev": "end",
+        "k": 14,
+        "id": "first-install-router",
+        "t": 500,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 14,
+        "id": "brain-derivation-drain",
+        "t": 500
+      },
+      {
+        "ev": "end",
+        "k": 14,
+        "id": "brain-derivation-drain",
+        "t": 502,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 14,
+        "id": "jtbd-update",
+        "t": 502
+      },
+      {
+        "ev": "end",
+        "k": 14,
+        "id": "jtbd-update",
+        "t": 521,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 14,
+        "id": "auto-explore-drain",
+        "t": 521
+      },
+      {
+        "ev": "end",
+        "k": 14,
+        "id": "auto-explore-drain",
+        "t": 531,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 14,
+        "t": 532,
+        "code": 0,
+        "elapsed_ms": 532
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 15,
+        "t": 116
+      },
+      {
+        "ev": "begin",
+        "k": 15,
+        "id": "admin-command-gate",
+        "t": 117
+      },
+      {
+        "ev": "end",
+        "k": 15,
+        "id": "admin-command-gate",
+        "t": 118,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 15,
+        "id": "intent-classifier",
+        "t": 118
+      },
+      {
+        "ev": "end",
+        "k": 15,
+        "id": "intent-classifier",
+        "t": 643,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 15,
+        "id": "first-install-router",
+        "t": 643
+      },
+      {
+        "ev": "end",
+        "k": 15,
+        "id": "first-install-router",
+        "t": 811,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 15,
+        "id": "brain-derivation-drain",
+        "t": 811
+      },
+      {
+        "ev": "end",
+        "k": 15,
+        "id": "brain-derivation-drain",
+        "t": 846,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 15,
+        "id": "jtbd-update",
+        "t": 847
+      },
+      {
+        "ev": "end",
+        "k": 15,
+        "id": "jtbd-update",
+        "t": 893,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 15,
+        "id": "auto-explore-drain",
+        "t": 893
+      },
+      {
+        "ev": "end",
+        "k": 15,
+        "id": "auto-explore-drain",
+        "t": 895,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 15,
+        "t": 896,
+        "code": 0,
+        "elapsed_ms": 896
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 16,
+        "t": 69
+      },
+      {
+        "ev": "begin",
+        "k": 16,
+        "id": "admin-command-gate",
+        "t": 69
+      },
+      {
+        "ev": "end",
+        "k": 16,
+        "id": "admin-command-gate",
+        "t": 82,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 16,
+        "id": "intent-classifier",
+        "t": 82
+      },
+      {
+        "ev": "end",
+        "k": 16,
+        "id": "intent-classifier",
+        "t": 607,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 16,
+        "id": "first-install-router",
+        "t": 607
+      },
+      {
+        "ev": "end",
+        "k": 16,
+        "id": "first-install-router",
+        "t": 854,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 16,
+        "id": "brain-derivation-drain",
+        "t": 855
+      },
+      {
+        "ev": "end",
+        "k": 16,
+        "id": "brain-derivation-drain",
+        "t": 859,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 16,
+        "id": "jtbd-update",
+        "t": 859
+      },
+      {
+        "ev": "end",
+        "k": 16,
+        "id": "jtbd-update",
+        "t": 874,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 16,
+        "id": "auto-explore-drain",
+        "t": 874
+      },
+      {
+        "ev": "end",
+        "k": 16,
+        "id": "auto-explore-drain",
+        "t": 875,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 16,
+        "t": 885,
+        "code": 0,
+        "elapsed_ms": 885
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 17,
+        "t": 101
+      },
+      {
+        "ev": "begin",
+        "k": 17,
+        "id": "admin-command-gate",
+        "t": 101
+      },
+      {
+        "ev": "end",
+        "k": 17,
+        "id": "admin-command-gate",
+        "t": 103,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 17,
+        "id": "intent-classifier",
+        "t": 113
+      },
+      {
+        "ev": "end",
+        "k": 17,
+        "id": "intent-classifier",
+        "t": 620,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 17,
+        "id": "first-install-router",
+        "t": 620
+      },
+      {
+        "ev": "end",
+        "k": 17,
+        "id": "first-install-router",
+        "t": 851,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 17,
+        "id": "brain-derivation-drain",
+        "t": 851
+      },
+      {
+        "ev": "end",
+        "k": 17,
+        "id": "brain-derivation-drain",
+        "t": 860,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 17,
+        "id": "jtbd-update",
+        "t": 860
+      },
+      {
+        "ev": "end",
+        "k": 17,
+        "id": "jtbd-update",
+        "t": 877,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 17,
+        "id": "auto-explore-drain",
+        "t": 877
+      },
+      {
+        "ev": "end",
+        "k": 17,
+        "id": "auto-explore-drain",
+        "t": 892,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 17,
+        "t": 893,
+        "code": 0,
+        "elapsed_ms": 893
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 18,
+        "t": 109
+      },
+      {
+        "ev": "begin",
+        "k": 18,
+        "id": "admin-command-gate",
+        "t": 109
+      },
+      {
+        "ev": "end",
+        "k": 18,
+        "id": "admin-command-gate",
+        "t": 110,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 18,
+        "id": "intent-classifier",
+        "t": 110
+      },
+      {
+        "ev": "end",
+        "k": 18,
+        "id": "intent-classifier",
+        "t": 431,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 18,
+        "id": "first-install-router",
+        "t": 431
+      },
+      {
+        "ev": "end",
+        "k": 18,
+        "id": "first-install-router",
+        "t": 641,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 18,
+        "id": "brain-derivation-drain",
+        "t": 641
+      },
+      {
+        "ev": "end",
+        "k": 18,
+        "id": "brain-derivation-drain",
+        "t": 649,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 18,
+        "id": "jtbd-update",
+        "t": 649
+      },
+      {
+        "ev": "end",
+        "k": 18,
+        "id": "jtbd-update",
+        "t": 664,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 18,
+        "id": "auto-explore-drain",
+        "t": 664
+      },
+      {
+        "ev": "end",
+        "k": 18,
+        "id": "auto-explore-drain",
+        "t": 665,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 18,
+        "t": 671,
+        "code": 0,
+        "elapsed_ms": 671
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 19,
+        "t": 81
+      },
+      {
+        "ev": "begin",
+        "k": 19,
+        "id": "admin-command-gate",
+        "t": 81
+      },
+      {
+        "ev": "end",
+        "k": 19,
+        "id": "admin-command-gate",
+        "t": 83,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 19,
+        "id": "intent-classifier",
+        "t": 83
+      },
+      {
+        "ev": "end",
+        "k": 19,
+        "id": "intent-classifier",
+        "t": 499,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 19,
+        "id": "first-install-router",
+        "t": 499
+      },
+      {
+        "ev": "end",
+        "k": 19,
+        "id": "first-install-router",
+        "t": 661,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 19,
+        "id": "brain-derivation-drain",
+        "t": 661
+      },
+      {
+        "ev": "end",
+        "k": 19,
+        "id": "brain-derivation-drain",
+        "t": 664,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 19,
+        "id": "jtbd-update",
+        "t": 664
+      },
+      {
+        "ev": "end",
+        "k": 19,
+        "id": "jtbd-update",
+        "t": 705,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 19,
+        "id": "auto-explore-drain",
+        "t": 705
+      },
+      {
+        "ev": "end",
+        "k": 19,
+        "id": "auto-explore-drain",
+        "t": 706,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 19,
+        "t": 720,
+        "code": 0,
+        "elapsed_ms": 720
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 20,
+        "t": 75
+      },
+      {
+        "ev": "begin",
+        "k": 20,
+        "id": "admin-command-gate",
+        "t": 75
+      },
+      {
+        "ev": "end",
+        "k": 20,
+        "id": "admin-command-gate",
+        "t": 88,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 20,
+        "id": "intent-classifier",
+        "t": 88
+      },
+      {
+        "ev": "end",
+        "k": 20,
+        "id": "intent-classifier",
+        "t": 486,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 20,
+        "id": "first-install-router",
+        "t": 486
+      },
+      {
+        "ev": "end",
+        "k": 20,
+        "id": "first-install-router",
+        "t": 636,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 20,
+        "id": "brain-derivation-drain",
+        "t": 636
+      },
+      {
+        "ev": "end",
+        "k": 20,
+        "id": "brain-derivation-drain",
+        "t": 653,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 20,
+        "id": "jtbd-update",
+        "t": 653
+      },
+      {
+        "ev": "end",
+        "k": 20,
+        "id": "jtbd-update",
+        "t": 667,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 20,
+        "id": "auto-explore-drain",
+        "t": 667
+      },
+      {
+        "ev": "end",
+        "k": 20,
+        "id": "auto-explore-drain",
+        "t": 686,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 20,
+        "t": 687,
+        "code": 0,
+        "elapsed_ms": 687
+      }
+    ]
+  ],
+  "marker_after": {
+    "k": 20,
+    "state": "done",
+    "pending": 0
+  },
+  "flags": {
+    "host_started": true,
+    "prompt_timeout": false,
+    "foreign_session": false,
+    "transcript_found": true
+  },
+  "loadavg_start": "1.96 1.15 1.77 1/894 945399",
+  "verdict": "PASS",
+  "first_not_ok": null
+}
