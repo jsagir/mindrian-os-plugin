@@ -234,7 +234,8 @@ leg('K1 frontmatter: no hitl_shape, Form B hitl_stages exact, hitl_why, Agent an
   const why = extractTopScalar(fm, 'hitl_why');
   assert.ok(why && why.length > 20, 'hitl_why must be non-empty');
   assert.notEqual(why, extractTopScalar(baseFm, 'hitl_why'), 'hitl_why must describe the staged flow');
-  const tools = extractDashList(fm, 'allowed-tools') || [];
+  // Phase 401 plan F1 (quick 261127-f1a), cause (d): the dead tool lists of 55 commands and 54 mirrors moved to the key pending_tool_grants, which the host does not read. Read both keys; the assertions are unchanged and apply to the union.
+  const tools = (extractDashList(fm, 'allowed-tools') || []).concat(extractDashList(fm, 'pending_tool_grants') || []);
   assert.ok(tools.includes('Agent'), 'allowed-tools must keep Agent');
   assert.ok(tools.includes('Write'), 'allowed-tools must add Write');
   assert.ok(/pre-approval/i.test(fmMatch.text), 'frontmatter must contain the word pre-approval');

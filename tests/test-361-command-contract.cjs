@@ -94,8 +94,8 @@ function extractTopScalar(fm, key) {
 }
 
 // extractAllowedTools(fm) -> array of dash-list entries under `allowed-tools:`.
-function extractAllowedTools(fm) {
-  const re = /^allowed-tools:\s*\r?\n((?:[ \t]+-[ \t]+.*\r?\n?)+)/m;
+function extractAllowedTools(fm, key) {
+  const re = new RegExp('^' + (key || 'allowed-tools') + ':\\s*\\r?\\n((?:[ \\t]+-[ \\t]+.*\\r?\\n?)+)', 'm');
   const m = re.exec(fm);
   if (!m) return null;
   return m[1]
@@ -177,7 +177,8 @@ const fm = fmMatch.inner;
 const fmText = fmMatch.text;
 const body = extractBody(raw);
 const connectorBlock = extractConnectorBlock(fm);
-const allowedTools = extractAllowedTools(fm) || [];
+// Phase 401 plan F1 (quick 261127-f1a), cause (d): the dead tool lists of 55 commands and 54 mirrors moved to the key pending_tool_grants, which the host does not read. Read both keys; the assertions are unchanged and apply to the union.
+const allowedTools = (extractAllowedTools(fm) || []).concat(extractAllowedTools(fm, 'pending_tool_grants') || []);
 
 // ============================================================================
 // Leg 1: frontmatter core connector/tool truths.

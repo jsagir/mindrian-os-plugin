@@ -47,7 +47,8 @@ test('Part 8 fence: no Brain client or external directory call in executable sou
   const mdSrc = fs.readFileSync(CMD_MD, 'utf8');
   const fmMatch = mdSrc.match(/^---\n([\s\S]*?)\n---/);
   assert.ok(fmMatch);
-  const allowedToolsMatch = fmMatch[1].match(/allowed-tools:\n((?:[ \t]+.*\n?)*)/);
+  // Phase 401 plan F1 (quick 261127-f1a), cause (d): the dead tool lists of 55 commands and 54 mirrors moved to the key pending_tool_grants, which the host does not read. Read both keys; the assertions are unchanged and apply to the union.
+  const allowedToolsMatch = fmMatch[1].match(/(?:allowed-tools|pending_tool_grants):\n((?:[ \t]+.*\n?)*)/);
   assert.ok(allowedToolsMatch);
   const executableTools = allowedToolsMatch[1].split('\n').filter((line) => !line.trim().startsWith('#')).join('\n');
   assert.doesNotMatch(executableTools, /mcp__mindrian[-_]brain__|read_neo4j_cypher/);

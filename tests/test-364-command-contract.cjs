@@ -79,7 +79,8 @@ const STAGES = [
 // a PwS-backed framework may be appended; the 2 base names stay first, in order.
 {
   const fw = flat.frameworks;
-  const tools = Array.isArray(flat['allowed-tools']) ? flat['allowed-tools'] : [];
+  // Phase 401 plan F1 (quick 261127-f1a), cause (d): the dead tool lists of 55 commands and 54 mirrors moved to the key pending_tool_grants, which the host does not read. Read both keys; the assertions are unchanged and apply to the union.
+  const tools = [].concat(Array.isArray(flat['allowed-tools']) ? flat['allowed-tools'] : [], Array.isArray(flat.pending_tool_grants) ? flat.pending_tool_grants : []);
   const parts = Array.isArray(flat.canon_parts) ? flat.canon_parts.map(Number) : [];
   C.check('C1 frontmatter: name, kind, safety, frameworks, produces, tools, canon_parts, argument-hint',
     !!cmd && flat.name === 'scientific-roadmap' && flat.kind === 'methodology' && flat.autonomous_safe === false &&
@@ -178,7 +179,8 @@ C.check('C7 the skill mirror exists and carries "what must be delivered but not 
   const reg = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/render-coverage-registry.json'), 'utf8'));
   const mine = (reg.entries || []).filter((e) => e && e.surface === CMD_REL);
   const r = run('scripts/check-render-coverage.cjs', []);
-  const tools = Array.isArray(flat['allowed-tools']) ? flat['allowed-tools'] : [];
+  // Phase 401 plan F1 (quick 261127-f1a), cause (d): the dead tool lists of 55 commands and 54 mirrors moved to the key pending_tool_grants, which the host does not read. Read both keys; the assertions are unchanged and apply to the union.
+  const tools = [].concat(Array.isArray(flat['allowed-tools']) ? flat['allowed-tools'] : [], Array.isArray(flat.pending_tool_grants) ? flat.pending_tool_grants : []);
   C.check('C11 check-render-coverage exits 0, no unwired entry, body fires AskUserQuestion under its grant',
     r.status === 0 && mine.every((e) => e.wired === true) && !!cmd && /AskUserQuestion/.test(cmd) && tools.indexOf('AskUserQuestion') !== -1,
     'status=' + r.status + ' entries=' + mine.length);

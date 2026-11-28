@@ -247,7 +247,8 @@ const problems = [];
 let tokenCount = 0;
 for (const s of surfaces) {
   if (!s.fm) continue;
-  for (const key of ['tools', 'allowed-tools']) {
+  // Phase 401 plan F1 (quick 261127-f1a), cause (d): the dead tool lists of 55 commands and 54 mirrors moved to the key pending_tool_grants, which the host does not read. Read both keys; the assertions are unchanged and apply to the union.
+  for (const key of ['tools', 'allowed-tools', 'pending_tool_grants']) {
     const k = s.fm.keys[key];
     if (!k) continue;
     tokenCount += k.items.filter((x) => x.startsWith('mcp__')).length;

@@ -16,7 +16,9 @@ const DOCTOR = path.join(H.ROOT, 'scripts', 'doctor.cjs');
 const PLANT = 'ZQXPLANTEDTEXT';
 
 // The label of the coverage-gate point, copied from HEAD before plan 370-10. It must not change.
-const COVERAGE_LABEL = 'connector + orchestration-projection + framework-vocabulary + render-coverage + skill-mirrors gates pass (no dark surface); shape-declaration and tool-honesty are advisory (WARNs inline, never blocks)';
+// Phase 401 plan F1 (quick 261127-f1a), cause (e): the plan added the gates frontmatter-split and tool-grants
+// to the point and named them in the label; no other word of the label changed.
+const COVERAGE_LABEL = 'connector + orchestration-projection + framework-vocabulary + render-coverage + skill-mirrors + frontmatter-split + tool-grants gates pass (no dark surface); shape-declaration and tool-honesty are advisory (WARNs inline, never blocks)';
 
 function run(args) {
   const r = spawnSync(process.execPath, [SCRIPT].concat(args), { encoding: 'utf8', timeout: 60000 });
