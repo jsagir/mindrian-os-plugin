@@ -89,6 +89,25 @@ const P370 = {
     { event: 'PreToolUse', sub: 'review-contract-hook.cjs', timeout: 3 },
   ],
 };
+// Plan 392-06 (owner ruling D-08, commit 25ee7a38a): the matcher of 2 entries was CHANGED
+// on purpose, so the Part 8 guard and the response sanitizer also inspect the retired
+// connector and every Theo route. P392 records the exact new matcher as a literal; it is
+// never read from hooks/hooks.json. A lane that changes either matcher updates this literal.
+const P392_MATCHER = 'mcp__(?:(?:plugin_[A-Za-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[Tt]heo__.*|[Tt]heo-context__.*|claude_ai_[Tt]heo[A-Za-z0-9_-]*__.*|claude_ai_PWS_[Bb]rain__.*|[A-Za-z0-9_-]+__brain_[a-z0-9_]+)';
+const P392 = {
+  matcher: [
+    { event: 'PreToolUse', sub: 'part8-egress-guard-hook.cjs', to: P392_MATCHER },
+    { event: 'PostToolUse', sub: 'brain-response-sanitize-hook.cjs', to: P392_MATCHER },
+  ],
+};
+// Plan 400.4-10 (QA-F11, commit 0a7cdd36a): the intent-classifier command was CHANGED on
+// purpose to run node direct, with no cmd or bash step before node. P4004 records the exact
+// new command as a literal; a lane that changes this command updates this literal.
+const P4004 = {
+  command: [
+    { event: 'UserPromptSubmit', sub: 'run-hook.cmd" intent-classifier', to: 'node "${CLAUDE_PLUGIN_ROOT}/scripts/intent-classifier.cjs"' },
+  ],
+};
 const HOOK_BUDGET_REVIEW_MS = 150;
 // Phase 400.2.1 S5 (owner ruling 2026-11-26, "A: screen with a hook"): one PreToolUse entry was ADDED on purpose, the
 // reader search guard of /mos:persona on WebSearch and WebFetch. It carries no onFailure key and fails closed inside.
@@ -193,15 +212,22 @@ check('A1 shape: only timeout and onFailure differ from ' + BASE_SHA, () => {
   const r = spawnSync('git', ['show', BASE_SHA + ':hooks/hooks.json'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
   if (r.error || r.status !== 0) return { skip: 'git unavailable' };
   const base = JSON.parse(r.stdout);
-  // Apply the deliberate Phase 385 and Phase 389 changes (P385, P389) to the base before the comparison.
+  // Apply the deliberate Phase 385, Phase 389, plan 392-06 and plan 400.4-10 changes
+  // (P385, P389, P392, P4004) to the base before the comparison.
   const removedAll = P385.removed.concat(P389.removed);
   for (const ev of Object.keys(base.hooks || {})) {
     base.hooks[ev] = (base.hooks[ev] || []).filter((group) => !(group.hooks || []).some((h) =>
       removedAll.some((x) => x.event === ev && typeof h.command === 'string' && h.command.indexOf(x.sub) !== -1)));
     for (const group of base.hooks[ev]) {
-      for (const m of P385.matcher) {
+      for (const m of P385.matcher.concat(P392.matcher)) {
         if (m.event === ev && (group.hooks || []).some((h) => typeof h.command === 'string' && h.command.indexOf(m.sub) !== -1)) {
           group.matcher = m.to;
+        }
+      }
+      for (const c of P4004.command) {
+        if (c.event !== ev) continue;
+        for (const h of group.hooks || []) {
+          if (typeof h.command === 'string' && h.command.indexOf(c.sub) !== -1) h.command = c.to;
         }
       }
     }

@@ -20,7 +20,7 @@ job_sentence_status: "provisional"
 teaching: "When the surface feels overwhelming, /mos:help is a selector: 11 command families across 3 cards, each family's commands are the options, and the one you pick runs. Add --list for the full text view, or /mos:help <family-id> for one family's full command list."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Glob Bash AskUserQuestion Skill
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. Surfaces command help on explicit navigator request; a meta / navigation aid with no problem-state trigger."

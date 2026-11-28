@@ -19,7 +19,7 @@ job_sentence_status: "provisional"
 teaching: "When you need a fast read on the room's current state, /mos:status shows the governing thought per section plus health glyphs. The 10-second status check."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash(node scripts/mos-status.cjs:*), Read, AskUserQuestion
-# --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
+# == Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

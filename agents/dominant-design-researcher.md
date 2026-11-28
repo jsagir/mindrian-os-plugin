@@ -19,7 +19,8 @@ allowed-tools:
   - mcp__tavily-mcp__tavily-search
   - WebSearch
   - Read
-# --- Phase 361 Plan 04 CIRS R1 exclude (Canon Part 7, Canon Part 11) ---
+omitClaudeMd: true
+# == Phase 361 Plan 04 CIRS R1 exclude (Canon Part 7, Canon Part 11) ==
 # A NEW SIBLING agent, never a repurposed agent: agents/research.md carries the Write tool
 # plus two Brain MCP tools and composes its own queries, and agents/analogy-query-fetcher.md
 # returns a structural SAPPhIRE mapping onto a venture, not sourced claim rows against a fixed

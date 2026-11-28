@@ -79,7 +79,8 @@ check('C1. hitl_stages holds the four stages with their shapes and modes; hitl_w
 });
 
 check('C2. allowed-tools holds Read, Write, Bash, Glob, Task and AskUserQuestion', () => {
-  const block = /^allowed-tools:\n((?: {2}- .*\n)+)/m.exec(frontmatter + '\n');
+  // Phase 401 plan F1 (quick 261127-f1a), cause (d): the dead tool lists of 55 commands and 54 mirrors moved to the key pending_tool_grants, which the host does not read. Read both keys; the assertions are unchanged and apply to the union.
+  const block = /^(?:allowed-tools|pending_tool_grants):\n((?: {2}- .*\n)+)/m.exec(frontmatter + '\n');
   assert.ok(block, 'allowed-tools block');
   const tools = block[1].split('\n').map((l) => l.replace(/^ {2}- /, '').trim()).filter(Boolean);
   for (const t of ['Read', 'Write', 'Bash', 'Glob', 'Task', 'AskUserQuestion']) assert.ok(tools.includes(t), 'tool ' + t);

@@ -19,7 +19,7 @@ teaching: "When you need to see the whole room at a glance, /mos:dashboard opens
 ui_reference: skills/ui-system/SKILL.md
 argument-hint: "[live|stop|open|shell]"
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
+# == Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

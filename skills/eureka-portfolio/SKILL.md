@@ -19,7 +19,7 @@ teaching: "When you want to know which of your linked ideas deserve your attenti
 canon_parts: [7, 8, 11, 12]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Bash AskUserQuestion
-# --- Phase 314-05 connector frontmatter (born-wired, Canon Part 11 CIRS R1) ---
+# == Phase 314-05 connector frontmatter (born-wired, Canon Part 11 CIRS R1) ==
 # The sub_mode differs from /mos:eureka on purpose: that command already holds the
 # tuple (SENS-13, context_block, eureka-portfolio). Each tuple must stay unique.
 connector:

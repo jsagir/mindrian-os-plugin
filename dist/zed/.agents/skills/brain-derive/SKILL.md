@@ -11,6 +11,10 @@ hitl_shape: "F.0"
 hitl_why: "It surfaces one derived Brain packet for a single APPROVE, REJECT, or DEFER."
 argument-hint: "[section] [--all] [--cross-room] [--dry-run] [--review-anchors] [--orphan-census] [--cross-label-dups]"
 serves_jtbd: ["audit-room"]
+job_when: "a section of my room has drifted from the method context derived for it"
+job_want: "to rebuild that section context now"
+job_so: "reach a large filing or a decision with context that matches the room"
+job_sentence_status: "provisional"
 # Phase 245-02: this command becomes spine-invocable below, so the Phase 118-06
 # reward-before-investment rule now applies to it. schema_preview is the value
 # the command already implements: `--dry-run` previews the target sections and
@@ -21,7 +25,7 @@ interactive_first_reward: schema_preview
 teaching: "When a room section drifts from its BRAIN.md derivation, /mos:brain-derive rebuilds the per-section Brain context now. Run after large filings or before a decision gate."
 disable-model-invocation: false
 allowed-tools: Bash(node *), AskUserQuestion
-# --- Phase 245-02 CIRS R1 wire (Canon Part 11), promoting the Phase 172-06 exclude ---
+# == Phase 245-02 CIRS R1 wire (Canon Part 11), promoting the Phase 172-06 exclude ==
 # The 172-06 exclude named its own promotion condition: "INV-06 promotion
 # candidate (a future mindrian-operation counterpart could make derivation
 # contextually triggered), excluded for now." That counterpart now ships: the

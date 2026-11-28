@@ -6,7 +6,8 @@ color: teal
 # 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-147).
 tools:
   - Read
-# --- Phase 265 Plan 19 CIRS R1 exclude (Canon Part 11) ---
+omitClaudeMd: true
+# == Phase 265 Plan 19 CIRS R1 exclude (Canon Part 11) ==
 # A NEW SIBLING agent, never a repurposed agent (mirrors the grant-reviewer.md
 # precedent, D5 in that file): this worker's vocabulary is the five extraction
 # perspectives (references/meeting/extraction-perspectives.md), and its tool

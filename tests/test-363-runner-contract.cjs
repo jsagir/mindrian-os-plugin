@@ -234,7 +234,8 @@ leg('K1 frontmatter: no hitl_shape, Form B hitl_stages exact, hitl_why, Agent an
   const why = extractTopScalar(fm, 'hitl_why');
   assert.ok(why && why.length > 20, 'hitl_why must be non-empty');
   assert.notEqual(why, extractTopScalar(baseFm, 'hitl_why'), 'hitl_why must describe the staged flow');
-  const tools = extractDashList(fm, 'allowed-tools') || [];
+  // Phase 401 plan F1 (quick 261127-f1a), cause (d): the dead tool lists of 55 commands and 54 mirrors moved to the key pending_tool_grants, which the host does not read. Read both keys; the assertions are unchanged and apply to the union.
+  const tools = (extractDashList(fm, 'allowed-tools') || []).concat(extractDashList(fm, 'pending_tool_grants') || []);
   assert.ok(tools.includes('Agent'), 'allowed-tools must keep Agent');
   assert.ok(tools.includes('Write'), 'allowed-tools must add Write');
   assert.ok(/pre-approval/i.test(fmMatch.text), 'frontmatter must contain the word pre-approval');
@@ -333,6 +334,15 @@ leg('K6 scout.md and scheduled-tasks.md: base sentences intact, D-05 pointer add
   const sched = read('commands/scheduled-tasks.md');
   assert.ok(baseScout.indexOf(SCOUT_BASE_SENTENCE) !== -1, 'base scout sentence sanity');
   assert.ok(baseSched.indexOf(SCHED_BASE_SENTENCE) !== -1, 'base scheduled-tasks sentence sanity');
+  // Commit f920ca620 rewrote triple-dash frontmatter comments to keep the host frontmatter boundary intact.
+  let baseScoutNow = require('../scripts/check-frontmatter-split.cjs').rewriteText(baseScout).text;
+  let baseSchedNow = require('../scripts/check-frontmatter-split.cjs').rewriteText(baseSched).text;
+  // Commit dbcf159a0, rule A1, deleted every Brain tool entry from these frontmatters.
+  baseScoutNow = baseScoutNow.split('\n').filter((l) => !/^\s*- mcp__mindrian-brain__/.test(l)).join('\n');
+  baseSchedNow = baseSchedNow.split('\n').filter((l) => !/^\s*- mcp__mindrian-brain__/.test(l)).join('\n');
+  // Commit 094b45673 changed the scheduled sentence to the static Larry wording.
+  assert.equal((baseSchedNow.match(/due within 3 days\./g) || []).length, 1, 'base scheduled sentence must occur once');
+  baseSchedNow = baseSchedNow.replace('due within 3 days.', 'due soon.');
   assert.ok(scout.indexOf(SCOUT_BASE_SENTENCE + ' ' + POINTER) !== -1, 'scout.md pointer must follow the zero-egress sentence');
   assert.ok(sched.indexOf(SCHED_BASE_SENTENCE + ' ' + POINTER) !== -1, 'scheduled-tasks.md pointer must follow the zero-egress sentence');
   for (const t of [scout, sched]) {
@@ -352,13 +362,13 @@ leg('K6 scout.md and scheduled-tasks.md: base sentences intact, D-05 pointer add
     .split('\n')
     .filter((l) => !/^(job_when|job_want|job_so|job_sentence_status|fits_domains|move_type|move_type_weak|cynefin_label_status):/.test(l))
     .join('\n');
-  assert.equal(scoutWithoutRoute.replace(' ' + POINTER, ''), baseScout, 'scout.md may change only by the pointer and the Plan-run route section');
+  assert.equal(scoutWithoutRoute.replace(' ' + POINTER, ''), baseScoutNow, 'scout.md may change only by the pointer and the Plan-run route section');
   // Phase 400 (plan 400-03) labels scheduled-tasks.md too; drop its 4 job lines the same way.
   const schedWithoutJob = sched
     .split('\n')
     .filter((l) => !/^(job_when|job_want|job_so|job_sentence_status|fits_domains|move_type|move_type_weak|cynefin_label_status):/.test(l))
     .join('\n');
-  assert.equal(schedWithoutJob.replace(' ' + POINTER, ''), baseSched, 'scheduled-tasks.md may change only by the pointer');
+  assert.equal(schedWithoutJob.replace(' ' + POINTER, ''), baseSchedNow, 'scheduled-tasks.md may change only by the pointer');
 });
 
 // K7 --------------------------------------------------------------------------
@@ -394,7 +404,11 @@ leg('K8 registry: research row keeps its key set, teaching moved, hash moved, an
   const row = (reg.commands || []).find((c) => c && c.command === '/mos:research');
   const baseRow = (baseRegistry.commands || []).find((c) => c && c.command === '/mos:research');
   assert.ok(row && baseRow, 'the /mos:research row must exist');
-  assert.deepEqual(Object.keys(row).sort(), Object.keys(baseRow).sort(), 'row key set unchanged');
+  // Commit 488c954fd (400-01) added job_sentence to every registry row.
+  // Commit 804fa78ad (400-06) added the four domain and move label fields to every registry row.
+  const addedKeys = ['job_sentence', 'fits_domains', 'move_type', 'move_type_weak', 'cynefin_label_status'];
+  for (const key of addedKeys) assert.ok(!Object.prototype.hasOwnProperty.call(baseRow, key), 'base row must not have ' + key);
+  assert.deepEqual(Object.keys(row).sort(), [...new Set([...Object.keys(baseRow), ...addedKeys])].sort(), 'row key set includes only accepted additions');
   assert.notEqual(row.teaching, baseRow.teaching, 'row teaching must have moved');
   assert.equal(row.autonomous_safe, true);
   assert.notEqual(sha256(regText), fixture.registry['data/command-registry.json'], 'registry sha256 must differ from the fixture');

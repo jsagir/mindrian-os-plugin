@@ -13,6 +13,14 @@ hitl_why: "Setting the active JTBD is a single next-move selection."
 interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: current state + last 5 history (default), 13 entries (list), full history (history), Shape F.1 picker (set with no arg), Shape E confirmation (clear, set <jtbd>)
 serves_jtbd: ["audit-room"]
+job_when: "I am not sure what kind of work my room is set up for now"
+job_want: "to see or set the active job of the room"
+job_so: "get advice that fits the work I am doing"
+job_sentence_status: "provisional"
+fits_domains: []
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 kind: methodology
 frameworks: ["Jobs to Be Done (JTBD)"]
 teaching: "When you need to see or set the active job-to-be-done for this room, /mos:jtbd shows the per-room signal that tells Larry what kind of work you are doing right now."
@@ -23,7 +31,7 @@ streams_events: false
 disable-model-invocation: false
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -244,9 +252,9 @@ Per Phase 95.1-04 D-19 deferral pattern, the F.1 picker renders as a STRUCTURAL 
 
 When Larry surfaces the output conversationally:
 
-- "You're on `find-bottleneck`. The classifier saw `rs-fetch` in your last turn plus you're in METHODOLOGY operator -- 0.82 confidence."
+- "You're on `find-bottleneck`. The classifier saw `rs-fetch` in your last turn plus you're in METHODOLOGY operator -- {confidence} confidence."
 - "Want to override? `/mos:jtbd set <id>` lets you pick from the 12 first-class jobs."
-- "If the JTBD looks wrong, `/mos:jtbd list` shows all 13 with one-liners; `/mos:jtbd clear` returns to null."
+- "If the JTBD looks wrong, `/mos:jtbd list` shows every JTBD with one-liners; `/mos:jtbd clear` returns to null."
 
 NEVER:
 - Apologize for the JTBD inference being what it is. The state is the truth; the classifier is heuristic and the user can always override.

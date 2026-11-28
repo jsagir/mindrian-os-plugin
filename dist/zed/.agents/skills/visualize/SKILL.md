@@ -12,13 +12,17 @@ hitl_why: "A rendered view offers one next move on what to open next."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 23): first delivery at commands/visualize.md:55, a soft-alias stub passing through /mos:dashboard --mermaid's output verbatim (router sub-case).
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room", "prepare-pitch"]
+job_when: "I need a diagram of how the parts of my room connect"
+job_want: "to open the knowledge graph viewer with diagram output"
+job_so: "show the structure of the venture to others at a glance"
+job_sentence_status: "provisional"
 deprecated: true
 deprecated_redirect: "dashboard --mermaid"
 deprecated_removal: "v1.14.0"
 teaching: "Deprecated alias. Use /mos:dashboard --mermaid to open the De Stijl knowledge-graph viewer with Mermaid output; visualize folds into the dashboard surface. Scheduled removal: v1.14.0."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 172-16 CIRS R1 exclude (Canon Part 11; deprecated-redirect, navigator-directed 2026-06-23) ---
+# == Phase 172-16 CIRS R1 exclude (Canon Part 11; deprecated-redirect, navigator-directed 2026-06-23) ==
 connector:
   excluded: true
   reason: "Deprecated - redirects to /mos:dashboard --mermaid; scheduled removal v1.14.0. Retained only for compatibility, so it carries no problem-state trigger."

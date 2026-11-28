@@ -24,7 +24,7 @@ canon_parts: [3, 7, 8]
 phase: 121.5-08
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. Inspects HMI / dial render status; an internal diagnostics surface the maintainer runs deliberately, not a contextual reach."

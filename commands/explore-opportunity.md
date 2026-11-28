@@ -31,7 +31,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
   - AskUserQuestion
-# --- Phase 219-05 connector frontmatter (born-wired, Canon Part 11 CIRS R1 / D-10) ---
+# == Phase 219-05 connector frontmatter (born-wired, Canon Part 11 CIRS R1 / D-10) ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

@@ -7,20 +7,33 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Knowns and unknowns are laid out as an independent matrix set with no fixed order."
-serves_jtbd: ["validate-idea"]
+serves_jtbd: ["validate-idea", "decide-pursue"]
+job_when: "I cannot tell what I do not know about my idea"
+job_want: "to sort the known, the unknown and the unknowable"
+job_so: "find where the hidden risk lives and plan research on it"
+job_sentence_status: "provisional"
+fits_domains: ["complex","disorder"]
+move_type: "slice"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the Rumsfeld matrix structure previews before the
 # navigator invests in filling each quadrant one at a time).
 interactive_first_reward: schema_preview
 teaching: "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives. It can also turn your blind spots into a research plan you run with /mos:research."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Knowns and Unknowns Matrix Framework"]
 produces: "room/**/unknowns/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

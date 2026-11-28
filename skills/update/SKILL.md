@@ -18,7 +18,7 @@ job_so: "keep my install in step with the documented behaviour"
 job_sentence_status: "provisional"
 teaching: "When you suspect MindrianOS has a newer version waiting, /mos:update checks and installs via Claude Code's native plugin loader. Stale plugins quietly diverge from the docs."
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. Plugin update / upgrade surface the navigator runs deliberately; a maintenance action with no problem-state trigger."

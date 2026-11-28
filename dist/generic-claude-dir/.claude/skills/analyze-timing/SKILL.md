@@ -8,12 +8,20 @@ layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "S-curve timing resolves to a single next-move read the navigator confirms."
 serves_jtbd: ["understand-market"]
+job_when: "I am about to pick a launch window for a technology"
+job_want: "to place the technology on its maturity curve"
+job_so: "tell whether I am too early, too late or on time"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the technology surfaces the S-Curve position
 # structure before the navigator invests in the full timing read).
 interactive_first_reward: schema_preview
 teaching: "When you need to know if your technology is too early, too late, or right on time, /mos:analyze-timing places it on the S-Curve. Best before you commit to a launch window."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["S-Curve Analysis", "Adoption-Capacity Theory"]
 produces: "room/**/timing/*"
@@ -30,8 +38,13 @@ requires_evidence:
   on: [market-analysis]
   dispatch: /mos:research
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 144.1 connector frontmatter ==
 # Phase 172-12 (INV-11 reconciliation): analyze-timing is the connector home for
 # TWO reaches that land on the same command. The PRIMARY connector block declares
 # the S-Curve direct path (SENS-06 -> context_block). The Adoption-Capacity (ACE)

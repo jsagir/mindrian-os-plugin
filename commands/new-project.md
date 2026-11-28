@@ -26,7 +26,7 @@ allowed-tools:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 # new-project declares no frameworks: block; the connector carries framework: null
 # and filing: none with NO surface so the WFL-01 firesCommand gate does not fire.
 connector:

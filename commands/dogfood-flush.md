@@ -22,7 +22,7 @@ frameworks: []
 produces: "~/MindrianRooms/mindrian/STATE.md"
 inputs: []
 autonomous_safe: true
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. A dog-fooding maintenance flush the maintainer runs deliberately; an internal upkeep action with no navigator problem-state trigger."

@@ -78,10 +78,10 @@ Open item from plan 02: skills/trending-to-absurd/SKILL.md is hand-authored and 
 
 - Stale line pointers: command frontmatter comments of the form `first delivery at commands/<name>.md:<line>`. The 4 job lines sit above every cited line, so each cited line number is now 4 lower than the real line. Not fixed in this phase.
 - count (stale-delivery-pointers): 65
-- F1 frontmatter end: in agents and standalone skills, the job lines sit after the first `# ---` comment line inside frontmatter. When a host ends frontmatter at that comment, the host does not see the job keys. No new `---` line was added.
-- count (job-lines-after-comment): 27
-- ids (job-lines-not-after-comment): agents/research.md, agents/reverse-salient-agent.md
-- count (job-lines-not-after-comment): 2
+- F1 frontmatter end: closed by Phase 401 plan F1 (quick 261127-f1a). The comment lines inside frontmatter hold no triple dash now, so a host that ends frontmatter at the first triple dash reads every job key. No key changed.
+- count (job-lines-after-comment): 0
+- ids (job-lines-not-after-comment): agents/analogy-query-fetcher.md, agents/brain-query.md, agents/chain-step-reviewer.md, agents/competitor-watch-fetcher.md, agents/dominant-design-researcher.md, agents/framework-runner.md, agents/grading.md, agents/grant-reviewer.md, agents/investor.md, agents/larry-extended.md, agents/meeting-perspective-extractor.md, agents/opportunity-scanner.md, agents/persona-analyst.md, agents/research-lane-analyst.md, agents/research.md, agents/reverse-salient-agent.md, agents/vault-section-reviewer.md, skills/brain-connector/SKILL.md, skills/client-discovery-interview/SKILL.md, skills/context-engine/SKILL.md, skills/conversation-mode/SKILL.md, skills/intelligence-orchestrator/SKILL.md, skills/larry-personality/SKILL.md, skills/mos-deck-engine/SKILL.md, skills/mullins-scaffold/SKILL.md, skills/pws-methodology/SKILL.md, skills/room-passive/SKILL.md, skills/room-proactive/SKILL.md, skills/ui-system/SKILL.md
+- count (job-lines-not-after-comment): 29
 
 ## 4. fits_domains
 

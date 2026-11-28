@@ -9,7 +9,7 @@ tools:
   - Write
   - Bash
   - Glob
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Ambient always-on infra. The sub-agent that executes one framework per call when a reach dispatches it; it is invoked BY the spine as the executor, never a problem-state-triggered reach itself."

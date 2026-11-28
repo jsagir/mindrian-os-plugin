@@ -5,11 +5,11 @@ description: >
   Proactive: surfaces contradictions and gaps. Theo is part of MindrianOS and
   needs no key, so this is active whenever Theo answers.
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Ambient always-on infra. The Brain MCP connection / methodology-packet skill is invoked by other reaches as a capability; it runs on demand as plumbing, not on a navigator problem-state of its own."
-# --- Phase 250-02 CIRS R16 Form B declaration (Canon Part 11) ---
+# == Phase 250-02 CIRS R16 Form B declaration (Canon Part 11) ==
 hitl_stages:
   - stage: "brain-refusal-fork"
     shapes: ["F.1"]
@@ -27,7 +27,7 @@ job_sentence_status: "provisional"
 
 Check Brain availability in order:
 
-**Step 0 -- HTTP path (the standard install).** Theo is called bare: there is nothing to detect or configure. Call into `lib/core/brain-client.cjs`'s `query() / search() / schema() / ask()`, NOT an MCP tool. The HTTP path is the standard install path on Claude Code CLI; the MCP path (steps 1-2 below) is an alternative for operators who bundle `mcp-server-brain/` or point an external Neo4j MCP at the canonical `mindrian-brain` server name. If the call returns nothing, that is an outage, not a missing setup: see the Refusal section below.
+**Step 0 -- HTTP path (the standard install).** Theo is called bare: there is nothing to detect or configure. Call into `lib/core/brain-client.cjs`'s `query() / search() / schema() / ask()`, NOT an MCP tool. The HTTP path is the standard install path on Claude Code CLI; the MCP path (steps 1-2 below) is an alternative for operators who point an external Neo4j MCP at the canonical `mindrian-brain` server name. If the call returns nothing, that is an outage, not a missing setup: see the Refusal section below.
 
 1. `mcp__mindrian-brain__brain_schema` tool (Desktop/Cowork MCP)
 2. `mcp__neo4j-brain__get_neo4j_schema` tool (legacy)

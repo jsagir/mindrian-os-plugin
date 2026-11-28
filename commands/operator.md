@@ -22,7 +22,7 @@ allowed-tools:
   - Read
   - AskUserQuestion
 disable-model-invocation: false
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-05]

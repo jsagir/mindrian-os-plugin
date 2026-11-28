@@ -9,6 +9,14 @@ layer_why: "Fires the sentinel background checks proactively across the room, a 
 hitl_shape: "F.8"
 hitl_why: "Sentinel scans run as an independent set of watches with no ordering constraint."
 serves_jtbd: ["explore", "understand-market"]
+job_when: "background scans of my room should run without my attention"
+job_want: "to start the watch checks across the room"
+job_so: "learn about changes before I go looking for them"
+job_sentence_status: "provisional"
+fits_domains: ["complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you want background scans running across the room without driving them yourself, /mos:scout fires the sentinel checks. The proactive layer, not the reactive one."
 ui_reference: skills/ui-system/SKILL.md
 interactive_first_reward: "--none (scripting only)"
@@ -20,8 +28,8 @@ interactive_first_reward: "--none (scripting only)"
 # removes the per-spawn permission prompt rather than granting a capability the
 # command did not already have. Scoped to the invoking turn; clears on the next
 # message.
-allowed-tools: Read Write Glob Bash WebSearch mcp__tavily__tavily-search mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher AskUserQuestion Task
-# --- Phase 143.3 connector frontmatter ---
+allowed-tools: Read Write Glob Bash WebSearch mcp__tavily__tavily-search AskUserQuestion Task
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -308,6 +316,57 @@ Report the result verbatim. The aggregator emits:
 If the JSONL file does not exist yet, the aggregator prints "no events in window yet. Run a /mos:* query first." -- this is normal for fresh installs and is not an error.
 
 Expose the threshold status prominently in the final Sentinel summary (Step 6).
+
+## Plan-run route (search the literature for what this found)
+
+This section runs only under `/mos:scout hsi` (the HSI task, SENT-04). A plain `/mos:scout` run stays the five sentinel tasks and never fetches; it does not enter this route.
+
+**Body Shape:** E (Action Report). The planner CLI prints JSON only; read each answer and act on it. Every argument is a room path, a run id, a tag or an enum value, never room text. This is the same route `/mos:eureka` uses (Canon Part 7: reuse before build); nothing leaves the room until the navigator approves the exact searches on a card.
+
+### Route step 1: Recall the HSI pairs and build the plan
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" perspective-recall --room ROOM_DIR --perspective hsi --mode quick
+```
+
+Read `run_tag`, `counts`, `top` and `plan` from the JSON. When `plan` is null, the room has nothing to search for yet: say so in one line, name what was looked for (two things in different sections that share structure without sharing words) and `counts`, and stop. When `plan.ok` is false, or `plan.status` is not `ready`, say the plan was not made ready, say in plain words what `plan.errors` names, and stop; never approve a plan that is not ready. Otherwise keep `plan.run_id`.
+
+### Route step 2: Plan review card (F.6), then the one search approval
+
+Read the plan from `ROOM_DIR/.mindrian/research-runs/<run_id>/plan.json` and show it: each leaf question, the falsifier for each, its source, the budget, and every search under the leaf's `queries` (the `q` values) exactly as it will be sent. Fire the F.6 Plan Review card with AskUserQuestion (Run this plan / Stop without running). Never take a typed yes as the answer: only the card answers it. On a yes:
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" review approve <run_id> --room ROOM_DIR --approved-via cli
+```
+
+This writes the approval for this one run; it covers exactly the searches the card listed, and an approval only lets the run fetch, it never files anything. On a stop, say the plan is saved and nothing was fetched, then stop.
+
+### Route step 3: Run
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" run-quick <run_id> --room ROOM_DIR
+```
+
+Run it straight after the approval. A `reask` answer means the approval does not cover one of these exact searches, or has lapsed: fire the F.0 card it returns with AskUserQuestion, never work around it.
+
+### Route step 4: Write the result
+
+`status: done` gives an evidence card. Write the result from that card in the four zones (header, the answer line, the strip, the footer), in plain words naming what was searched and what was not (the answer line already says which). Every factual statement ends with its row id. Never render a score, similarity, differential or percentage. Never grade or praise a finding.
+
+### Route step 5: File (F.8, only on the navigator's yes)
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" basket <run_id> --room ROOM_DIR
+```
+
+Fire the F.8 basket with AskUserQuestion, multi-select over the items the card lists (an empty pick files nothing). Only on a card yes, Write `{"approved": true, "items": [<the picked item ids>]}` to a scratch `selection.json` and file:
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" file-run <run_id> <selection.json> --room ROOM_DIR --approved-via cli
+```
+
+Show the filing report as is, including anything that did not land.
+
 
 ## Step 6: Generate Summary
 

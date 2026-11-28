@@ -21,7 +21,7 @@ job_sentence_status: "provisional"
 teaching: "When you want to see or set how Larry should render right now, /mos:operator shows the conversation state machine: JUST_TALK, EXPLORE_CAPTURE, BUILD_ROOM, METHODOLOGY, or DECISION_GATE."
 allowed-tools: Bash Read AskUserQuestion
 disable-model-invocation: false
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

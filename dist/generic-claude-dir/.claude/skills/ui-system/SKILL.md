@@ -5,10 +5,14 @@ description: >
   5 body shapes, 12 glyphs, 5 colors, session start contract, cross-surface
   adaptation. Auto-loaded on every session. No command invents its own format.
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Ambient always-on infra. The Shape F / De Stijl render contract every surface renders through; a presentation substrate, not a triggered reach."
+job_when: "I read output from many different commands"
+job_want: "to see every screen in the same zones, shapes, marks and colors"
+job_so: "read any result quickly because its layout is familiar"
+job_sentence_status: "provisional"
 ---
 
 # UI Ruling System
@@ -25,6 +29,8 @@ The zones/glyphs/colors below govern **terminal** output. Every **generated HTML
 - Defaults: **warm cream ground, never black** (`data-theme="light"`), theme-aware, blue retunes to `#6D9BFF` in dark, ink-on-green/yellow chips, **M:OS** wordmark (red colon).
 - 75% Swiss broadside / 25% De Stijl; semantic color only; flat + rectilinear; hairline `gap:1px` module grids; isometric clickables + registration-tick frames (v1.1); inline-SVG graph + clock (never a CDN); `:focus-visible` + `prefers-reduced-motion` required.
 - Applies to: `/mos:deck`, `mos-deck-engine`, `/mos:dashboard`, `/mos:export`, `/mos:present`, `/mos:wiki` + publish, `/mos:snapshot`, and `generate-standalone/hub/lobby/snapshot/deck`, `vault-export-orchestrator`. Any future HTML surface inherits it.
+
+**Exception (2026-10-02, Phase 369):** the MindrianOS UI shell (the browser workspace over the MCP server) follows Design Canon v3 Workshop Modernism (`mindrian-website/docs/DESIGN-CANON.md`) instead of v1.1, as specified in `369-UI-SPEC.md`. The shell bundles its fonts (Fraunces, DM Sans, Bodoni Moda, JetBrains Mono) and scripts and contacts no outside host. Every other HTML surface keeps v1.1 until a reconciliation phase rules otherwise.
 
 ## 1. Four-Zone Output Anatomy
 
@@ -70,7 +76,7 @@ Folder tree with state glyphs. `down-arrow` expanded, `>` collapsed+content, `>`
 Governing thought (quoted), entries list (status+name+date+depth), graph edges (type+target+count), MINTO health assessment. Floating signal badge if HIGH contradiction/convergence.
 
 ### Shape D: Document View
-**Used by:** `/mos:open [artifact]`, `/mos:query`
+**Used by:** `/mos:open [artifact]`, `/mos:wiki`
 Frontmatter as key-value pairs (no YAML markers). Full content (markdown preserved). Edges at bottom. Footer suggests following edges.
 
 ### Shape E: Action Report

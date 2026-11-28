@@ -17,19 +17,34 @@ hitl_stages:
     mode: "gate"
 hitl_why: "Bono halts at three navigator decision surfaces: topic-confirm (F.1) frames the scope and reads the room's JTBD, hypothesis-confirm (F.1) anchors the what-if the debate bears on, and ruling (F.5) resolves the governed positions into a verb."
 body_shape_detail: A Shape F selector front door, then a governed parallel cell fan-out with per-persona research, then a governed sequential inter-hat debate as nested decision gates, then a MECE-Minto conclusion closed through the shared graph-write spine
-serves_jtbd: ["explore", "decide-pursue"]
+serves_jtbd: ["explore", "decide-pursue", "surface-contradiction", "validate-idea"]
+job_when: "I face a wicked question and one opinion is not enough"
+job_want: "to run a structured debate of several perspectives over a testable hypothesis"
+job_so: "rule on an argued synthesis with its evidence in view"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex","disorder"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you have a wicked question and need a structured argument rather than one opinion, /mos:bono spawns a governed research swarm across the (subdomain x hat) grid, each persona bound to its hat's scrutiny discipline and its own wired sources, then debates the readings as a sequential inter-hat argument over a graph-proposed what-if hypothesis. The navigator confirms the topic, the hypothesis, and the ruling at three decision gates; the MECE-Minto synthesis files only on APPROVE and closes the loop into the room's logical graph."
 interactive_first_reward: reframe_question
 ui_reference: skills/ui-system/SKILL.md
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Six Thinking Hats"]
 produces: "room/solution-design/*"
 inputs: []
 autonomous_safe: false
-allowed-tools: Read Write Bash Glob WebSearch WebFetch AskUserQuestion
-# --- Phase 164-05 connector frontmatter (D-164-S4: the GENERATED front door) ---
-# --- /mos:bono rides the FROZEN hats reach with a NEW bono sub_mode. It is NEVER
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - WebSearch
+  - WebFetch
+  - AskUserQuestion
+# == Phase 164-05 connector frontmatter (D-164-S4: the GENERATED front door) ==
+# == /mos:bono rides the FROZEN hats reach with a NEW bono sub_mode. It is NEVER
 #     a 7th reach: the inter-hat debate IS a Six Thinking Hats surface, so it
 #     shares the hats reach_id / framework with /mos:think-hats (six-hats) as a
 #     second sub_mode. The connector block is GENERATED, not hand-minted: run
@@ -40,7 +55,7 @@ allowed-tools: Read Write Bash Glob WebSearch WebFetch AskUserQuestion
 #     + ruling). web_scope: green, because the per-persona web research legs are now
 #     first-class (direction stays SIGNAL -> LOCAL, proven by the Part 8 egress
 #     guard: generic subdomain handles cross toward the public web, never LOCAL
-#     content toward the Brain). ---
+#     content toward the Brain). ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -104,11 +119,21 @@ Apply the Pyramid + MECE discipline of `/mos:structure-argument` to emit the con
 
 Detect a re-run first: `findPriorConclusion(db, topic_hash)` (from `lib/core/close-loop-writer.cjs`) looks up any prior conclusion on the same topic. Then make ONE `writeCloseLoop` call carrying claims / relations / killed / conclusion / knowns / unknowns / opportunities, plus `priorConclusionId` when a confirmed prior exists. The writer is the ONE spine both 223 surfaces terminate through: D-01 dual write (opportunity bank .md FIRST, room.db node SECOND, one shared artifact_id) and D-02 proposed edges live INSIDE the writer; the command never bypasses it. Every node is born `review_status: proposed` (Part 9). After the write, run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/compute-opportunity-state" <roomDir>` so the bank rollup surfaces the new opportunity nodes (Req 4).
 
+**The door.** The command surface runs this step from a shell through ONE script. Write the payload JSON to a temp file outside the room (the OS temp directory), then, only after the navigator APPROVEs the ruling card, run:
+
+`node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/close-loop.cjs" close --room <roomDir> --surface bono --payload <payload.json> [--run-id <id>] [--session-id <id>]`
+
+In plain words: it looks up the prior conclusion on the same topic, chains to it only when a human already confirmed it (the supersede is attributed to the room navigator from USER.md, never to Larry), writes the whole close in one room transaction or nothing, and prints a JSON summary. It exits 1 with every failure listed (nothing partial hidden) and leaves the room graph unchanged. A payload must not carry `priorConclusionId`; the door alone picks the prior. Every node it writes is born `proposed`.
+
+Tri-polar: Claude Desktop has no shell and no MCP tool wraps this spine today (a grep of `lib/mcp` for `writeCloseLoop` and `close-loop-writer` finds nothing), so on Desktop Larry says the close cannot run there and offers to run it from Claude Code, rather than writing the graph by hand.
+
 ## 8. Version cut + --version-log
 
 The SUPERSEDES chain is written by phase 7's supersede path (D-04: the SUPERSEDES edge binds NULL `review_status` -- it is mechanical bookkeeping; the new conclusion NODE is what the navigator ratifies). CONTRACT: `supersede` requires the prior conclusion to be CONFIRMED (confirmed -> superseded is the only legal transition). NEVER auto-confirm a prior conclusion to force a chain; confirmation is `confirmNode(byUser)` only (Part 9). A proposed prior yields a new proposed conclusion plus a DISCLOSED "no chain written: prior unconfirmed" outcome (the SEED-059 disclosed-thin-world convention), never a silent no-op and never an auto-confirm.
 
 `--version-log` renders `walkSupersedesChain(db, newestConclusionId)` as a chain-order list: newest first, one line per conclusion with its `created_at` and a governing-thought snippet. A first run renders a single-entry log and ZERO SUPERSEDES edges (no false chain on a first run).
+
+Write a JSON object with the one key `topic` (its value is the topic text) to a file in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/topic.json`, with the Write tool; the topic never goes on a command line. Then run `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/close-loop.cjs" version-log --room <roomDir> --topic-file "<dir>/topic.json"`. It prints the chain newest first and names any same-topic conclusion left off the chain. It writes nothing. Then remove that directory, also when the person declines.
 
 #### Hard rules (in-body)
 
@@ -122,6 +147,10 @@ The SUPERSEDES chain is written by phase 7's supersede path (D-04: the SUPERSEDE
 #### Offer high-value hats as reusable SyntheticExperts
 
 At the ruling gate, offer the run's high-value hats for filing as reusable `SyntheticExpert` nodes (Wave-2 `offerExpertsForFiling`). The navigator APPROVEs which experts are worth keeping; promotion to `confirmed` rides `navigation.confirmNode(byUser)` (Part 9 role 5: the human confirms truth).
+
+The offer comes from THIS run's hats, so an empty expert library is the reason to offer, never a reason to skip. Write the run's hats as JSON (each with `hat`, `name`, `surname`, `evidenceTier`, `survivalRate`) and run `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/close-loop.cjs" offer-experts --hats <hats.json>`. It prints the ranked candidates and writes nothing; the ranking is one sum, evidence-tier rank divided by four plus survival rate, so a high-survival Practitioner hat can outrank a low-survival Academic hat.
+
+Render the candidates as a card (Shape F, AskUserQuestion). For each candidate the navigator keeps, run `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/close-loop.cjs" file-expert --room <roomDir> --spec <spec.json> --session-id <id>`, which files one `proposed` SyntheticExpert node and refuses any field outside the SyntheticExpert allow-list by name. Confirmation stays `navigation.confirmNode(byUser)`.
 
 #### Decisions carried (D-164, updated for Phase 223)
 

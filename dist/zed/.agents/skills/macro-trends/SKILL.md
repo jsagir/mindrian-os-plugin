@@ -8,14 +8,22 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The PEST factors are scanned independently, an unordered basket of trend jobs."
 serves_jtbd: ["understand-market"]
+job_when: "I am entering a domain and do not know the forces that shape it"
+job_want: "to scan its political, economic, social and technological forces"
+job_so: "see the wide picture before I narrow my focus"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","disorder"]
+move_type: "slice"
+move_type_weak: true
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the domain previews the PEST four-factor
 # structure before the navigator invests in the full scan).
 interactive_first_reward: schema_preview
 teaching: "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions. The wide-angle lens before you zoom in."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
-frameworks: ["PEST Analysis"]
+frameworks: ["PEST Analysis", "Macro Trends/Macro Trending"]
 produces: "room/**/trends/*"
 inputs: []
 # Phase 265-13: lets the navigation engine OFFER /mos:research at an F.1
@@ -31,8 +39,13 @@ requires_evidence:
   on: [market-analysis]
   dispatch: /mos:research
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

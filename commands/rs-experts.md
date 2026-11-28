@@ -17,21 +17,21 @@ move_type_weak: false
 cynefin_label_status: "provisional"
 interactive_first_reward: instant_brief
 teaching: "When a documented gap may connect to people named in your research papers, /mos:rs-experts searches the selected room's local paper corpus and shows source-linked authors. It does not verify their current expertise or availability."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Reverse Salient Analysis"]
 produces: "room/**/rs-experts/*"
 inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
+pending_tool_grants:
   - Bash
   - Read
   - AskUserQuestion
   # mcp__mindrian-brain__read_neo4j_cypher intentionally removed (BUG 2 fix):
   # Author/Paper/Institution nodes are LOCAL-only (populated by /mos:rs-fetch).
   # The remote Brain must never be called from this command.
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-02]

@@ -17,9 +17,9 @@
 #   tests/test-sqlite-concurrent.cjs (# pass 3, # fail 1),
 #   tests/test-267-mcpv2-zod4-contract.cjs (RESULT: PASS=2 FAIL=2),
 #   tests/test-363-command-contract.cjs (PASS: 5 FAIL: 3),
-#   tests/test-359-prose-budget.cjs (16 passed, 2 failed),
-#   tests/test-3696-voice-first-budget.cjs (PASS: 11 FAIL: 1),
-#   tests/test-3696-operation-doctrine.cjs (PASS: 25 FAIL: 1),
+#   tests/test-359-prose-budget.cjs (16 passed, 2 failed, green after 406-P1),
+#   tests/test-3696-voice-first-budget.cjs (PASS: 11 FAIL: 1, green after 406-P1),
+#   tests/test-3696-operation-doctrine.cjs (PASS: 25 FAIL: 1, still red: RT1, 400.5 plan 04 and 369.7),
 #   tests/test-358-b2-part8.cjs (passed=6 failed=1),
 #   tests/test-234-plugin-root-migrated.cjs (18 passed, 1 failed),
 #   tests/test-273-substrate-baseline-honest.cjs (exit 1: 202 measured, 204 documented),
@@ -145,9 +145,9 @@ run "build-orchestration-projection check" node scripts/build-orchestration-proj
 run "build-harness-manifest check" node scripts/build-harness-manifest.cjs --check
 run "render coverage check" node scripts/check-render-coverage.cjs --check
 
-run "substrate baseline is 202" bash -c '
+run "substrate baseline is 199" bash -c '
   out=$(node scripts/check-substrate.cjs --baseline 2>&1)
-  printf "%s\n" "$out" | grep -qF "Found 202 violation(s)" || { printf "%s\n" "$out" | tail -3; exit 1; }'
+  printf "%s\n" "$out" | grep -qF "Found 199 violation(s)" || { printf "%s\n" "$out" | tail -3; exit 1; }'
 
 run "no em-dash or en-dash in 261127-bnd files" bash -c '
   files="

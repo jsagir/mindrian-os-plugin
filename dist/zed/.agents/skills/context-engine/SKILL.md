@@ -4,10 +4,14 @@ description: >
   Session context management and user memory. Relevant for managing USER.md,
   tracking user preferences, and providing context-aware greetings across sessions.
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Ambient always-on infra. Assembles conversational context every turn; a continuous substrate skill with no discrete problem-state trigger."
+job_when: "I return to my work after a break"
+job_want: "to have my preferences, venture context and recent topics carried across sessions"
+job_so: "pick up where I left off without explaining myself again"
+job_sentence_status: "provisional"
 ---
 
 # Context Engine -- Session Continuity
@@ -121,7 +125,7 @@ When `tengu_kairos` is NOT set and `kairos-active` does not exist, this section 
 
 ## Context Window Awareness
 
-Read `/tmp/mindrian-context-state` if it exists. If the file is missing or older than 5 minutes (compare TIMESTAMP to current epoch), use conservative defaults: assume 200K context window, 50% usage, unknown model.
+Read the file `mindrian-context-state` in the temp folder (`$TMPDIR`, or `/tmp` when TMPDIR is unset) if it exists. If the file is missing or older than 5 minutes (compare TIMESTAMP to current epoch), use conservative defaults: assume 200K context window, 50% usage, unknown model.
 
 ### Model-Specific Behavior
 

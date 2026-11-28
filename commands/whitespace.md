@@ -18,7 +18,7 @@ move_type: "probe"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries. A gap that spans two sections can become a research plan that checks whether the literature is missing it too."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["HSI Semantic Surprise Analysis Assistant"]
 produces: "room/opportunity-bank/whitespace/*"
@@ -26,12 +26,12 @@ inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
 # Phase 363-19: Write is a pre-approval for the research subcommand only; it writes the question-set JSON to a scratch dir outside the room.
-allowed-tools:
+pending_tool_grants:
   - Bash
   - Read
   - Write
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-06]

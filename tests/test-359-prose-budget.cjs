@@ -65,7 +65,8 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-10 Task 2 (D-04), 2026-10-30: was 2b3475665589...5931 (the Operating the machinery pointer names references/personality/reach-and-dial.md; one duplicate sentence leaves the Operating policy line)
   // re-based by 383-05 (QA383-03, D-row C6 and C7), 2026-11-05: was 5389514d2b3b...f4cd (two sentences added to the second Operating invisibly bullet, paid for by two cuts of duplicate text (the gate-card clause of the first bullet, and the voice modulation line, which references/personality/voice-dna.md keeps) so the 65 percent body budget of test-3696-voice-first-budget holds; the Operating policy line and the Decision Gates span are unchanged)
   // re-based by 383-06 (QA383-05, QA383-06, QA383-07), 2026-11-05: was c2adef6ed9bc...accc8 (the Your call line says a fork that ends in prose, a card copy line follows it, the SEED-117 sentence puts the plain three-line message first and the verbatim line into the bug seed and the log; two cuts pay for it (the cost-list examples of the Sourced Claims sentence, the rationale sentence of the failed-create section); the Decision Gates span is unchanged)
-  LARRY_OUTSIDE_GATES: 'a21e7ddaa96685c5dd1aa61a6a6415bda67db2147c76390147e31d55ea2a2c86',
+  // re-based by 406-P1 (OR-67 O-A), 2026-11-28: was a21e7ddaa966...2c86 (accepted: 09139519d quick 261108-es3 comment line; 426f473f1 SEED-147 correction of that line; 4b1b9bab1 400-03 job keys; 2a772e4db F1 CIRS comment line; the Decision Gates span is unchanged)
+  LARRY_OUTSIDE_GATES: 'abeb94bf6dcdebba3912c27a4086cc1540d0e3f4912b7606d958c57a12dc2d5b',
   // `## Post-Gate Handoff` section (up to `## Decision Gates`)
   POST_GATE_HANDOFF: '476d0b526bcac7f212abe7f8bdb52d7a7a0909a096c1f20dd5d0df4fa61d653c',
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
@@ -74,7 +75,8 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-10 Task 1 (D-04), 2026-10-30: was 5923ccec4d06...dad4 (the reach, dial, Usher and stance manual moves to references/personality/reach-and-dial.md; compact When to Reach triggers section with the context, cross-room and methodology triggers inline)
   // re-based by 369.6-10 Task 2 (D-04), 2026-10-30: was 8c91b97411cb...4a9d (memory, stamps and onboarding move to references/personality/memory-and-findings.md and onboarding.md; inline lines, References list)
   // re-based by 369.6-11 Task 1 (D-36, D-38, D-39, R-09, R-16, R-17), 2026-10-30: was 1c4a980e2b8200d57b696d9d2ca3c5fb5ed9247b758f2945bd9ee3f87df70f82 (the Thinking Trace shrinks to the on-request rule, Integration Offers become job-tied, spaced double hyphen pauses are retired)
-  SKILL_OUTSIDE_ITEM5: '5c5ba25e497027ada0a41c5613ba75614ddcbe661b0d0df3a09495fd321774e3',
+  // re-based by 406-P1 (OR-67 O-A), 2026-11-28: was 5c5ba25e4970...74e3 (accepted: 0ed2f6d41 386-43 Brain call pointer; 4b1b9bab1 400-03 job keys; 2a772e4db F1 CIRS comment line; the item-5 line is unchanged)
+  SKILL_OUTSIDE_ITEM5: '8b0989e84151ff8e59965b0344b5c993ec34ba702283cc7bc3267ffee11c9154',
   // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then after the 261029-sof TMPDIR change merged with lx3 on this branch; any later edit of session-start moves this pin again)
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 5be7b46dc897...2670 (the identity rule line spells PwS)
   // re-based at the origin/main merge (beta.77: c94 preflight floor lines, phase 381) on 2026-10-30

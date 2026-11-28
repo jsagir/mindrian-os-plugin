@@ -14,10 +14,14 @@ hitl_why: "Export offers a single next move to confirm the export scope."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 11, argued in full): first delivery at commands/export.md:68, a filed, shareable HTML artifact of the whole Data Room, the "filed document" leg of live_deliverable's own definition.
 interactive_first_reward: live_deliverable
 serves_jtbd: ["prepare-pitch"]
+job_when: "I need to share a view of my room with someone outside it"
+job_want: "to package the view as a self-contained web page"
+job_so: "let them read it with nothing to install"
+job_sentence_status: "provisional"
 teaching: "When you need to share a Data Room view with someone outside the room, /mos:export packages it as a De Stijl HTML artifact. Investor-ready, no install required on their side."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read Write AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Render command. Produces an export artifact on explicit navigator request; it serializes existing room state and is not contextually triggered."
@@ -83,7 +87,7 @@ If the user specifically requests `dashboard`:
    ```
 
 3. **Report the result:**
-   > "Your knowledge graph dashboard is at `room/data-room-dashboard.html`. Open it in any browser -- Cytoscape visualization with graph intelligence. Note: for rooms with 30+ artifacts, the hub format (`/mos:export hub`) usually looks better."
+   > "Your knowledge graph dashboard is at `room/data-room-dashboard.html`. Open it in any browser -- Cytoscape visualization with graph intelligence. Note: for large rooms, the hub format (`/mos:export hub`) usually looks better."
 
 ## Generate the PDF
 
@@ -118,7 +122,7 @@ If the profile looks sparse, suggest:
 ## Surface Behavior
 
 - **CLI:** The render-pdf script runs directly, generates the PDF, and opens it automatically with the system viewer.
-- **Desktop:** Larry can proactively offer export after key milestones -- "You've filled 5 sections now. Want me to generate a thesis draft so you can see how it's shaping up?"
+- **Desktop:** Larry can proactively offer export after key milestones -- "You've filled {n} sections now. Want me to generate a thesis draft so you can see how it's shaping up?"
 - **Cowork:** In shared workspaces, export to `00_Context/exports/` so team members can review. Mention: "I put the export in the shared context folder so your team can see it."
 
 ## Error Handling

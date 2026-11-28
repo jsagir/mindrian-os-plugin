@@ -12,13 +12,21 @@ hitl_why: "Filing and tidy jobs are surfaced as an independent set with no order
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/organize.md:58, a soft-alias stub passing through /mos:rooms organize's output verbatim (router sub-case).
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
+job_when: "my rooms have multiplied and their hierarchy is a mess"
+job_want: "to arrange my rooms into a clear parent and child structure"
+job_so: "find and manage each room without searching"
+job_sentence_status: "provisional"
+fits_domains: []
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 deprecated: true
 deprecated_redirect: "rooms organize"
 deprecated_removal: "v1.14.0"
 teaching: "Deprecated alias. Use /mos:rooms organize to manage the room portfolio hierarchy; organize is folded into the multi-room surface. Scheduled removal: v1.14.0."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Write Bash Glob Grep AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. Reorganizes / files room artifacts on explicit navigator request; a housekeeping action today. INV-06 promotion candidate (a future contextual trigger on filing pressure is plausible), excluded for now."

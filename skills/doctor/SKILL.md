@@ -19,7 +19,7 @@ job_so: "get back to my work on a sound setup"
 job_sentence_status: "provisional"
 teaching: "When something feels off with the install, /mos:doctor diagnoses install-state drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix."
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. A diagnostics / health-check surface the navigator or release pipeline runs deliberately; it inspects the install, never reacts to a navigator problem-state."

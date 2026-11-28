@@ -15,7 +15,7 @@
  *   V4   strict core voice share at least 20 percent (D-02)                                          required (flipped by 369.6-08 Task 2)
  *   V5   loose machinery share at most 30 percent, the operation class apart (D-02)                  required (flipped by 369.6-08 Task 2)
  *   V6   the body names references/personality/agent-operations.md and the file exists (D-03)       required (flipped by 369.6-08 Task 1)
- *   V7   the frontmatter is byte-identical to the base frontmatter                                   (required now)
+ *   V7   the frontmatter is byte-identical to the base frontmatter, apart from the 5 accepted lines of ACCEPTED_AFTER_BASE (required now)
  *   V8   none of the D-03 sections remains in the body                                               required (flipped by 369.6-08 Task 2)
  *   V9   the Decision Gates section text is byte-identical to the base (D-09)                        (required now)
  *   V10  no em dash or en dash in this file
@@ -56,6 +56,17 @@ const M = require(path.join(ROOT, 'scripts', 'measure-larry-voice.cjs'));
 const AGENT = 'agents/larry-extended.md';
 const OPS_REF = 'references/personality/agent-operations.md';
 const BASE = path.join(__dirname, 'fixtures', '3696-persona-h', 'larry-extended.md');
+
+// 406-P1 (OR-67 O-A): the 5 agent frontmatter lines that accepted commits added after the base fixture.
+const ACCEPTED_AFTER_BASE = Object.freeze([
+  // 09139519d quick 261108-es3 (added as SEED-145), corrected to SEED-147 by merge 426f473f1
+  '# Quick 261108-es3 (SEED-147): mcpServers is ignored for plugin agents by Claude Code 2.1.319 (host debug log, also with --agent in main-thread mode). The key stays readable: it is the intent, and a user-level copy under ~/.claude/agents is not covered by that probe.',
+  // 4b1b9bab1 400-03 job keys (JS-03), the next 4 lines
+  'job_when: "I need a thinking partner for my venture and my room"',
+  'job_want: "to talk through methods and reasoning with a partner who challenges my framing"',
+  'job_so: "find the real problem before I commit to a solution"',
+  'job_sentence_status: "provisional"',
+]);
 
 const live = fs.readFileSync(path.join(ROOT, AGENT), 'utf8');
 const base = fs.readFileSync(BASE, 'utf8');
@@ -146,7 +157,23 @@ leg('V3', 'body at most ' + BODY_MAX + ' B (65 percent of ' + BASE_BODY + ' B)',
 leg('V4', 'strict core share at least ' + STRICT_MIN + ' percent', strict.share >= STRICT_MIN, 'share ' + strict.share);
 leg('V5', 'loose machinery share at most ' + MACHINERY_MAX + ' percent, operation apart', loose.share.machinery <= MACHINERY_MAX, 'share ' + loose.share.machinery);
 leg('V6', 'the body names ' + OPS_REF + ' and the file exists', live.indexOf(OPS_REF) !== -1 && fs.existsSync(path.join(ROOT, OPS_REF)));
-check('V7 the frontmatter is byte-identical to the base frontmatter', frontmatterOf(live) !== '' && frontmatterOf(live) === frontmatterOf(base));
+// Phase 401 plan F1 (quick 261127-f1a) rewrote the triple-dash comment lines inside frontmatter, because the
+// host ends frontmatter at the first triple dash. The base fixture is immutable, so the same rewrite is applied
+// to the base before the compare. No key changed.
+const F1 = require(path.join(ROOT, 'scripts', 'check-frontmatter-split.cjs'));
+// re-based by 406-P1 (OR-67 O-A), 2026-11-28: remove the five accepted lines below, added by 09139519d and corrected by 426f473f1 for the quick note, and 4b1b9bab1 for the four job keys.
+const liveFrontmatterLines = frontmatterOf(live).split('\n');
+let acceptedLinesFound = true;
+for (const entry of ACCEPTED_AFTER_BASE) {
+  const index = liveFrontmatterLines.indexOf(entry);
+  if (index === -1) {
+    acceptedLinesFound = false;
+    check('V7 accepted frontmatter line is present: ' + entry, false, 'entry not found');
+  } else {
+    liveFrontmatterLines.splice(index, 1);
+  }
+}
+check('V7 the frontmatter is byte-identical to the base frontmatter', acceptedLinesFound && frontmatterOf(live) !== '' && liveFrontmatterLines.join('\n') === frontmatterOf(F1.rewriteText(base).text));
 {
   const present = level2(live).concat(bodyLinesOf(live).map(function (ln) { return /^###+ (.*)$/.exec(ln); }).filter(Boolean).map(function (m) { return norm(m[1]); }))
     .filter(function (h) { return MOVED_HEADINGS.some(function (n) { return h.indexOf(n) === 0; }); });

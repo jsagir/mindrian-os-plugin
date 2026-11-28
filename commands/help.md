@@ -24,7 +24,7 @@ allowed-tools:
   - Bash
   - AskUserQuestion
   - Skill
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. Surfaces command help on explicit navigator request; a meta / navigation aid with no problem-state trigger."

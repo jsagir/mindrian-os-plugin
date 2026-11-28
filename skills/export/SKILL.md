@@ -21,7 +21,7 @@ job_sentence_status: "provisional"
 teaching: "When you need to share a Data Room view with someone outside the room, /mos:export packages it as a De Stijl HTML artifact. Investor-ready, no install required on their side."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read Write AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Render command. Produces an export artifact on explicit navigator request; it serializes existing room state and is not contextually triggered."

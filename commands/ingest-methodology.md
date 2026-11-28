@@ -24,7 +24,7 @@ allowed-tools:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 172-12 connector frontmatter (CIRS R1 WIRED / R2 born-wired) ---
+# == Phase 172-12 connector frontmatter (CIRS R1 WIRED / R2 born-wired) ==
 # /mos:ingest-methodology is the maintainer surface for the CIRS born-wired
 # pipeline itself (lib/core/methodology-ingest.cjs ingestPlan step-5). It is WIRED
 # to the spine so the pipeline that makes every FUTURE methodology born-wired is
