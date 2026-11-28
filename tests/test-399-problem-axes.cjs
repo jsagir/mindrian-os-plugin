@@ -161,8 +161,15 @@ check('A8 Brain wire vocabulary, Part 8 guard and brain-router are untouched', (
     'data/brain-shape-vocabulary.json', 'lib/core/part8-egress-guard.cjs', 'lib/mcp/brain-router.cjs', 'lib/core/brain-shape-packet.cjs'], { cwd: ROOT, encoding: 'utf8' });
   assert.equal(out.trim(), '');
   const base = execFileSync('git', ['diff', '--stat', '24d5ccb6a', '--',
-    'data/brain-shape-vocabulary.json', 'lib/core/part8-egress-guard.cjs', 'lib/mcp/brain-router.cjs', 'lib/core/brain-shape-packet.cjs'], { cwd: ROOT, encoding: 'utf8' });
+    'data/brain-shape-vocabulary.json', 'lib/mcp/brain-router.cjs', 'lib/core/brain-shape-packet.cjs'], { cwd: ROOT, encoding: 'utf8' });
   assert.equal(base.trim(), '');
+  // re-pinned by quick 261128-a8, 2026-11-28: the guard base moves from 24d5ccb6a to 1a7d6ad46 (accepted: 1a7d6ad46 404-03 Part 8 guard arm for the recipe walk tool, 15 added lines, 0 removed); the vocabulary, brain-router and brain-shape-packet pins stay on 24d5ccb6a.
+  const guard = execFileSync('git', ['diff', '--stat', '1a7d6ad46', '--',
+    'lib/core/part8-egress-guard.cjs'], { cwd: ROOT, encoding: 'utf8' });
+  assert.equal(guard.trim(), '');
+  const accepted = execFileSync('git', ['diff', '--numstat', '24d5ccb6a', '1a7d6ad46', '--',
+    'lib/core/part8-egress-guard.cjs'], { cwd: ROOT, encoding: 'utf8' });
+  assert.equal(accepted.trim(), '15\t0\tlib/core/part8-egress-guard.cjs');
 });
 
 if (failed > 0) {
