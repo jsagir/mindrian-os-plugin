@@ -114,6 +114,8 @@ These nine situations are equal. None of them ranks above another.
 
 Deep mode needs two things: the Agent tool (one separate agent run for each hat) and a local shell (the door script `scripts/persona-hats.cjs`). Check both before step 1.
 
+Worktree note: if a hat agent's Write is refused by a worktree path guard, dispatch from a cwd outside any git work tree. Such a host hook refuses a write outside the git root of the session, and the run directories of the hats are outside the repository. Change to the room directory or to the home directory, then dispatch the hat agents again.
+
 When the Agent tool or the shell is missing (Claude Desktop through MCP, or a Cowork session with no shell), do not start deep mode. Say this sentence, word for word, and offer the fast look:
 
 > Deep review needs separate agents and a local shell. It runs in Claude Code. Here I can give the fast look, which is one pass and not an independent review.
@@ -246,7 +248,7 @@ Deep mode only. The door plans a search only from handles that a hat proposed. L
    node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/persona-hats.cjs" plan-research --room "<room dir>" --run "<run_id>"
    ```
 
-   The output holds `hats` (for each hat: `planned`, `not_planned:<reason>`, or `never_searches` for red and blue), `planned` (the list of planned hats), `plan_seq`, `plan` (the plan with the exact strings and providers of each hat) and `refused_shown` (a list of `{hat, text, reason}`: the handles and edits that the door refused). The door refuses a second `plan-research` call that has no `--edited` file.
+   The output holds `hats` (for each hat: `planned`, `not_planned:<reason>`, or `never_searches` for red and blue), `planned` (the list of planned hats), `plan_seq`, `plan` (the plan with the exact strings and providers of each hat) and `refused_shown` (a list of `{hat, text, reason}`, with `lens` for the nature handle of green and `guidance` when the door has a fix sentence for the reason: the handles and edits that the door refused). The door refuses a second `plan-research` call that has no `--edited` file.
 
 3. Print one line from the `hats` field: `Research not run for: `, then each hat whose state starts with `not_planned:` as `<hat> (<reason>)`, in the order white, black, yellow, green, then a full stop. Print nothing when no hat is in that state. The merge repeats this line in its `notice_lines`.
 
@@ -284,7 +286,7 @@ Output: one file, `handles.json`, in your own directory, with exactly these keys
 
 Run this step only when `planned` is not empty. A hat that is not planned gets no card; it is named in the line of Step 4.
 
-These cards cover the searches that the door sends. Each reading hat may also search the web on its own to validate and build its case. Those searches follow a prompt rule only: no code checks them before they leave the machine. The review lists every string a hat reports and every source it found, under their own label.
+These cards cover the searches that the door sends. Each reading hat may also search the web on its own to validate and build its case. Those searches pass the reader search screen (a hook) before they leave the machine: a search that holds a room word is blocked. The screen cannot catch a figure or a detail that holds no screened word. The review lists every string a hat reports and every source it found, under their own label.
 
 1. **Show the cards (shape F.0, Mini Decision Gate).** Show up to four cards together, one for each hat of `planned`, in one AskUserQuestion call: the four cards are shown together in one interaction, and each hat is approved, edited or refused on its own. Each card shows, from `plan.hats.<hat>`:
    - the hat;
@@ -297,7 +299,7 @@ These cards cover the searches that the door sends. Each reading hat may also se
 
    The sentence is the fixed text of the card. It means that the door may send the same approved string again to the same provider up to 2 times for each failed lens run, when that source fails in passing (Tier 1 recovery). It never sends another string and never asks another provider.
 
-   Show the entries of `refused_shown` next to the cards: the hat, the text when it is not null, and the reason. These handles or edits were refused by the door and will never be sent.
+   Show the entries of `refused_shown` next to the cards: the hat, the text when it is not null, the reason, and the `guidance` sentence when the entry has one (for example how many words a handle may have). These handles or edits were refused by the door and will never be sent.
 
    The answers for each hat are approve, edit, refuse and defer. Offer three options (approve, edit, refuse); a free-text answer such as "later" is defer. One AskUserQuestion call takes 4 questions or fewer (ASSUMED, a guess), and there are 4 researching hats at most.
 
@@ -346,7 +348,7 @@ These cards cover the searches that the door sends. Each reading hat may also se
    - `host_result_not_approved`: a host result is for a string or a hat that was not approved; no search was sent by the door.
    - `host_result_not_in_plan`, `host_string_mismatch`: a host result does not match a host search of the plan, or its string was changed; no search was sent by the door.
 
-6. **Print the research lines.** From the output, print one line for each of white, black, yellow and green: `Research <hat>: <state>`, then ` (<reason>)` when `reasons.<hat>` is not null, then `, <n> evidence items` from `evidence_items.<hat>`. When a string of `strings.<hat>` has a `host` entry with the state `not_executed`, print one more line: `Host web search not run for <hat> (<lens>): <reason>.` with the `reason` of that entry: `provider_unavailable:host_web` (no host results for the string) or `provider_failed:host_off_site` (every result was off the site, so the search did not run as approved). For green, print one more line from the output field `nature`: `Research green (AskNature): <nature>.` Then print the two counts of `counts` (`strings_approved`, `strings_refused`). Add no judgment of the findings. A hat with a refused or deferred card gets no door evidence; its reading still runs. Continue with Step 6.
+6. **Print the research lines.** From the output, print one line for each of white, black, yellow and green: `Research <hat>: <state>`, then ` (<reason>)` when `reasons.<hat>` is not null, then `, <n> evidence items` from `evidence_items.<hat>`. When a string of `strings.<hat>` has a `host` entry with the state `not_executed`, print one more line: `Host web search not run for <hat> (<lens>): <reason>.` with the `reason` of that entry: `provider_unavailable:host_web` (no host results for the string) or `provider_failed:host_off_site` (every result was off the site, so the search did not run as approved). Then print each sentence of `plain_lines` as it is: one plain sentence for each host search whose results were all off the site of its lens (for example no kaggle.com/datasets page). The check and merge outputs and the review carry the same `dropped_below_floor` counts. For each hat whose `dropped_below_floor.<hat>` is more than 0, print one more line: `Off-topic results dropped for <hat>: <n> (no two handle content words next to each other, in either order, in the title or in the summary, and not every handle word; listed in strings.<hat>[].dropped).` The relevance floor is interim and lexical. It drops a result before it is filed; a dropped result is never filed and never cited. For green, print one more line from the output field `nature`: `Research green (AskNature): <nature>.` Then print the two counts of `counts` (`strings_approved`, `strings_refused`). Then print `Reader search screen: <reader_search_screen>.` When the value is `armed`, a hook screens each WebSearch query and each WebFetch url for room words until the merge. When it is `not_armed:<reason>` (for example `not_armed:no_room_name`: the room states no name, so there is no word to screen), say that the own searches of the hats are not screened in this run, and continue. For a WebFetch call the hook screens the path and the query of the url (raw and decoded), not the host. The hook fails closed: when it cannot screen, it blocks and names the off switch. Only when the navigator asks to stop the screen, run `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/persona-hats.cjs" disarm-reader-screen --run <run_id>`; the review of that run then says that the screen lapsed before the merge. (When plan-research planned no hat and skipped run-research, its output holds the same field.) Add no judgment of the findings. A hat with a refused or deferred card gets no door evidence; its reading still runs. Continue with Step 6.
 
 ### Step 6 -- Readings
 
@@ -380,7 +382,7 @@ Files in your own directory: white, black, yellow and green: `shared-white.json`
 
 Web rule: White, black, yellow and green may use WebSearch and WebFetch to validate and build their case. Red makes no search and gives no evidence and no justification. For red, this step makes no web search: do not call WebSearch or WebFetch.
 
-Search rule: Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it. List every search string you sent in self_search_strings and every source you used in self_found_sources.
+Search rule: Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. While this run is open, a hook of the plugin also screens each WebSearch query and each WebFetch url for room words before it leaves the machine, and blocks a search that holds one. A blocked search was not sent: write it again with general words, and do not list it in self_search_strings. List every search string you sent in self_search_strings and every source you used in self_found_sources.
 
 Bans: Do not call brain_search or brain_query. Do not read the directory of another hat. Write no URL and no `EvidenceClaim:` id in any text field unless you may cite it.
 
@@ -423,7 +425,7 @@ Agent file overrides. This dispatch replaces these instructions of the persona-a
 - lines 111 to 119 (all-hat mode): you are one hat.
 - lines 58 and 64 (the web leg and the Blue synthesis lines): replaced by the Blue fixed text and the bans below.
 
-Inputs: the brief (the target, the governing question, the sub-questions with their ids), your own persona file, and `ledger.json` in your own directory. The ledger holds counts and state names only. There is nothing else in this dispatch.
+Inputs: the brief (the target, the governing question, the sub-questions with their ids), your own persona file, and `ledger.json` in your own directory. The ledger holds counts and state names only. Its `coverage` list gives, for each sub-question id, the count of hats with a position, the count with `no_position`, and the state of each reading hat (`covered`, `no_position` or `not_run`): use it to say which sub-question a hat did not cover. There is nothing else in this dispatch.
 
 Search rule: no search. This step makes no web search: do not call WebSearch or WebFetch. Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it.
 
@@ -459,12 +461,12 @@ Output: one file, `reading.json`, in your own directory, with the keys `schema` 
 
 Ask a ruling for each tension of the `open` list of the merge output. A settled tension is not asked again: the artifact shows its stored ruling next to the new lines, and only the navigator can re-open it. When `open` is empty, show no card and say that no tension is open.
 
-1. Show the rulings card (shape F.5, Branches) with one AskUserQuestion call. One question for each open tension: the sub-question, the pair, and the two lines of the pair, each with its hat. The `pair` is sorted by name: `side_a` is the first hat of the pair, `side_b` is the second. The answers are `side_a` (the first hat holds), `side_b` (the second hat holds), both hold, and defer. Offer the four answers as options. The navigator may add one optional reason line of 280 characters or fewer in the free-text field. One AskUserQuestion call takes 4 questions or fewer (ASSUMED, a guess); with more than 4 open tensions, use consecutive calls with no other step between them.
+1. Show the rulings card (shape F.5, Branches) with one AskUserQuestion call. One question for each open tension: the sub-question, the pair, and the two lines of the pair, each with its hat. The `pair` is sorted by name: `side_a` is the first hat of the pair, `side_b` is the second. The answers are `side_a` (the first hat holds), `side_b` (the second hat holds), both hold, and defer. Offer the four answers as options. The navigator may add one optional reason line of 280 characters or fewer in the free-text field. End each question text with this sentence: `Or type "Larry decides" to hand this ruling to Larry.` Larry picks, the navigator confirms. When the free-text answer hands the ruling to Larry (for example "Larry decides" or "larry decide"), Larry picks `side_a`, `side_b` or `both_hold` (never defer) and says the pick and one reason in one line. Then show one confirm card with one AskUserQuestion call: the pick and the reason, with the options yes and no. Only after a yes, write the entry with `"ruling": "delegated"`, `"larry_pick": "<the pick>"` and `"navigator_confirmed": true`. After a no, ask the tension again on the rulings card. Never write a delegated entry without that yes, and never write a delegated ruling as a plain `side_a`, `side_b` or `both_hold`. The door refuses a delegated entry with no `navigator_confirmed: true` (`delegated_not_confirmed`), and a quick run refuses every delegated entry (`delegated_not_in_quick_mode`). The door stores the pick as a normal ruling with `delegated: true` as its provenance. One AskUserQuestion call takes 4 questions or fewer (ASSUMED, a guess); with more than 4 open tensions, use consecutive calls with no other step between them.
 
-2. Write the answer file into a new private directory (`mktemp -d`), not into the inbox: the merge deleted the inbox with the scratch tree. Navigator text reaches the door only through this JSON file. Use the tension ids of the merge output. A ruling that is `side_a`, `side_b` or `both_hold` goes into the rulings store of the room. A `defer` is not stored, so the next run asks the tension again.
+2. Write the answer file into a new private directory (`mktemp -d`), not into the inbox: the merge deleted the inbox with the scratch tree. Navigator text reaches the door only through this JSON file. Use the tension ids of the merge output. A ruling that is `side_a`, `side_b` or `both_hold` goes into the rulings store of the room. A confirmed `delegated` ruling goes into the store as its `larry_pick`, with the flag `delegated: true`; the door refuses `delegated` without a `larry_pick` of `side_a`, `side_b` or `both_hold`, a `larry_pick` on any other ruling, and `navigator_confirmed` on any ruling that is not delegated. A `defer` is not stored, so the next run asks the tension again.
 
    ```json
-   {"schema": "mos.persona-ruling-answer/1", "run_id": "<run_id>", "rulings": [{"tension_id": "<id>", "ruling": "side_a", "reason": "one line"}]}
+   {"schema": "mos.persona-ruling-answer/1", "run_id": "<run_id>", "rulings": [{"tension_id": "<id>", "ruling": "side_a", "reason": "one line"}, {"tension_id": "<id>", "ruling": "delegated", "larry_pick": "both_hold", "navigator_confirmed": true, "reason": "The navigator handed this ruling to Larry and confirmed the pick."}]}
    ```
 
    ```bash
@@ -473,7 +475,7 @@ Ask a ruling for each tension of the `open` list of the merge output. A settled 
 
 3. Print what the output says: the rulings recorded, the tensions deferred, and `memory_event` (`logged`, or `not_logged` with its reason; the ruling is stored either way). A ruling is the answer of the navigator on a pair of hats. It confirms no claim about the venture.
 
-   The door also writes a fixed "## Rulings" section at the end of the filed review (the tension id, the ruling, the side hat and the date, and nothing else) and sets the state line of each ruled tension. Read the `artifact` field of the output: `updated`, or `not_updated` with its reason (the ruling is stored either way). The reason line of the navigator stays in the rulings store and is not written into the review.
+   The door also writes a fixed "## Rulings" section at the end of the filed review (the tension id, the ruling, the side hat, the line `delegated to Larry: yes` for a delegated ruling, and the date, and nothing else) and sets the state line of each ruled tension. Read the `artifact` field of the output: `updated`, or `not_updated` with its reason (the ruling is stored either way). The reason line of the navigator stays in the rulings store and is not written into the review.
 
 4. To re-open a settled tension, only when the navigator asks for it, add an entry for its id with `"reopen": true` (and `"ruling": "defer"`). The door removes its key from the store, and the next run asks it again. Do this for no other reason.
 

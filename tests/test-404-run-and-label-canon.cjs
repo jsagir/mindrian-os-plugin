@@ -18,7 +18,6 @@ let fetchCalls = 0;
 globalThis.fetch = (...args) => { fetchCalls += 1; throw new Error(`network call: ${String(args[0])}`); };
 const fetchWasReplacedBeforeRequire = true;
 const { OWN_TEXT_LABEL } = require('../lib/core/framework-recipe/steps.cjs');
-const PENDING_UNTIL_O9 = Object.freeze(['C1', 'C3', 'C4']);
 const DECISION_SENTENCE = 'A methodology skill that has its own method text is the one case that runs in place of a refusal, with a fixed line that names the source (row 18).';
 const CLAUDE_SENTENCE = 'A methodology skill that has its own method text still runs then, and says in one fixed line that the steps are not from Theo this time (decision 18).';
 const LARRY_SENTENCE = 'For a method that has its own text the turn does not end at the refusal: the method runs from its own text with the fixed own-text line (decision 18).';
@@ -147,22 +146,6 @@ test('C6 recipe parts in command and skill files have no refusal stem', () => {
   }
 });
 
-let pending = 0;
-test('C7 O9 pending legs still fail', () => {
-  assert.ok(PENDING_UNTIL_O9.every((name) => ['C1', 'C3', 'C4'].includes(name)), 'PENDING_UNTIL_O9 may hold only C1, C3 and C4');
-  const byName = new Map(cases);
-  for (const name of PENDING_UNTIL_O9) {
-    const testCase = [...byName.entries()].find(([label]) => label.startsWith(`${name} `));
-    assert.ok(testCase, `missing pending leg ${name}`);
-    try { testCase[1](); assert.fail(`remove this entry: ${name} now passes`); }
-    catch (error) {
-      if (error.message.startsWith('remove this entry:')) throw error;
-      pending += 1;
-      console.log(`pending ${name}: ${error.message}`);
-    }
-  }
-});
-
 test('C9 tracked file boundary and network guard hold', () => {
   assert.equal(fetchWasReplacedBeforeRequire, true, 'globalThis.fetch was not replaced before the first require');
   assert.equal(fetchCalls, 0, 'globalThis.fetch was called');
@@ -172,12 +155,10 @@ test('C9 tracked file boundary and network guard hold', () => {
   let pass = 0;
   let fail = 0;
   for (const [name, fn] of cases) {
-    const leg = name.match(/^(C\d+) /);
-    if (leg && PENDING_UNTIL_O9.includes(leg[1])) continue;
     try { await fn(); pass += 1; console.log(`ok ${name}`); }
     catch (error) { fail += 1; console.log(`FAIL ${name}: ${error.message}`); }
   }
-  console.log(`404 run and label canon: ${pass} passed, ${pending} pending, ${fail} failed`);
+  console.log(`404 run and label canon: ${pass} passed, ${fail} failed`);
   fs.rmSync(temp, { recursive: true, force: true });
   if (fail) process.exitCode = 1;
 })();

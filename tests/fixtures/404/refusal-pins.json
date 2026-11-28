@@ -50,6 +50,11 @@
     "reason": "This historical record describes a past decision or handoff about refusal behavior."
   },
   {
+    "file": "docs/AMENDMENT-2026-11-27-DECISION-8-RUN-AND-LABEL.md",
+    "class": "K",
+    "reason": "Dated amendment record of decision 18; it quotes the old rule as history and is not edited."
+  },
+  {
     "file": "docs/ARCHITECTURE-DEEP-DIVE.md",
     "class": "K",
     "reason": "This sentence describes a methodology request when the Brain is unreachable."

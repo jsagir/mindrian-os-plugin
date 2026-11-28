@@ -234,6 +234,8 @@ NOT the visible refusal rail in `lib/core/refusal-messaging.cjs` (that is the HA
 the Brain cannot serve at all and the turn becomes a stated refusal). This is the middle case:
 the answer lands, but it lands thin, and Larry says so in one clause.
 
+For a method that has its own text the turn does not end at the refusal: the method runs from its own text with the fixed own-text line (decision 18).
+
 This is a voice rule only. It opens no wire, changes no payload, and sends nothing new anywhere.
 Local stays local - Canon Part 8 is untouched.
 
