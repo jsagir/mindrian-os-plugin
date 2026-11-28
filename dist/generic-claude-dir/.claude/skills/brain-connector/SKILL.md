@@ -1,25 +1,24 @@
 ---
 name: brain-connector
 description: >
-  Brain enrichment for Larry. Passive: weaves graph context into responses.
-  Proactive: surfaces contradictions and gaps. Active when Brain API key is
-  set (MINDRIAN_BRAIN_KEY in .env) or Brain MCP server is configured.
+  Theo enrichment for Larry. Passive: weaves graph context into responses.
+  Proactive: surfaces contradictions and gaps. Theo is part of MindrianOS and
+  needs no key, so this is active whenever Theo answers.
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
-# activation: "env:MINDRIAN_BRAIN_KEY"  <- INERT. Claude Code does not read an `activation` frontmatter
-#   key (its documented set is name, description, disable-model-invocation, allowed-tools,
-#   disallowed-tools, arguments, context, background), and no code in this plugin reads it
-#   either. Kept as a comment so the INTENT survives; it never gated anything. Pinned by
-#   tests/test-skill-frontmatter-inert-keys.cjs.
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Ambient always-on infra. The Brain MCP connection / methodology-packet skill is invoked by other reaches as a capability; it runs on demand as plumbing, not on a navigator problem-state of its own."
-# --- Phase 250-02 CIRS R16 Form B declaration (Canon Part 11) ---
+# == Phase 250-02 CIRS R16 Form B declaration (Canon Part 11) ==
 hitl_stages:
   - stage: "brain-refusal-fork"
     shapes: ["F.1"]
     mode: "gate"
-hitl_why: "A Brain failure or readiness miss is a genuine Decision-Gate fork: the navigator picks the next move (connect the key, retry, use partial graph material with provenance, or continue without methodology) - never silently degraded."
+hitl_why: "A Brain failure or readiness miss is a genuine Decision-Gate fork: the navigator picks the next move (retry, use partial graph material with provenance, or continue without methodology) - never silently degraded."
+job_when: "my question needs method knowledge beyond my room"
+job_want: "to get method context from the graph, or an honest refusal when it is down"
+job_so: "trust that each method claim is grounded and not guessed"
+job_sentence_status: "provisional"
 ---
 
 # Brain Connector -- Enrichment Layer
@@ -28,36 +27,31 @@ hitl_why: "A Brain failure or readiness miss is a genuine Decision-Gate fork: th
 
 Check Brain availability in order:
 
-**Step 0 -- HTTP-path detection (Phase 123, the standard install).** Run `node $PLUGIN_ROOT/lib/core/resolve-brain-key.cjs` (or in JS: `require('./lib/core/resolve-brain-key.cjs').resolveBrainKey()`). If the resolver returns `available: true`, the Brain is active via the **HTTP path** -- call into `lib/core/brain-client.cjs`'s `query() / search() / schema() / ask()`, NOT an MCP tool. The HTTP path is the standard install path on Claude Code CLI; the MCP path (steps 1-3 below) is an alternative for operators who bundle `mcp-server-brain/` or point an external Neo4j MCP at the canonical `mindrian-brain` server name. The resolver also surfaces SEC-02 permission failures explicitly (`available: false, reason: 'permissions too open: ...'`) -- treat those as "not loaded, user action needed", not as silent unavailability.
+**Step 0 -- HTTP path (the standard install).** Theo is called bare: there is nothing to detect or configure. Call into `lib/core/brain-client.cjs`'s `query() / search() / schema() / ask()`, NOT an MCP tool. The HTTP path is the standard install path on Claude Code CLI; the MCP path (steps 1-2 below) is an alternative for operators who point an external Neo4j MCP at the canonical `mindrian-brain` server name. If the call returns nothing, that is an outage, not a missing setup: see the Refusal section below.
 
-1. `MINDRIAN_BRAIN_KEY` env var (CLI users -- subsumed by step 0; kept for legacy detection)
-2. `mcp__mindrian-brain__brain_schema` tool (Desktop/Cowork MCP)
-3. `mcp__neo4j-brain__get_neo4j_schema` tool (legacy)
+1. `mcp__mindrian-brain__brain_schema` tool (Desktop/Cowork MCP)
+2. `mcp__neo4j-brain__get_neo4j_schema` tool (legacy)
 
 Any success = Brain active. All fail = visible refusal -- see the Refusal section below.
 
 Pinecone RESOURCE_EXHAUSTED (429): fall back to Neo4j Cypher only via `brain_query`.
 
-### Offer-to-Setup
+### No setup offer
 
-For a METHODOLOGY ask (framework queries, grading, cross-domain) when Brain detection fails: refuse first (the Refusal section below), then offer the key path as one of the F.1 next moves -- never answer from local references first and caveat afterward. Chat and room-context asks are UNAFFECTED by this: Larry keeps answering those normally, no refusal needed.
-
-(Plan 250-04 landed silent registration: a fresh install mints a READ-tier token with zero ceremony at the first methodology consult. The no_key refusal below is now the FAILURE edge -- registration failed or the Brain is offline -- never the default experience.)
+For a METHODOLOGY ask (framework queries, grading, cross-domain) when Brain detection fails: refuse first (the Refusal section below), then offer retry or continue-without as the F.1 next moves -- never answer from local references first and caveat afterward. There is nothing for the user to configure, so never offer a setup path. Chat and room-context asks are UNAFFECTED by this: Larry keeps answering those normally, no refusal needed.
 
 ## Refusal (the honesty rail)
 
-A failing methodology consult REFUSES visibly -- it never degrades quietly into local heuristics. Four kinds, one honest sentence each, then fire the F.1 Next Move card (SEED-021: fire the card, never draw the box):
+A failing methodology consult REFUSES visibly -- it never degrades quietly into local heuristics. Kinds, one honest sentence each, then fire the F.1 Next Move card (SEED-021: fire the card, never draw the box):
 
-- **no_key**: silent registration (Phase 250-04, SEED-011 Option A) is the DEFAULT path -- a fresh install mints a UUID, registers with the Brain, and caches a READ-tier token with zero ceremony at the first consult. This refusal is the FAILURE edge: "Methodology needs the Brain, and registration has not completed (offline, or the attempt failed). I will not improvise it from memory. We can keep working with your room context, or you can set a key at `~/.mindrian.env` (chmod 600) or `MINDRIAN_BRAIN_KEY` as an override, then restart." The registration attempt is capped at once per process (never hammered) and MINDRIAN_DISABLE_AUTO_REGISTER=1 opts out entirely (deterministic for harnesses).
 - **unreachable**: "I can't reach the methodology graph right now, so I will not fake what it would say. We can retry in a moment, or keep going with your room context." Unreachable means unreachable AFTER the bounded transport retry budget (AVAIL-02) -- Larry never narrates the retries themselves.
-- **tier_denied**: "The Brain declined that tool for this key's tier: `<server message>`. I will not substitute a guess. Check the key tier, or we continue without that tool."
+- **tier_denied**: "The Brain declined that tool for this install's tier: `<server message>`. I will not substitute a guess. Check the tier, or we continue without that tool."
 - **not_ready**: "The graph doesn't have `<Framework>` structured yet (readiness `<N>`/4; missing: `<dims>`). I've queued it for enrichment. I can share what the graph does hold on this, marked as partial, or we work without it." The not_ready refusal refuses the ORCHESTRATION claim, not the graph's existing material -- offering the disclosed-partial path is telling the truth about what exists, not a fallback.
 
-**Anti-nagging (all four kinds):**
+**Anti-nagging (every kind):**
 1. Refusal fires ONLY at a methodology consult -- never ambient, never per-turn.
 2. First refusal of a kind per session renders in full; repeats compress to one line.
-3. The key-setup pitch appears at most once per session.
-4. Refusal never interrupts a non-methodology conversation.
+3. Refusal never interrupts a non-methodology conversation.
 
 ## Provenance (where methodology came from)
 
@@ -168,15 +162,15 @@ See `docs/WORKFLOWS.md` for the full Brain <-> registry <-> Larry join and the C
 
 ## Enrichment-Queue Auto-Append (Phase 249, ENRICH-01, Larry-direct leg)
 
-On Desktop/Cowork, Larry reaches the Brain via the `pws-brain-mcp` MCP tools directly (`orchestration_readiness`, `discover_structure`) -- bypassing `brain-client.cjs` entirely, so the plugin's own capture seams never fire for this path. This is the ONE place that gap is closed:
+On Desktop and Cowork, Larry reaches Theo, the Brain, through the `mindrian-brain` MCP server. The plugin bundles that server as a local stdio shim, `scripts/mindrian-brain-mcp-client.cjs`. Its `brain_*` tools forward each call through `lib/core/brain-client.cjs` to its `BRAIN_URL` (default `https://theo-mcp.onrender.com`). The shim has no readiness tool and passes no room directory to `brain-client.cjs`, so the wrapper chokepoint's capture never fires on this path. A host can also register `mindrian-brain` as a direct connector to Theo's `/mcp` endpoint (`docs/339-NOTE-theo-desktop-connector-key.md`). Then Theo's own `orchestration_readiness` and `discover_structure` tools answer Larry with no plugin code in the path. This section is the ONE place that gap is closed:
 
-**When a methodology consult returns `orchestration_readiness` 0-2/4, or `discover_structure` with `grounded: false`,** run the one-line append CLI so the miss lands in the same enrichment queue the plugin's wrapper chokepoint writes to:
+**When a methodology consult returns `orchestration_readiness` with a `score` of 0-2 out of 4 (Theo's field name; the old backend called it `readiness_score`), or `discover_structure` with `grounded: false`,** run the one-line append CLI so the miss lands in the same enrichment queue the plugin's wrapper chokepoint writes to:
 
 ```bash
 node <plugin-root>/scripts/enrichment-queue-append.cjs \
   --room <current room directory> \
   --framework "<canonical framework name>" \
-  --score <the readiness_score integer, or omit for a discover_structure miss> \
+  --score <the readiness score integer, or omit for a discover_structure miss> \
   --missing <comma-separated dims from pattern_type,structure,techniques,flow> \
   --source live_reach
 ```
@@ -193,7 +187,7 @@ Delegate to `agents/brain-query.md` for: 2+ graph hops, explicit connection expl
 
 ## Primary Tool: brain_ask
 
-Always use `brain_ask` first -- natural language, auto-routes Pinecone/Neo4j, handles fallback. Only use `brain_query` (raw Cypher) for specific complex queries.
+Always use `brain_ask` first -- natural language, auto-routes Pinecone/Neo4j, handles fallback. Only use `brain_query` (raw Cypher) for specific complex queries. A call carries sprouts and never a body; if it comes back refused with `sprouts_required`, split the text into typed claims, keep them in the room with `claim_write`, and call again with the sprouts only.
 
 ## Tool Names
 
@@ -203,4 +197,4 @@ Always use `brain_ask` first -- natural language, auto-routes Pinecone/Neo4j, ha
 | mindrian-brain (MCP) | brain_ask | brain_query | brain_search | brain_schema |
 | neo4j-brain (legacy MCP) | N/A | read_neo4j_cypher | search-records | get_neo4j_schema |
 
-The first row is the HTTP path (Phase 123 step 0). When `lib/core/resolve-brain-key.cjs` resolves a key, call directly into `lib/core/brain-client.cjs` -- no MCP server required. The bottom two rows are the MCP-path alternatives.
+The first row is the HTTP path (step 0). Call directly into `lib/core/brain-client.cjs` -- no MCP server required. The bottom two rows are the MCP-path alternatives.

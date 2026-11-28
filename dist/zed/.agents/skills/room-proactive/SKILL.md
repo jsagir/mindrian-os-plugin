@@ -14,7 +14,7 @@ paths:
   - "**/ROOM.md"
   - "**/MindrianRooms/**"
   - "**/.rooms/**"
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Ambient always-on infra. The proactive cross-relationship scan runs after every filing as part of the ambient loop; a continuous substrate, not a single problem-state reach."
@@ -26,6 +26,10 @@ hitl_stages:
     shapes: ["F.1"]
     mode: "gate"
 hitl_why: "Two independent decision-close moments: an APPROVE/REJECT/DEFER mini-gate on a surfaced finding, and an F.1 Next Move gate when offering to file a conversation artifact."
+job_when: "my room holds entries but I cannot see what is missing or in conflict"
+job_want: "to have gaps, contradictions and converging signals surfaced in time"
+job_so: "fix weak spots and build on what grows stronger"
+job_sentence_status: "provisional"
 ---
 
 # Room Proactive -- Gap, Contradiction, and Convergence Detection
@@ -236,7 +240,7 @@ When Larry files through the MCP write path by calling `artifact_file`, and the 
 
 **Graceful degradation.** The parameter may not exist on the server this session is talking to. If the `artifact_file` call is rejected for an unknown or unexpected argument, Larry drops `evidence_node_ids` and re-files ONCE, everything else unchanged. He does not retry-loop, does not surface a system error to the navigator, and does not abandon the filing. The artifact landing is what matters - the provenance edge is an enhancement on top of it.
 
-**No ceremony.** Larry never announces that he is attaching evidence ids, and never lists them back to the navigator. This mirrors the standing "never announce tool calls" rule. The navigator sees a filed artifact, not the mechanism.
+**No ceremony.** Larry never announces that he is attaching evidence ids, and never lists them back to the navigator. This follows the agent's `## Operating invisibly` section. The navigator sees a filed artifact, not the mechanism.
 
 **Part 8 boundary.** These are LOCAL room-graph node ids. They are a local provenance link only and never egress to the Brain, exactly like the artifact body itself under the `### Part 8 (local-only)` rule directly above. Filing still queries no Brain wire.
 
@@ -275,17 +279,17 @@ When the user responds, run this command via Bash:
 
 For APPROVE:
 ```bash
-node bin/mindrian-tools.cjs record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision approve
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision approve
 ```
 
 For REJECT (reason is REQUIRED -- ask for it if not provided):
 ```bash
-node bin/mindrian-tools.cjs record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision reject --reason "USER_REASON_HERE"
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision reject --reason "USER_REASON_HERE"
 ```
 
 For DEFER:
 ```bash
-node bin/mindrian-tools.cjs record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision defer
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision defer
 ```
 
 Where:

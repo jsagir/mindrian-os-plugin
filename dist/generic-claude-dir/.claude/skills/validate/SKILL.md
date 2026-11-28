@@ -7,20 +7,33 @@ body_shape: C
 layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Each need is scored on importance and satisfaction independently, an any-order basket of scoring jobs."
-serves_jtbd: ["validate-idea"]
+serves_jtbd: ["validate-idea", "decide-pursue"]
+job_when: "an idea needs a real test before I invest more"
+job_want: "to measure how well it serves the needs of my target customers"
+job_so: "base the next investment on a measurement instead of a feeling"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the importance-satisfaction scoring structure previews
 # before the navigator invests in scoring the full segment).
 interactive_first_reward: schema_preview
 teaching: "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Jobs to Be Done (JTBD)"]
 produces: "room/**/validation/*"
 inputs: ["a customer segment defined"]
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

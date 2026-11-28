@@ -7,13 +7,21 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "The Ten Questions are answered in a fixed order that builds the thesis, an ordered walk."
-serves_jtbd: ["decide-pursue", "prepare-pitch"]
+serves_jtbd: ["decide-pursue", "prepare-pitch", "validate-idea"]
+job_when: "I must decide whether this venture deserves my time and money"
+job_want: "to answer the standard questions of an investment thesis about it"
+job_so: "reach a defensible go or no go with reasons"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the Ten Questions Rapid Assessment previews the full
 # gate structure before the navigator invests in the Deep Dive).
 interactive_first_reward: schema_preview
 teaching: "When you need to know if this venture is worth pursuing, /mos:build-thesis runs the Ten-Questions investment thesis gate. The output is a defensible go / no-go with reasons."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["PWS Value Proposition"]
 produces: "room/**/thesis/*"
@@ -31,8 +39,13 @@ requires_evidence:
   on: [financial-model, business-model]
   dispatch: /mos:research
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

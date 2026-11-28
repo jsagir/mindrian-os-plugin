@@ -5,11 +5,6 @@
 # USERPROFILE, MINDRIAN_HOME, MINDRIAN_ROOMS_HOME), with the Brain URL pointed
 # at a closed local port and no room or session variable set.
 #
-# dist/ is stale at 2.0.0-beta.52 and is not part of plan F1. So the leg of
-# tests/test-401-no-brain-preapproval.cjs compares the exact line of leg
-# states, with leg Q3 (dist) red and every other leg green. A new failure of
-# Q1, Q2, Q4, Q5 or Q6 fails that leg. Plan 401-02 makes it a plain leg after
-# the dist commit. There is no known-red helper in this runner.
 #
 # Counters: PASSED, FAILED, SKIPPED (exit 77), KNOWN (always 0 here).
 # exit 0 -> FAILED=0; exit 1 -> FAILED > 0.
@@ -49,9 +44,11 @@ run() {
 
 run "401: frontmatter split (rule F1, rule B)" node tests/test-401-frontmatter-split.cjs
 run "401: tool grants (rules G1, G2)" node tests/test-401-tool-grants.cjs
-run "401: no Brain pre-approval (slice 3a; Q3 dist red by plan)" \
-  bash -c 'test "$(node tests/test-401-no-brain-preapproval.cjs 2>&1 | grep -oE "^(ok|FAIL): [A-Z][0-9]+" | tr "\n" " ")" = "ok: Q1 ok: Q2 FAIL: Q3 ok: Q4 ok: Q5 ok: Q6 "'
+run "401 no brain preapproval" node tests/test-401-no-brain-preapproval.cjs
 run "401: release order (R1 to R4)" node tests/test-401-release-order.cjs
+run "401 keep-list" node tests/test-401-keep-list.cjs
+run "401 admin tool not shipped" node tests/test-401-admin-tool-not-shipped.cjs
+run "401 brain backend retired" node tests/test-401-brain-backend-retired.cjs
 
 echo "PASSED=$PASS FAILED=$FAIL SKIPPED=$SKIP KNOWN=$KNOWN"
 exit $(( FAIL > 0 ? 1 : 0 ))

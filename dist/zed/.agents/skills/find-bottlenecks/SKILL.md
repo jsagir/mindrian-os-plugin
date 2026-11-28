@@ -8,19 +8,32 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Reverse-salient bottlenecks are listed as an independent set the navigator prioritizes in any order."
 serves_jtbd: ["find-bottleneck"]
+job_when: "progress feels stuck and I cannot say where"
+job_want: "to name the component that lags behind the rest"
+job_so: "put my effort where it unblocks the whole venture"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex","disorder"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: mapping the system boundaries previews the Reverse
 # Salient structure before the navigator invests in the full bottleneck hunt).
 interactive_first_reward: schema_preview
 teaching: "When progress feels stuck and you cannot say where, /mos:find-bottlenecks runs Reverse Salient analysis to name the lagging component. Hughes 1983, but for your venture."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Reverse Salient Analysis"]
 produces: "room/**/reverse-salients/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -101,6 +114,55 @@ Ask: "Quick pass or deep dive?"
 Then follow the framework phases from the reference file. Start by mapping the system -- get the boundaries, subsystems, and value flow. Then hunt for the lagging component.
 
 Every system has a bottleneck. Your job is to find it before they optimize the wrong subsystem.
+
+## Plan-run route (search the literature for what this found)
+
+**Body Shape:** E (Action Report). The planner CLI prints JSON only; read each answer and act on it. Every argument is a room path, a run id, a tag or an enum value, never room text. This is the same route `/mos:eureka` uses (Canon Part 7: reuse before build); nothing leaves the room until the navigator approves the exact searches on a card.
+
+### Route step 1: Recall the lagging sections and build the plan
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" perspective-recall --room ROOM_DIR --perspective rs --mode quick
+```
+
+Read `run_tag`, `counts`, `top` and `plan` from the JSON. When `plan` is null, the room has nothing to search for yet: say so in one line, name what was looked for (a section that lags the sections that feed it) and `counts`, and stop. When `plan.ok` is false, or `plan.status` is not `ready`, say the plan was not made ready, say in plain words what `plan.errors` names, and stop; never approve a plan that is not ready. Otherwise keep `plan.run_id`.
+
+### Route step 2: Plan review card (F.6), then the one search approval
+
+Read the plan from `ROOM_DIR/.mindrian/research-runs/<run_id>/plan.json` and show it: each leaf question, the falsifier for each, its source, the budget, and every search under the leaf's `queries` (the `q` values) exactly as it will be sent. Fire the F.6 Plan Review card with AskUserQuestion (Run this plan / Stop without running). Never take a typed yes as the answer: only the card answers it. On a yes:
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" review approve <run_id> --room ROOM_DIR --approved-via cli
+```
+
+This writes the approval for this one run; it covers exactly the searches the card listed, and an approval only lets the run fetch, it never files anything. On a stop, say the plan is saved and nothing was fetched, then stop.
+
+### Route step 3: Run
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" run-quick <run_id> --room ROOM_DIR
+```
+
+Run it straight after the approval. A `reask` answer means the approval does not cover one of these exact searches, or has lapsed: fire the F.0 card it returns with AskUserQuestion, never work around it.
+
+### Route step 4: Write the result
+
+`status: done` gives an evidence card. Write the result from that card in the four zones (header, the answer line, the strip, the footer), in plain words naming what was searched and what was not (the answer line already says which). Every factual statement ends with its row id. Never render a score, similarity, differential or percentage. Never grade or praise a finding.
+
+### Route step 5: File (F.8, only on the navigator's yes)
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" basket <run_id> --room ROOM_DIR
+```
+
+Fire the F.8 basket with AskUserQuestion, multi-select over the items the card lists (an empty pick files nothing). Only on a card yes, Write `{"approved": true, "items": [<the picked item ids>]}` to a scratch `selection.json` and file:
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" file-run <run_id> <selection.json> --room ROOM_DIR --approved-via cli
+```
+
+Show the filing report as is, including anything that did not land.
+
 
 ## When Complete
 

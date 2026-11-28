@@ -11,15 +11,24 @@ hitl_why: "The governed deck flow closes with a single Next Move gate."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/deck.md:92, each section built from the navigator's own room content and surfaced at an accept / reshape / skip gate (rests on rubric rule TB-4).
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["prepare-pitch"]
+job_when: "my room is full but the story is not yet a deck"
+job_want: "to pick the deck shape that fits and fill it from my room"
+job_so: "present a clear story that lands with the audience"
+job_sentence_status: "provisional"
 teaching: "When your room is full but the story is not yet a deck, /mos:deck asks ONE thing -- which shape fits, Feynman to make it clear, HEART to make it land, or mesh to do both -- then walks the structure section by section, filling each from your own room and binding the MindrianOS look by default. The 6-stage Feynman engine and the design system already exist; the command reaches for them, it never rebuilds them."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: mechanical
 frameworks: []
 produces: ""
 inputs: []
 autonomous_safe: false
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter (born WIRED, CIRS R1/R2) ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter (born WIRED, CIRS R1/R2) ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -32,7 +41,7 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-# --- Phase 175 CIRS R12 self-declaration ---
+# == Phase 175 CIRS R12 self-declaration ==
 cirs_relationship:
   surfaces_added: ["/mos:deck"]
   surfaces_modified: []
@@ -60,7 +69,7 @@ Reuse, do not rebuild (Canon Part 7). This command does NOT rebuild a deck rende
 
 1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md` for Larry's voice.
 2. Read `data/deck-styles.json`. This is the single source of truth for the styles and the section schemas. The `styles` array holds the three style objects (id, label, spine, routes_to, composes); `heart_sections` holds the ordered five H/E/A/R/T section objects; `feynman_stages` holds the ordered six Feynman stage objects. Never name a style, a section, or a stage from memory; read it from this data map.
-3. Resolve the active room. The deck fills from this room's content; if no room is active, ask the navigator which room to build from before continuing.
+3. Resolve the active room. The deck fills from this room's content. If no room is active, fire ONE AskUserQuestion card (a single-choice Shape F.1 question) listing up to 4 rooms from the room registry (the same source `/mos:rooms list` reads, `$ROOMS_HOME/.rooms/registry.json` via `scripts/room-registry list`), the most recently active first, each label the room name. With more than 4 rooms, show the first 4 and print this line under the question: `N more - type /mos:rooms list` (N is the live room count minus 4, as in the `commands/help.md` escape hatch). The Other slot accepts a typed room name. Nothing is built until a room is chosen. On a surface that cannot fire the card, name the rooms in one line and ask which one to build from.
 
 ## The style sub-selector (one AskUserQuestion, Shape F.1)
 

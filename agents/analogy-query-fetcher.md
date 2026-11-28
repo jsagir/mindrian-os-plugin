@@ -8,6 +8,7 @@ tools:
   - mcp__tavily__tavily-search
   - WebSearch
   - Read
+omitClaudeMd: true
 # == Phase 265 Plan 21 CIRS R1 exclude (Canon Part 11) ==
 # A NEW SIBLING agent, never a repurposed agent: `research.md` gathers external intelligence
 # AND cross-references Brain (mcp__mindrian-brain__brain_ask / brain_search) AND files sourced

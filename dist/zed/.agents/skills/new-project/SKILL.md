@@ -10,11 +10,19 @@ hitl_shape: "F.1"
 hitl_why: "Creating a project offers one next move to confirm and enter it."
 argument-hint: "[name]"
 serves_jtbd: ["explore"]
+job_when: "I am starting a new venture and have no room for it yet"
+job_want: "to create the room structure and register it"
+job_so: "file work in the right place from the start"
+job_sentence_status: "provisional"
+fits_domains: ["complex"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you are starting a new venture, /mos:new-project creates the room scaffolding and registers it in the room registry. The first move of every Mindrian journey."
 # Per docs/reward-before-investment-rule.md line 56-58 remediation: first sentence -> Instant Brief pipeline (this phase's deliverable). Room creation is option 2 of the 3-option footer (Phase 119 wires fully in beta.18).
 interactive_first_reward: instant_brief
 allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 # new-project declares no frameworks: block; the connector carries framework: null
 # and filing: none with NO surface so the WFL-01 firesCommand gate does not fire.
 connector:
@@ -54,10 +62,10 @@ B2 gate. Then proceed to B2 with the session context as blueprint input.
 
 **`--from-brief <sha8>`**
 Brief fast path. When invoked as `/mos:new-project --from-brief <sha8>`, read the
-Phase 118 brief side-file at `~/.mindrian/mva/briefs/<sha8>.json` and use its
+Seed record (or an older brief side file) and use its
 content as the blueprint input. This is the primary path wired by MVA option 2.
 
-Call `resolveOption2(sha8)` from `lib/core/mva-option-router.cjs` to read the brief:
+Call `resolveFromBrief(sha8)` from `lib/core/pyramid-seed-record.cjs` to read the brief:
 - If `result.action === 'ignite_from_brief'`: use `result.brief_content` as blueprint
   input. Proceed directly to the B2 blueprint gate (skip Steps 2-3).
 - If `result.action === 'no_brief_available'`: surface `result.message` and fall back
@@ -90,14 +98,16 @@ Check workspace state:
 
    Proceed to Step 2.
 
-2. **No registry, but legacy `room/` exists in workspace**: Tell the user:
+2. **No registry, but legacy `room/` exists in workspace**: fire ONE AskUserQuestion card (a two-option Shape F.1 question, composed with the same `renderShapeF1` / `appendAskUserQuestionTrailer` shape as the other cards) carrying this question:
    > "You have a project at room/. Want me to adopt it into ~/MindrianRooms/ so you can have multiple rooms? Or start fresh alongside it."
 
-   If user says yes to adoption:
+   Options: `Adopt room/ into ~/MindrianRooms/` (marked Recommended, description: keeps the work and enables multiple rooms) and `Start fresh alongside it`. The Other slot is free text. On a surface that cannot fire the card, print the quoted question as text and wait for the answer. Nothing is adopted until the navigator picks Adopt.
+
+   If the navigator picks Adopt (or answers yes in text):
    - Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room" $PWD --adopt` to create registry with existing room
    - Then proceed to Step 2
 
-   If user says no or wants to start fresh: STOP.
+   If the navigator picks Start fresh (or says no): STOP.
 
 3. **No registry, no legacy room/**: First project. `$ROOMS_HOME` will be created automatically. Proceed to Step 2.
 
@@ -155,6 +165,14 @@ The caller arrives here with `blueprintFamily` already resolved -- from ignite's
 Proceed directly to the B2 blueprint gate below; the resolved `blueprintFamily` flows into
 the B2 display ("Section set" field) and into the `birthRoom` call so `scaffoldRoomSkeleton`
 consumes it from `data/room-blueprints.json`.
+
+**Before the gate: check that this computer can create a room.** The B2 card promises a folder. Do not show it for a create that cannot run here. Run the check that `platform.cjs room-runtime` provides:
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/platform.cjs" room-runtime
+```
+
+When it exits non-zero, show its stderr text to the navigator as written (three plain lines: what is missing, why, and the fix) and stop. Do not fire the B2 card and do not create any folder. When it exits 0, go on to the gate.
 
 <!-- B2 GATE -- birth - ROOM BLUEPRINT - decision gate -->
 <!-- BIRTH-FLOW-BRIEF.md Section 2 + Canon Part 9 (promotion moment) + Canon Part 3 (F.0) -->
@@ -272,10 +290,10 @@ $ROOMS_HOME/<slug>/
 
 `.snapshots/` stores weekly STATE.md copies for drift detection by sentinel-health-check. Created empty on room init.
 
-**Room registration:** After creating the directory structure, register the room:
+**Room registration:** After creating the directory structure, write the venture name and the venture stage, each on one line, to files in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/venture-name.txt` and `<dir>/venture-stage.txt`, each with the Write tool; a name or a stage never goes on a command line. Register the room with the command below. Then remove that directory, also when the person declines.
 
 ```bash
-bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/room-registry" create <slug> "<slug>" "<venture_name>" "<venture_stage>"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/room-registry" create <slug> "<slug>" --name-file "<dir>/venture-name.txt" --stage-file "<dir>/venture-stage.txt"
 ```
 
 The registry automatically sets the new room as active and parks the previous one.

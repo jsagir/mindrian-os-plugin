@@ -15,17 +15,28 @@ hitl_stages:
 hitl_why: "The full reverse-salient pipeline runs a dependency path (F.2) as a fixed-order stage walk (F.9)."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 13): first delivery at commands/rs-fetch.md:58, the completed RSDiscovery bundle (breakthrough thesis plus confidence score) assembled end-to-end within this invocation.
 interactive_first_reward: methodology_reframe
-serves_jtbd: ["find-bottleneck", "surface-contradiction"]
+serves_jtbd: ["find-bottleneck", "surface-contradiction", "connect-domains"]
+job_when: "a topic needs the full analysis of what lags behind, not a sample"
+job_want: "to run the whole discovery from papers to cross field matches to a thesis"
+job_so: "act on a complete sweep"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you need the full Reverse Salient pipeline run on a topic, /mos:rs-fetch executes the discovery end-to-end: corpus, math, cross-domain match, thesis. The complete sweep, not a sample."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Reverse Salient Analysis"]
 produces: "room/**/rs-fetch/*"
 inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools: Bash Read Write mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Bash
+  - Read
+  - Write
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -111,6 +122,6 @@ The CLI emits the 3-line error pattern on common failures:
 
 Larry direct and pedagogical:
 
-> "Three graphs queried. Top breakthrough: <thesis>. Confidence 0.85. Worth Bank Opportunity? Or Devil's Advocate first?"
+> "Three graphs queried. Top breakthrough: <thesis>. Confidence {confidence}. Worth Bank Opportunity? Or Devil's Advocate first?"
 
-> "Brain unreachable. Pipeline still ran on local + Aura. RECOMMENDED markers suppressed (confidence below 0.7 floor). Take the unmarked candidates with appropriate skepticism."
+> "Brain unreachable. Pipeline still ran on local + Aura. RECOMMENDED markers suppressed (confidence below the 0.7 floor per the Canon). Take the unmarked candidates with appropriate skepticism."

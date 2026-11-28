@@ -88,6 +88,11 @@ x Command not found: admin
 
 Do not proceed further. Do not reveal the command exists.
 
+## Step 1b: Operator Tool Check
+
+Run via Bash the test `test -f "${CLAUDE_PLUGIN_ROOT}/tools/brain-admin/brain-admin.cjs"`.
+When the file is absent, print exactly `This is an operator tool. It runs only from a dev checkout of MindrianOS.` and stop.
+
 ## Step 2: Parse Subcommand
 
 The user invokes one of:
@@ -109,11 +114,11 @@ When `/mos:admin` is run with NO subcommand, render the full 4-zone self-teachin
 **First, gather live data.** Run these Bash commands BEFORE rendering anything:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/mcp-server-brain/brain-admin.cjs" list 2>&1
+node "${CLAUDE_PLUGIN_ROOT}/tools/brain-admin/brain-admin.cjs" list 2>&1
 ```
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/mcp-server-brain/brain-admin.cjs" requests 2>&1
+node "${CLAUDE_PLUGIN_ROOT}/tools/brain-admin/brain-admin.cjs" requests 2>&1
 ```
 
 Parse the output to extract:
@@ -171,7 +176,7 @@ Replace `[N]` with actual counts from the gathered data. If a command fails or r
 Run via Bash:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/mcp-server-brain/brain-admin.cjs" list 2>&1
+node "${CLAUDE_PLUGIN_ROOT}/tools/brain-admin/brain-admin.cjs" list 2>&1
 ```
 
 Wrap the output in 4-zone anatomy:
@@ -216,7 +221,7 @@ x Missing email
 2. Run via Bash:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/mcp-server-brain/brain-admin.cjs" create --email [email] --name "[name]" --days [days] --plan [plan] 2>&1
+node "${CLAUDE_PLUGIN_ROOT}/tools/brain-admin/brain-admin.cjs" create --email [email] --name "[name]" --days [days] --plan [plan] 2>&1
 ```
 
 3. Show the result in 4-zone anatomy.
@@ -248,7 +253,7 @@ x Missing email
 1. First, gather context. Run:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/mcp-server-brain/brain-admin.cjs" list 2>&1
+node "${CLAUDE_PLUGIN_ROOT}/tools/brain-admin/brain-admin.cjs" list 2>&1
 ```
 
 Show which keys exist for this email.
@@ -268,7 +273,7 @@ Show which keys exist for this email.
 3. Wait for the user's response. If the user confirms with "yes":
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/mcp-server-brain/brain-admin.cjs" revoke --email [email] 2>&1
+node "${CLAUDE_PLUGIN_ROOT}/tools/brain-admin/brain-admin.cjs" revoke --email [email] 2>&1
 ```
 
 4. Show the result and updated state.
@@ -298,7 +303,7 @@ x Missing arguments
 Run via Bash:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/mcp-server-brain/brain-admin.cjs" extend --email [email] --days [days] 2>&1
+node "${CLAUDE_PLUGIN_ROOT}/tools/brain-admin/brain-admin.cjs" extend --email [email] --days [days] 2>&1
 ```
 
 Show the result with old and new expiry in 4-zone anatomy.
@@ -317,7 +322,7 @@ Show the result with old and new expiry in 4-zone anatomy.
 Run via Bash:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/mcp-server-brain/brain-admin.cjs" usage 2>&1
+node "${CLAUDE_PLUGIN_ROOT}/tools/brain-admin/brain-admin.cjs" usage 2>&1
 ```
 
 Wrap output in 4-zone anatomy:
@@ -347,7 +352,7 @@ Display the brain-admin.cjs output directly.
 Run via Bash:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/mcp-server-brain/brain-admin.cjs" requests 2>&1
+node "${CLAUDE_PLUGIN_ROOT}/tools/brain-admin/brain-admin.cjs" requests 2>&1
 ```
 
 Wrap output in 4-zone anatomy:
@@ -385,7 +390,7 @@ If no pending requests:
 
 **Self-teaching intro:** "Files a methodology-canon edge into Brain Neo4j. The single Brain-write of milestone v1.11.0 is the USES_TECHNIQUE edge from rss-phase-1 to tech-domain-analysis (Phase 89.1 closes the kickoff §3 Audit Finding 'Domain analysis prerequisite half-canonized'). This is methodology canon, NOT user data. Canon Part 8 is preserved -- only frozen node IDs are written. Idempotent: re-running returns 0 new edges if already filed."
 
-**Default mode is dry-run.** The user must pass `--execute` explicitly to actually mutate the graph.
+**Dry-run only.** The flag --execute is retired: the script answers brain_backend_retired and writes nothing. Brain writes go through Theo.
 
 Run via Bash:
 
@@ -395,19 +400,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/admin-brain-write.cjs" --dry-run 2>&1
 
 Show the dry-run output to the user, including the pre-check counts and the MERGE Cypher.
 
-**If the user confirms with `/mos:admin brain-write --execute`**, run:
-
-```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/admin-brain-write.cjs" --execute 2>&1
-```
-
-Then read the audit log to confirm:
-
-```bash
-tail -1 ~/.mindrian/admin-brain-write.jsonl
-```
-
-Show the audit line to the user. Format the output with the standard 4-zone anatomy.
+When the person asks for --execute, say that it is retired and that nothing is written.
 
 ### Zone 1
 
@@ -423,7 +416,6 @@ Display the script output directly. Highlight `edges_after=N` line and the audit
 ### Zone 4
 
 ```
-  ▶ /mos:admin brain-write --execute   File the canon edge (mutates Brain)
   ▷ tail -1 ~/.mindrian/admin-brain-write.jsonl   Verify audit log
 ```
 

@@ -8,20 +8,33 @@ layer: "loop"
 hitl_shape: "F.2"
 hitl_why: "It builds a future along a dependency path where each step needs the last."
 serves_jtbd: ["find-problem", "connect-domains"]
+job_when: "I have a seed concept and do not know what follows from it"
+job_want: "to trace its consequences outward and search for hidden bridges"
+job_so: "bank the opportunities that a linear view would miss"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the seed concept previews the ring-1 structure
 # before the navigator invests in the full multi-ring wheel).
 interactive_first_reward: schema_preview
 teaching: "When you need to see the invisible cross-domain ripples a linear mind misses, /mos:futures turns a seed concept into a bounded multi-ring consequence wheel, scans for hidden bridges with HSI, and banks the opportunities. Best when 'and then what?' matters more than a tidy diagram."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Futures Wheel"]
 produces: "room/opportunity-bank/futures-*/**"
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

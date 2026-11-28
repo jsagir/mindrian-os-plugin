@@ -42,14 +42,22 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The value-map and customer-profile fits are assessed as an independent set, an unordered basket."
-serves_jtbd: ["validate-idea", "prepare-pitch"]
+serves_jtbd: ["validate-idea", "prepare-pitch", "decide-pursue"]
+job_when: "I have a value proposition but no proof that it holds"
+job_want: "to test it in order against the gates a value proposition must pass"
+job_so: "learn which gate it fails before customers show me"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Setup: checking business-model/problem-definition/market-analysis
 # for existing work previews the three-gate structure before the navigator
 # invests in scoring).
 interactive_first_reward: schema_preview
 teaching: "When you have a value proposition but no proof it holds, /mos:validate-proposition scores it against the three PWS VP gates with sequential math. A clean gate failure beats a vague pass."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["PWS Value Proposition"]
 produces: "room/business-model/value-proposition/*"
@@ -67,8 +75,13 @@ requires_evidence:
   on: [market-analysis]
   dispatch: /mos:research
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

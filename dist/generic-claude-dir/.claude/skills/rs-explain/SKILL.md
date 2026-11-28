@@ -10,16 +10,27 @@ hitl_why: "It presents the reverse-salient explanation and one next move to take
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 12): first delivery at commands/rs-explain.md:70, the Larry-voiced NL explanation triangulated across room.db, Aura and the methodology Brain.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["find-bottleneck"]
+job_when: "I have a question about a lagging component that an earlier analysis found"
+job_want: "to ask in plain language and get an answer grounded in my graph"
+job_so: "understand the finding without reading the raw analysis"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "probe"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When you have a question about a Reverse Salient discovery, /mos:rs-explain takes natural language in and returns a Larry-voiced explanation grounded in the graph. Bidirectional NL to graph and back."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Reverse Salient Analysis"]
 produces: "room/**/rs-explain/*"
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools: Bash Read mcp__mindrian-brain__brain_ask mcp__mindrian-brain__brain_search AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Bash
+  - Read
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -50,7 +61,7 @@ Desktop / Cowork / piped callers.
 
 # /mos:rs-explain
 
-You are Larry. This command is the user-visible bidirectional NL-Graph loop in v1.11.0. The user types a natural-language question. The system translates the NL into a triangulated query bundle (Cypher for Aura, SQL for room.db, allow-list Brain query for the methodology graph), executes the queries against the 3 graphs, then renders Larry-voiced NL back. Raw data becomes insight. The whole loop is local-first and Canon Part 8-defended.
+You are Larry. This command is the user-visible bidirectional NL-Graph loop in v1.11.0. The user types a natural-language question. The system translates the NL into a query bundle (SQL for room.db and an allow-list Brain query for the methodology graph; the bundle's Cypher text is not run), executes the SQL against the room's own room.db and the allow-list query against the methodology graph, then renders Larry-voiced NL back. Raw data becomes insight. The whole loop is local-first and Canon Part 8-defended.
 
 **Synopsis:**
 
@@ -63,7 +74,7 @@ You are Larry. This command is the user-visible bidirectional NL-Graph loop in v
 1. Calls `lib/core/rs-nl-to-query.cjs translate(nl_query, opts)` (Phase 89.5-02). The translator runs SEAM A audit (forbidden-pattern scan on `{nl_query, opts}`), classifies the NL into one of 5 allow-list intents via deterministic keyword regex (NO runtime LLM), constructs the parameterized 3-graph queries, then runs SEAM C audit on the returned bundle. Returns `{cypher, sql, brain_query, sql_params, cypher_params}`.
 2. For each non-null query, executes against the appropriate runtime:
    - `sql` runs against `room.db` via `lazygraph-ops.queryGraph(conn, sql, sql_params)`.
-   - `cypher` (Aura local) runs via `brainClient` / Aura session when reachable; Tier 0 skips it gracefully.
+   - `cypher` is not run: no remote graph is queried for a room question. An experts question gets 0 rows here; use `/mos:rs-experts` for a local expert search.
    - `brain_query` (the methodology graph) runs ONLY when non-null AND `brainClient.isAvailable()` is true; otherwise omitted.
 3. Aggregates the rows into `query_results = {kind, rows[], room_context}`.
 4. Calls `lib/core/rs-query-to-text.cjs explain(query_results, opts)` (Phase 89.5-03). The explainer runs SEAM A on the input bundle, detects kind via FNV-1a hash, picks one of 16 frozen `VOICE_TEMPLATES`, fills placeholders with venture context from `folder-memory.readQuadruple`, runs SEAM B on the rendered string, returns the Larry-voiced NL.
@@ -75,7 +86,7 @@ You are Larry. This command is the user-visible bidirectional NL-Graph loop in v
 - **Reference:** `skills/ui-system/SKILL.md`
 - **Zone 1:** Header Panel -- the NL question (echoed)
 - **Zone 2:** Content Body -- the rendered explanation
-- **Zone 3:** Intelligence Strip -- query summary (room.db rows, Aura rows, Brain rows; Mode A vs Mode B)
+- **Zone 3:** Intelligence Strip -- query summary (room.db rows, Brain rows; Mode A vs Mode B)
 - **Zone 4:** Action Footer -- next-step verbs from the rendered explanation (Bank Opportunity, Run Methodology, Devil's Advocate)
 
 ## Three-surface notes
@@ -126,6 +137,6 @@ Plus 4 entity-extractor audits that run `auditQueryString` on every bound scalar
 
 Larry direct, pedagogical:
 
-> "Found 3 reverse salients across 2 domains. The strongest is <top thesis>. Filed to opportunity-bank/. Worth Bank Opportunity or Devil's Advocate."
+> "Found {n} reverse salients across {m} domains. The strongest is <top thesis>. Filed to opportunity-bank/. Worth Bank Opportunity or Devil's Advocate."
 
-> "Brain offline. Searched local + Aura only. <summary>. Worth reframing? /mos:beautiful-question."
+> "Brain offline. Searched this room only. <summary>. Worth reframing? /mos:beautiful-question."

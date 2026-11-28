@@ -14,10 +14,14 @@ hitl_why: "The operator view offers one next move on the current state."
 interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: current state + last 5 history (default), full history (history subcommand), Shape F.1 picker (set subcommand), Shape F.4 confirmation (reset subcommand)
 serves_jtbd: ["explore"]
+job_when: "I need to see or set how the conversation behaves right now"
+job_want: "to view and change the current conversation state"
+job_so: "match the conversation to the work in front of me"
+job_sentence_status: "provisional"
 teaching: "When you want to see or set how Larry should render right now, /mos:operator shows the conversation state machine: JUST_TALK, EXPLORE_CAPTURE, BUILD_ROOM, METHODOLOGY, or DECISION_GATE."
 allowed-tools: Bash Read AskUserQuestion
 disable-model-invocation: false
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -159,7 +163,7 @@ Phase 88.2 (`uiux-selector-block`) will replace the marker block with the canoni
 
 When Larry surfaces the output conversationally:
 
-- "You're currently in BUILD_ROOM. Filing is live; every response ends with the 4-zone footer."
+- "You're currently in BUILD_ROOM. Filing is live; every response ends with the zone footer."
 - "Want to override? `/mos:operator set <op>` lets you pick from the five canonical operators."
 - "If the operator looks wrong, `/mos:doctor --ui-compliance` will tell you whether the renderer is honoring it correctly."
 

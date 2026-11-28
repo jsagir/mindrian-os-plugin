@@ -8,6 +8,7 @@ tools:
   - mcp__tavily__tavily-search
   - WebSearch
   - Read
+omitClaudeMd: true
 # == Phase 265 code-review CR-01 fix (Canon Part 8, Part 11 exclude) ==
 # A NEW SIBLING agent, never a repurposed agent: commands/scout.md's Step 4b originally
 # dispatched agents/research.md for this job, but research.md carries Write plus two Brain

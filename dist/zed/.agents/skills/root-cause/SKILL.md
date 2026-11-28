@@ -8,19 +8,32 @@ layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "The 5-Whys and fishbone drill down in a fixed order, an ordered walk toward the root."
 serves_jtbd: ["find-problem"]
+job_when: "a symptom keeps coming back after every fix"
+job_want: "to trace it back through repeated why questions and cause diagrams"
+job_so: "treat the cause instead of the recurrence"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the first Why reframes the navigator's own symptom as
 # a sharper question before they invest in the full 5-Whys drill).
 interactive_first_reward: reframe_question
 teaching: "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree. Treats the cause, not the recurrence. Each why that rests on an assumption can become a research question with its own falsifier."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
-frameworks: ["Root Cause Analysis"]
+frameworks: ["Root Cause Analysis", "5 Whys Technique", "Systems Thinking"]
 produces: "room/**/root-cause/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

@@ -7,20 +7,33 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "User needs are gathered as an any-order set with no ordering constraint between them."
-serves_jtbd: ["find-problem"]
+serves_jtbd: ["find-problem", "decide-pursue"]
+job_when: "users tell me what they want but I doubt it matches what they need"
+job_want: "to map what they need by importance against satisfaction"
+job_so: "find the gap where the opportunity lives"
+job_sentence_status: "provisional"
+fits_domains: []
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the importance-versus-satisfaction plot structure
 # previews before the navigator invests in scoring every need).
 interactive_first_reward: schema_preview
 teaching: "When you need to map what users actually want versus what they say they want, /mos:user-needs plots importance against satisfaction. The gap is where the opportunity lives."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Jobs to Be Done (JTBD)"]
 produces: "room/market-analysis/user-needs/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

@@ -9,6 +9,7 @@ tools:
   - mcp__plugin_mos_mindrian-brain__brain_search
   - mcp__pinecone-brain__search-records
   - Read
+omitClaudeMd: true
 # == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
