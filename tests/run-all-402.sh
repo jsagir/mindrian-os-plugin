@@ -90,6 +90,7 @@ run "Stop hook schema compatibility" node scripts/check-hook-schema-compatibilit
 run "391 hooks contract" node tests/test-391-hooks-contract.cjs
 run "k1u session-start envelope" node tests/test-k1u-session-start-envelope.cjs
 run "lx3 session-start skip" node tests/test-261029-lx3-sessionstart-skip.cjs
+run_if "402 K3: hook stdout shape" tests/test-402-hook-stdout-shape.cjs node tests/test-402-hook-stdout-shape.cjs
 
 # --- Group "known red, report only" ------------------------------------------
 report_only "ga4 card-fire e2e 179" node tests/test-ga4-card-fire-e2e-179.cjs
