@@ -87,7 +87,7 @@ function saveVector(file, framework, values) {
 }
 function parseArgs(args) {
   const out = { _: [] };
-  for (let i=0;i<args.length;i++) { const k=args[i]; if(k.startsWith('--')) out[k.slice(2)]=args[++i]; else out._.push(k); }
+  for (let i=0;i<args.length;i++) { const k=args[i]; if(k.startsWith('--')) { const nx=args[i+1]; if (nx===undefined || nx.startsWith('--')) out[k.slice(2)]=true; else out[k.slice(2)]=args[++i]; } else out._.push(k); }
   return out;
 }
 async function main(argv = process.argv.slice(2)) {

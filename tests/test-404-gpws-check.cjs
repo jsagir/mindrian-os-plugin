@@ -106,6 +106,7 @@ check('G13', 'fake guarded read uses one canon key and classifies outcomes', () 
 });
 check('G14', 'step identifiers use the shared shape guard', () => { const api=require(tool); const exact='phase42::framework::'+('a'.repeat(64)+'-'+ 'a'.repeat(64))+'::'+ 'b'.repeat(7); for(const id of ['abc::def::s01','phase42::framework::red-teaming::step-one',exact]) if(!api.stepIdMatches(id)) throw Error('expected match'); for(const id of ['a sentence','a'.repeat(161)]) if(api.stepIdMatches(id)) throw Error('unexpected match'); });
 check('G15', 'guarded child with closed endpoint exits without a crash', () => { const r=run(['--route','guarded','--coverage',path.join(temp,'g15.md')]); if(r.status!==2) throw Error(`status ${r.status}: ${r.stderr}`); });
+check('G17', 'record-row after a flag without a value writes a theo-context block', () => { const row=path.join(temp,'g17.json'); fs.writeFileSync(row, JSON.stringify(rtRow('Item'))); const cov=path.join(temp,'g17.md'); const r=run(['--record-row','--route','theo-context','--framework','Red Teaming','--row-file',row,'--coverage',cov]); if(r.status!==0) throw Error(`status ${r.status}: ${r.stderr}`); const text=fs.readFileSync(cov,'utf8'); if(!/## theo-context \| Red Teaming/.test(text)||/RUN_CANARY|OUT_CANARY/.test(text)) throw Error(text); });
 check('G16', 'frozen table has six required identifiers', () => { const api=require(tool); if(JSON.stringify(api.PREDICATES.map(x=>x.id))!==JSON.stringify(['RT1','RT2','RC1','RC2','RC3','RC4'])) throw Error('predicate ids differ'); });
 
 Promise.resolve().then(async()=>{
