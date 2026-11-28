@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Phase 404 gate runner. The BASE is 06e95b5ecda9c989f14842010d5bec6f74b7f505.
-# BASE reds are not runner legs: 269 doctrine reconcile (MOAT-05, missing CLI anchor);
+# BASE reds are not runner legs:
 # hitl backfill check (124 surfaces); fda known tool shapes (Arm B);
 # 130 lens engine e2e (cases 1, 2, 3, 7, 8).
 # BASE 361 suite reds: existing FDA known-tool-shapes, existing 209 declared-implies-wired,
@@ -40,7 +40,7 @@ run_if "404 return score" tests/test-404-return-score.cjs node tests/test-404-re
 run_if "404 run and label canon" tests/test-404-run-and-label-canon.cjs node tests/test-404-run-and-label-canon.cjs
 run_if "404 stop replay" tests/test-404-stop-replay.cjs node tests/test-404-stop-replay.cjs
 run_if "250 amendment unit" tests/test-404-run-and-label-canon.cjs node tests/test-250-amendment-unit.cjs
-# The 269 line is omitted because it is red on BASE and is not a leg.
+run_if "269 doctrine reconcile" tests/test-404-run-and-label-canon.cjs node tests/269-doctrine-reconcile.test.cjs
 run_if "259 refusal rate limit" tests/test-404-run-and-label-canon.cjs node tests/test-259-refusal-rate-limited.cjs
 run_if "357 labeler refusal" tests/test-404-run-and-label-canon.cjs node tests/test-357-labeler-refusal.cjs
 run_if "363 corpus honesty" tests/test-404-run-and-label-canon.cjs node tests/test-363-corpus-honesty.cjs

@@ -1,0 +1,262 @@
+[
+  {
+    "file": ".claude/includes/decisions.md",
+    "class": "A",
+    "reason": "This sentence states the refusal rule for methodology when the Brain is unavailable."
+  },
+  {
+    "file": "CLAUDE.md",
+    "class": "A",
+    "reason": "This sentence states the refusal rule for methodology when the Brain is unavailable."
+  },
+  {
+    "file": "commands/scout.md",
+    "class": "K",
+    "reason": "This sentence preserves the scout empty fan refusal behavior."
+  },
+  {
+    "file": "docs/2026-08-09-HANDOFF-tier0-removal-milestone.md",
+    "class": "K",
+    "reason": "This dated record describes a Brain call or its refusal behavior."
+  },
+  {
+    "file": "docs/2026-08-11-HANDOFF-enactment-night-and-morning-runbook.md",
+    "class": "K",
+    "reason": "This dated record describes a Brain call or its refusal behavior."
+  },
+  {
+    "file": "docs/2026-08-11-build-the-loop-learnings.md",
+    "class": "K",
+    "reason": "This dated record describes a Brain call or its refusal behavior."
+  },
+  {
+    "file": "docs/2026-08-19-HANDOFF-brain-plugin-sync-release.md",
+    "class": "K",
+    "reason": "This dated record describes a Brain call or its refusal behavior."
+  },
+  {
+    "file": "docs/2026-08-27-HANDOFF-goal-directed-phase-sweep-265-271.md",
+    "class": "K",
+    "reason": "This dated record describes a Brain call or its refusal behavior."
+  },
+  {
+    "file": "docs/AMENDMENT-2026-08-27-DECISIONS-1-AND-5-MOAT-SHIFT.md",
+    "class": "H",
+    "reason": "This historical record describes a past decision or handoff about refusal behavior."
+  },
+  {
+    "file": "docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md",
+    "class": "H",
+    "reason": "This historical record describes a past decision or handoff about refusal behavior."
+  },
+  {
+    "file": "docs/ARCHITECTURE-DEEP-DIVE.md",
+    "class": "K",
+    "reason": "This sentence describes a methodology request when the Brain is unreachable."
+  },
+  {
+    "file": "docs/BRAIN-IDENTITY-DESIGN.md",
+    "class": "K",
+    "reason": "This sentence describes the keyless identity policy and its refusal behavior."
+  },
+  {
+    "file": "docs/CLAUDE-SURFACE-MODEL.md",
+    "class": "K",
+    "reason": "This sentence describes when a feature needs the user room."
+  },
+  {
+    "file": "docs/CORPUS-CENSUS-2026-08-11.md",
+    "class": "K",
+    "reason": "This dated record describes a Brain call or its refusal behavior."
+  },
+  {
+    "file": "docs/GROUNDING-SOURCES.md",
+    "class": "K",
+    "reason": "This sentence describes refusing to guess when a source lacks an answer."
+  },
+  {
+    "file": "docs/IDEA-DOCUMENT.md",
+    "class": "K",
+    "reason": "This sentence lists honest refusal as a product principle."
+  },
+  {
+    "file": "docs/MINDRIAN-CANON.md",
+    "class": "A",
+    "reason": "This sentence states the refusal rule for methodology when the Brain is unavailable."
+  },
+  {
+    "file": "docs/MWP-SPECIFICATION.md",
+    "class": "K",
+    "reason": "This sentence describes Brain requirements for methodology and refusal on failed queries."
+  },
+  {
+    "file": "docs/OPEN-HANDOFFS.md",
+    "class": "H",
+    "reason": "This historical record describes a past decision or handoff about refusal behavior."
+  },
+  {
+    "file": "docs/SUPERSESSION-CONTRACT.md",
+    "class": "K",
+    "reason": "This dated or design record describes Brain identity or refusal behavior."
+  },
+  {
+    "file": "docs/install/BRAIN-SETUP.md",
+    "class": "K",
+    "reason": "This sentence describes install entitlement and refusal when registration fails."
+  },
+  {
+    "file": "docs/research/RESEARCH_03_JTBD_THEORY.md",
+    "class": "K",
+    "reason": "This dated or design record describes Brain identity or refusal behavior."
+  },
+  {
+    "file": "docs/reviews/phase-355.1-close-out.md",
+    "class": "K",
+    "reason": "This dated record describes a Brain call or its refusal behavior."
+  },
+  {
+    "file": "lib/core/chain-step-dispatcher.cjs",
+    "class": "K",
+    "reason": "This sentence describes dispatch behavior for a Brain refusal."
+  },
+  {
+    "file": "lib/core/doctor/class-m-brain-smoke.cjs",
+    "class": "K",
+    "reason": "This sentence describes keyless behavior for a service or provider."
+  },
+  {
+    "file": "lib/core/doctor/research-providers-module.cjs",
+    "class": "K",
+    "reason": "This sentence describes a provider state that needs no key."
+  },
+  {
+    "file": "lib/core/navigation/insights.cjs",
+    "class": "K",
+    "reason": "This sentence describes a refusal result while preserving the return shape."
+  },
+  {
+    "file": "lib/core/navigation/room-birth.cjs",
+    "class": "K",
+    "reason": "This sentence describes a closed failure during room creation."
+  },
+  {
+    "file": "lib/core/refusal-messaging.cjs",
+    "class": "K",
+    "reason": "This sentence describes the refusal message types for a Brain call."
+  },
+  {
+    "file": "lib/core/refusal-messaging.test.cjs",
+    "class": "K",
+    "reason": "This sentence describes keyless behavior for a service or provider."
+  },
+  {
+    "file": "lib/core/research-planner/structure.cjs",
+    "class": "K",
+    "reason": "This sentence describes offline keyless research planning."
+  },
+  {
+    "file": "lib/core/rs-fetcher-academic.cjs",
+    "class": "K",
+    "reason": "This sentence describes a keyless research API tier."
+  },
+  {
+    "file": "lib/core/rs-fetcher-patents.cjs",
+    "class": "K",
+    "reason": "This sentence describes a keyless research API tier."
+  },
+  {
+    "file": "lib/core/scheduled-scanner.cjs",
+    "class": "K",
+    "reason": "This sentence describes refusal when the scheduled scanner has no roster."
+  },
+  {
+    "file": "lib/core/temporal/reference-now.cjs",
+    "class": "K",
+    "reason": "This sentence describes a public time endpoint that needs no key."
+  },
+  {
+    "file": "lib/core/venture-sentence-classifier.cjs",
+    "class": "K",
+    "reason": "This sentence describes keyless behavior for a service or provider."
+  },
+  {
+    "file": "lib/lens-engine/source-lens-driver.cjs",
+    "class": "K",
+    "reason": "This sentence describes keyless behavior for a service or provider."
+  },
+  {
+    "file": "lib/mcp/tools/claim.cjs",
+    "class": "K",
+    "reason": "This sentence describes the refusal payload for a Brain tool call."
+  },
+  {
+    "file": "lib/mcp/tools/graph.cjs",
+    "class": "K",
+    "reason": "This sentence describes the refusal payload for a Brain tool call."
+  },
+  {
+    "file": "lib/mcp/tools/research.cjs",
+    "class": "K",
+    "reason": "This sentence describes the refusal payload for a Brain tool call."
+  },
+  {
+    "file": "lib/mcp/tools/views.cjs",
+    "class": "K",
+    "reason": "This sentence describes the refusal payload for a Brain tool call."
+  },
+  {
+    "file": "lib/memory/mcp-stack-fallback.test.cjs",
+    "class": "K",
+    "reason": "This sentence describes keyless behavior in a regression test."
+  },
+  {
+    "file": "lib/memory/session-start-brain-staleness.test.cjs",
+    "class": "K",
+    "reason": "This sentence describes keyless behavior in a regression test."
+  },
+  {
+    "file": "scripts/decision-advisor-transport.cjs",
+    "class": "K",
+    "reason": "This sentence describes a keyless loopback provider connection."
+  },
+  {
+    "file": "scripts/entity-extract.cjs",
+    "class": "K",
+    "reason": "This sentence describes handling keyless data in entity extraction."
+  },
+  {
+    "file": "scripts/label-card-fire-replay.cjs",
+    "class": "K",
+    "reason": "This sentence describes keyless scoring without sending a request."
+  },
+  {
+    "file": "scripts/persona-hats.cjs",
+    "class": "K",
+    "reason": "This sentence describes keyless provider limits."
+  },
+  {
+    "file": "scripts/scientific-roadmap.cjs",
+    "class": "K",
+    "reason": "This sentence describes refusal behavior for a Brain roadmap call."
+  },
+  {
+    "file": "scripts/score-moonshots-359.cjs",
+    "class": "K",
+    "reason": "This sentence describes keyless scoring without sending a request."
+  },
+  {
+    "file": "skills/brain-connector/SKILL.md",
+    "class": "K",
+    "reason": "This sentence describes method context from the Brain or refusal when it is unavailable."
+  },
+  {
+    "file": "skills/larry-personality/SKILL.md",
+    "class": "A",
+    "reason": "This sentence states the refusal rule for methodology when the Brain is unavailable."
+  },
+  {
+    "file": "skills/scout/SKILL.md",
+    "class": "K",
+    "reason": "This sentence preserves the scout empty fan refusal behavior."
+  }
+]
