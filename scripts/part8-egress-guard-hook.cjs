@@ -137,6 +137,22 @@
  *
  * NO em-dashes anywhere (CLAUDE.md HARD RULE). Pure CJS, zero npm deps.
  *
+ * Plan 400.3-05a (OR-5, V3, V9, review B-a): the hook runs in 2 modes. The
+ * parent mode (no '--inner' argument) reads stdin once, exits 0 at once for
+ * empty or unparsable input (the BASE fail-open for no input), and otherwise
+ * runs this same file with '--inner' in a child node process through
+ * lib/core/hook-deadline.cjs runUnderDeadline, with the node flags of the
+ * parent (process.execArgv, so a --require preload reaches the check). The
+ * child gets the time left to the deadline, 1 s under the 5 s host budget of
+ * hooks/hooks.json. A child that does not finish in time is killed with
+ * SIGKILL; the parent writes one outage line (mode deadline_exceeded) and
+ * denies with 'Canon Part 8: the egress check did not finish in time (reason
+ * guard_deadline). Nothing was sent. Send the call again.' (exit 2). A spawn
+ * failure or any child status other than 0 or 2 takes the BASE
+ * guardUnavailable branch (fail closed). The '--inner' mode is the BASE code
+ * path, unchanged. onFailure block and the 5 s budget of hooks/hooks.json are
+ * unchanged. Native Windows is UNMEASURED.
+ *
  * License: BSL 1.1.
  */
 
@@ -591,6 +607,71 @@ function main() {
   // verdict === 'allow' (proven MOVE-SET) or any non-block/non-ambiguous value.
   return allow();
 }
+
+// ---------------------------------------------------------------------------
+// Plan 400.3-05a (OR-5): the parent mode and the --inner stall seam. The parent
+// always ends with process.exit, so the BASE code below runs only in the
+// --inner child. The --inner mode does not require hook-deadline.cjs.
+// ---------------------------------------------------------------------------
+// hooks/hooks.json PreToolUse timeout 5 (seconds) for this hook; arm G8 of
+// tests/test-400-3-guard-deadline.cjs pins this constant to it.
+const HOST_BUDGET_MS = 5000;
+const INNER = process.argv.indexOf('--inner') !== -1;
+const DEADLINE_SENTENCE = 'Canon Part 8: the egress check did not finish in time (reason guard_deadline). Nothing was sent. Send the call again.';
+
+function runParent() {
+  let payload = null;
+  try {
+    const raw = readStdinSync();
+    if (!raw || !raw.trim()) return process.exit(0);
+    try {
+      payload = JSON.parse(raw);
+    } catch (_) {
+      return process.exit(0); // the BASE fail-OPEN on garbage stdin (A3).
+    }
+    if (!payload || typeof payload !== 'object') return process.exit(0);
+    // Wave 2 Goldfish W2-D-08 / W2-CD-11: the BASE allow pre-check runs here, before the spawn, so a child that
+    // stalls or cannot start never blocks a tool that is not Brain-shaped (BASE allowed it at once). When the
+    // sanitizer cannot load, the child decides (it fails closed as at BASE).
+    try {
+      if (!require(SANITIZER_PATH).isBrainShapedTool(payload.tool_name)) return process.exit(0);
+    } catch (_) { /* the child decides */ }
+    const hd = require(path.join(LIB_CORE, 'hook-deadline.cjs'));
+    const r = hd.runUnderDeadline({ script: __filename, args: ['--inner'], input: raw, deadlineAt: hd.deadlineFor(HOST_BUDGET_MS) });
+    if (r.kind === 'done' && (r.status === 0 || r.status === 2)) {
+      hd.writeAllSync(1, r.stdout);
+      hd.writeAllSync(2, r.stderr);
+      return process.exit(r.status);
+    }
+    const toolName = typeof payload.tool_name === 'string' ? payload.tool_name : '';
+    if (r.kind === 'deadline') {
+      try { require(OUTAGE_LOG_PATH).recordGuardOutage(toolName, 'deadline_exceeded'); } catch (_) { /* a failing log never changes a verdict */ }
+      // Wave 2 Goldfish W2-CD-11: the guardUnavailable rule. A provably empty payload has nothing to send, so it is allowed.
+      if (isProvablyEmptyPayload(payload.tool_input)) return allow();
+      return block(DEADLINE_SENTENCE);
+    }
+    return guardUnavailable(toolName, payload.tool_input, 'hook_uncaught');
+  } catch (_) {
+    try {
+      return guardUnavailable(payload && typeof payload.tool_name === 'string' ? payload.tool_name : '', payload ? payload.tool_input : undefined, 'hook_uncaught');
+    } catch (_e) {
+      return process.exit(2);
+    }
+  }
+}
+
+// Test seam (plan 400.3-05a): a stall in the --inner child only, so a test can
+// prove the deny at the deadline. It can only make the deny come sooner.
+function innerStall() {
+  const raw = process.env.MOS_HOOK_DEADLINE_TEST_STALL_MS;
+  if (typeof raw !== 'string' || !/^[1-9][0-9]*$/.test(raw)) return;
+  const ms = parseInt(raw, 10);
+  if (ms > 60000) return;
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+if (!INNER) runParent();
+innerStall();
 
 // Outer wrap + uncaughtException backstop. Plan 386-30: once the tool input is
 // read and the tool is Brain-shaped (`armed`), a failure of the hook itself

@@ -118,20 +118,32 @@ function main() {
     return;
   }
 
+  // Plan 400.3-06c: the refresh runs inside one navigation.withRoomTx (one wait for the write lock, all or
+  // nothing); a busy room gives a plain message and exit 0.
+  const navigation = require(path.join(__dirname, '..', 'lib', 'core', 'navigation.cjs'));
   let result;
   try {
-    if (opts.section) {
-      const r = runner.refreshSection(roomDir, opts.section, { db: db });
-      if (r.status === 'refreshed') {
-        result = { refreshed: [{ slug: opts.section, watermark: r.watermark, written_path: r.written_path }], skipped: [], failed: [] };
-      } else if (r.status === 'failed') {
-        result = { refreshed: [], skipped: [], failed: [{ slug: opts.section, reason: r.reason }] };
-      } else {
-        result = { refreshed: [], skipped: [{ slug: opts.section, reason: r.reason || r.status }], failed: [] };
+    result = navigation.withRoomTx(db, () => {
+      if (opts.section) {
+        const r = runner.refreshSection(roomDir, opts.section, { db: db });
+        if (r.status === 'refreshed') {
+          return { refreshed: [{ slug: opts.section, watermark: r.watermark, written_path: r.written_path }], skipped: [], failed: [] };
+        } else if (r.status === 'failed') {
+          return { refreshed: [], skipped: [], failed: [{ slug: opts.section, reason: r.reason }] };
+        }
+        return { refreshed: [], skipped: [{ slug: opts.section, reason: r.reason || r.status }], failed: [] };
       }
-    } else {
-      result = runner.refreshAll(roomDir, { db: db });
-    }
+      return runner.refreshAll(roomDir, { db: db });
+    });
+  } catch (err) {
+    // Wave 2 Goldfish W2-CD-03: the one busy test (lib/core/hook-busy-cap.cjs isBusyError).
+    const busyCap = require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs'));
+    if (!busyCap.isBusyError(err)) throw err;
+    try { busyCap.noteBusy(); } catch (_) { /* tolerant */ }
+    try { db.close(); } catch (_) {}
+    process.stdout.write('room.db is busy (another process is writing). Nothing was refreshed. Run the command again.\n');
+    process.exit(0);
+    return;
   } finally {
     try { db.close(); } catch (_) {}
   }

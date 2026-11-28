@@ -68,6 +68,7 @@ run_if() {
 # --- 1. Guarded legs, one run_if per planned test file (the label names the plan that lands it) -
 run_if "36925: phase0-fixtures (369.25-01)"                 tests/test-36925-phase0-fixtures.cjs         node tests/test-36925-phase0-fixtures.cjs
 run_if "36925: rid-repair (369.25-03)"                      tests/test-36925-rid-repair.cjs              node tests/test-36925-rid-repair.cjs
+run_if "36925: rid-registry-relative-path (fix)"          tests/test-36925-rid-registry-relative-path.cjs node tests/test-36925-rid-registry-relative-path.cjs
 run_if "36925: an01 (369.25-04)"                            tests/test-36925-an01.cjs                    node tests/test-36925-an01.cjs
 run_if "36925: theo-ask (369.25-05)"                        tests/test-36925-theo-ask.cjs                node tests/test-36925-theo-ask.cjs
 run_if "36925: capability (369.25-06)"                      tests/test-36925-capability.cjs              node tests/test-36925-capability.cjs

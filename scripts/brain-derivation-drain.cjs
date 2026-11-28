@@ -50,6 +50,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const { spawn } = require('node:child_process');
+const { makeSink, finishCli } = require('../lib/core/hook-io.cjs');
 // 260917-dia (Task C): the ONE shared MINDRIAN_ROOMS_HOME-then-ROOT env
 // precedence resolver (HOME is the intended primary name per docs).
 const { roomsHomeEnv } = require(path.join(__dirname, '..', 'lib', 'core', 'rooms-home-env.cjs'));
@@ -155,7 +156,7 @@ async function runSingleDerive(roomDir, section) {
 // Main drain (UserPromptSubmit hook entry)
 // ---------------------------------------------------------------------------
 
-async function runDrain(roomDir, opts) {
+async function runDrain(roomDir, opts, sink) {
   let Q;
   try {
     Q = require('../lib/core/brain-derivation-queue.cjs');
@@ -193,7 +194,7 @@ async function runDrain(roomDir, opts) {
   if (Array.isArray(result.dispatched)) {
     for (const item of result.dispatched) {
       if (opts.dryRun) {
-        process.stderr.write(
+        sink.err(
           '[brain-derivation-drain] would spawn deriveSection for section=' +
           item.section + '\n'
         );
@@ -261,34 +262,85 @@ async function runDrain(roomDir, opts) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Entry point
-// ---------------------------------------------------------------------------
-
-(async function main() {
+// ---------- Phase 400.4 plan 10 (QA-F11): write-lock gate ----------
+// room.db opens with a 5 s busy wait but this hook has a 3 s host budget. Check the write lock first with one
+// busy wait of up to HOOK_BUSY_MS (750 ms). After the first busy the process cap drops to 0, so the second try
+// is a no-wait re-probe (the one retry). When room.db stays busy: one stderr note, exit 0, nothing written.
+// Returns true when the caller must stop. A room with no room.db, or a probe that cannot run, does not stop.
+function roomDbIsBusyForHook(roomDir, sink) {
   try {
-    const args = parseArgs(process.argv.slice(2));
-
-    // --single: child path -- run deriveSection synchronously and exit.
-    if (args.single) {
-      const roomDir = args.roomDir || resolveActiveRoomDir();
-      if (!roomDir) process.exit(0);
-      const code = await runSingleDerive(roomDir, args.single);
-      process.exit(typeof code === 'number' ? code : 0);
-      return;
+    const busyCap = require('../lib/core/hook-busy-cap.cjs');
+    busyCap.setHookBusyCap(busyCap.HOOK_BUSY_MS);
+    const navigation = require('../lib/core/navigation.cjs');
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const reasonSink = [];
+      const handle = navigation.openRoomDbForCaller(roomDir, {
+        busyMs: busyCap.HOOK_BUSY_MS,
+        probeWrite: true,
+        reasonSink: reasonSink,
+      });
+      if (handle) {
+        navigation.closeRoomDbForCaller(handle);
+        return false;
+      }
+      if (!reasonSink.includes('room_db_busy')) return false;
     }
+    sink.err('[brain-derivation-drain] room_db_busy: room.db is locked by another process; this prompt skips brain-derivation-drain.\n');
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
 
-    // Hook path: drain the active room (or --room override).
+// ---------------------------------------------------------------------------
+// Entry point: run(input, opts), the in-process entry (Phase 400.4 plan 12, QA-F11 part B base)
+// ---------------------------------------------------------------------------
+// The hook mode only: drain the active room (or --room <dir>), with --max <N> and --dry-run as before. input is the raw
+// stdin text and is not used. The --single child mode is CLI only: run() with --single resolves code 0 and does nothing.
+// Resolves {code, stdout, stderr}. Never calls process.exit, never reads fd 0, never writes to the process streams,
+// never rejects. The detached children keep process.execPath, the same script path and the same arguments.
+async function run(input, opts) { // eslint-disable-line no-unused-vars
+  const sink = makeSink();
+  try {
+    const args = parseArgs(opts && Array.isArray(opts.argv) ? opts.argv : []);
+    if (args.single) return sink.take(0);
     const roomDir = args.roomDir || resolveActiveRoomDir();
-    if (!roomDir) {
-      // No active room -- silent no-op.
-      process.exit(0);
-      return;
-    }
-    await runDrain(roomDir, args);
-    process.exit(0);
+    if (!roomDir) return sink.take(0); // No active room -- silent no-op.
+    // QA-F11: gate before any child is spawned. The cap is module state, so a spawned child keeps the 5 s wait.
+    if (roomDbIsBusyForHook(roomDir, sink)) return sink.take(0);
+    await runDrain(roomDir, args, sink);
+    return sink.take(0);
   } catch (_e) {
     // Fail-silent on any unexpected error. Drain is advisory.
-    process.exit(0);
+    return sink.take(0);
   }
-})();
+}
+
+module.exports = { run };
+
+// ---------------------------------------------------------------------------
+// CLI entry point (only when run as a script)
+// ---------------------------------------------------------------------------
+
+if (require.main === module) {
+  (async function main() {
+    try {
+      const args = parseArgs(process.argv.slice(2));
+
+      // --single: child path -- run deriveSection synchronously and exit.
+      if (args.single) {
+        const roomDir = args.roomDir || resolveActiveRoomDir();
+        if (!roomDir) process.exit(0);
+        const code = await runSingleDerive(roomDir, args.single);
+        process.exit(typeof code === 'number' ? code : 0);
+        return;
+      }
+
+      // Hook path: the same body run() uses.
+      finishCli(await run('', { argv: process.argv.slice(2) }));
+    } catch (_e) {
+      // Fail-silent on any unexpected error. Drain is advisory.
+      process.exit(0);
+    }
+  })();
+}

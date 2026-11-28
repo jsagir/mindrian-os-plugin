@@ -131,10 +131,12 @@ try {
     assert.equal(signals.readRoutedNextMove(), 'mullins', 'offer command persisted (preferred over fire_skill)');
   });
 
-  ok('Ruling 3a: persistFromDecision falls back to fire_skill when no offer', function () {
+  // QA-F12 D3 (owner decision 2026-11-26): the cue never shows a skill name. A decision with only fire_skill
+  // persists nothing, so the reader finds no cue.
+  ok('QA-F12 D3: persistFromDecision never persists a fire_skill name when no offer', function () {
     nextMoveCache.persistNextMove(null);
     nextMoveCache.persistFromDecision({ offer_next_step: null, fire_skill: 'map-unknowns' });
-    assert.equal(signals.readRoutedNextMove(), 'map unknowns', 'fire_skill persisted as the suggested command');
+    assert.equal(signals.readRoutedNextMove(), null, 'the skill name is not persisted');
   });
 
   ok('Ruling 3a: a decision with neither cue CLEARS the cache (honest default, no stale pin)', function () {

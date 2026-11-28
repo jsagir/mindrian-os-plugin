@@ -1,0 +1,128 @@
+PASS claim-checks --words-file / fifo (61 ms)
+PASS claim-checks --words-file / dir (85 ms)
+PASS claim-checks --words-file / missing (67 ms)
+PASS claim-checks --words-file / capplus1 (67 ms)
+FAIL claim-checks --words-file / proc: exit 1 without the refusal form: x Claim not found |   Why: claim_not_found
+FAIL claim-checks --words-file / nul: exit 1 without the refusal form: x Claim not found |   Why: claim_not_found
+PASS claim-checks --words-file / big (77 ms)
+PASS claim-checks --words-file / symlink (90 ms)
+PASS claim-checks --words-file / valid (58 ms)
+PASS claim-checks --against-file / fifo (57 ms)
+PASS claim-checks --against-file / dir (63 ms)
+PASS claim-checks --against-file / missing (59 ms)
+PASS claim-checks --against-file / capplus1 (56 ms)
+FAIL claim-checks --against-file / proc: exit 1 without the refusal form: x Claim not found |   Why: claim_not_found
+FAIL claim-checks --against-file / nul: exit 1 without the refusal form: x Claim not found |   Why: claim_not_found
+PASS claim-checks --against-file / big (62 ms)
+PASS claim-checks --against-file / symlink (66 ms)
+PASS claim-checks --against-file / valid (59 ms)
+PASS room-question --text-file / fifo (57 ms)
+PASS room-question --text-file / dir (56 ms)
+PASS room-question --text-file / missing (57 ms)
+PASS room-question --text-file / capplus1 (61 ms)
+FAIL room-question --text-file / proc: exit 1 without the refusal form: x Could not record the question |   Why: invalid_text
+FAIL room-question --text-file / nul: exit 0, want a refusal
+PASS room-question --text-file / big (67 ms)
+PASS room-question --text-file / symlink (84 ms)
+PASS room-question --text-file / valid (93 ms)
+PASS room-question --account-file / fifo (69 ms)
+PASS room-question --account-file / dir (60 ms)
+PASS room-question --account-file / missing (82 ms)
+PASS room-question --account-file / capplus1 (94 ms)
+FAIL room-question --account-file / proc: exit 1 without the refusal form: x Could not record the question |   Why: invalid_account
+FAIL room-question --account-file / nul: exit 1 without the refusal form: x The question was not changed yet |   Why: question_changed_meanwhile
+PASS room-question --account-file / big (63 ms)
+PASS room-question --account-file / symlink (58 ms)
+PASS room-question --account-file / valid (58 ms)
+PASS rs-experts --topic-file / fifo (49 ms)
+PASS rs-experts --topic-file / dir (52 ms)
+PASS rs-experts --topic-file / missing (67 ms)
+PASS rs-experts --topic-file / capplus1 (52 ms)
+FAIL rs-experts --topic-file / proc: exit 1 without the refusal form: x Canon Part 8 audit failed |   Why: forbidden bytes in topic (rs-experts-command-input)
+FAIL rs-experts --topic-file / nul: exit 0, want a refusal
+PASS rs-experts --topic-file / big (58 ms)
+PASS rs-experts --topic-file / symlink (74 ms)
+PASS rs-experts --topic-file / valid (55 ms)
+PASS close-loop version-log --topic-file / fifo (58 ms)
+PASS close-loop version-log --topic-file / dir (60 ms)
+PASS close-loop version-log --topic-file / missing (63 ms)
+PASS close-loop version-log --topic-file / capplus1 (57 ms)
+PASS close-loop version-log --topic-file / proc (121 ms)
+PASS close-loop version-log --topic-file / nul (57 ms)
+PASS close-loop version-log --topic-file / big (65 ms)
+PASS close-loop version-log --topic-file / symlink (67 ms)
+PASS close-loop version-log --topic-file / valid (60 ms)
+FAIL dominant-design-research file-pack --header-file / fifo: killed by SIGKILL after 15056 ms (a hang)
+PASS dominant-design-research file-pack --header-file / dir (101 ms)
+PASS dominant-design-research file-pack --header-file / missing (58 ms)
+PASS dominant-design-research file-pack --header-file / capplus1 (55 ms)
+PASS dominant-design-research file-pack --header-file / proc (135 ms)
+PASS dominant-design-research file-pack --header-file / nul (58 ms)
+PASS dominant-design-research file-pack --header-file / big (60 ms)
+PASS dominant-design-research file-pack --header-file / symlink (57 ms)
+PASS dominant-design-research file-pack --header-file / valid (56 ms)
+PASS mindrian-tools bank-opportunity --file / fifo (57 ms)
+PASS mindrian-tools bank-opportunity --file / dir (59 ms)
+PASS mindrian-tools bank-opportunity --file / missing (55 ms)
+PASS mindrian-tools bank-opportunity --file / capplus1 (57 ms)
+PASS mindrian-tools bank-opportunity --file / proc (124 ms)
+PASS mindrian-tools bank-opportunity --file / nul (77 ms)
+PASS mindrian-tools bank-opportunity --file / big (64 ms)
+PASS mindrian-tools bank-opportunity --file / symlink (93 ms)
+PASS mindrian-tools bank-opportunity --file / valid (92 ms)
+PASS create-speaker-profile --role-file / fifo (5 ms)
+PASS create-speaker-profile --role-file / dir (4 ms)
+PASS create-speaker-profile --role-file / missing (5 ms)
+FAIL create-speaker-profile --role-file / capplus1: exit 1 without the refusal form: ERROR: Invalid role 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+FAIL create-speaker-profile --role-file / proc: exit 1 without the refusal form: ERROR: Invalid role '0000000000000000 T _text'. Must be one of: mentor, researcher, team-member, investor, advisor, customer, founder, partner, domain-expert, government, competitor, unknown
+FAIL create-speaker-profile --role-file / nul: exit 1 without the refusal form: ERROR: Invalid role 'abcd'. Must be one of: mentor, researcher, team-member, investor, advisor, customer, founder, partner, domain-expert, government, competitor, unknown
+FAIL create-speaker-profile --role-file / big: exit 1 without the refusal form: ERROR: Invalid role 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+PASS create-speaker-profile --role-file / symlink (35 ms)
+PASS create-speaker-profile --role-file / valid (35 ms)
+PASS create-speaker-profile --name-file / fifo (4 ms)
+PASS create-speaker-profile --name-file / dir (5 ms)
+PASS create-speaker-profile --name-file / missing (4 ms)
+FAIL create-speaker-profile --name-file / capplus1: exit 0, want a refusal
+FAIL create-speaker-profile --name-file / proc: exit 0, want a refusal
+FAIL create-speaker-profile --name-file / nul: exit 0, want a refusal
+FAIL create-speaker-profile --name-file / big: exit 0, want a refusal
+PASS create-speaker-profile --name-file / symlink (35 ms)
+PASS create-speaker-profile --name-file / valid (35 ms)
+PASS research-speaker --name-file / fifo (3 ms)
+PASS research-speaker --name-file / dir (4 ms)
+PASS research-speaker --name-file / missing (8 ms)
+FAIL research-speaker --name-file / capplus1: exit 1 without the refusal form: ERROR: No profile found for speaker 'bnd-speaker' in /tmp/bnd-ff-4iEvDj/room-227/team/
+FAIL research-speaker --name-file / proc: exit 1 without the refusal form: ERROR: No profile found for speaker 'bnd-speaker' in /tmp/bnd-ff-4iEvDj/room-229/team/
+FAIL research-speaker --name-file / nul: exit 1 without the refusal form: /home/jsagi/dev/MindrianOS-Plugin-bnd/scripts/research-speaker: line 132: warning: command substitution: ignored null byte in input | ERROR: No profile found for speaker 'bnd-speaker' in /tmp/bnd-ff-4
+FAIL research-speaker --name-file / big: exit 1 without the refusal form: ERROR: No profile found for speaker 'bnd-speaker' in /tmp/bnd-ff-4iEvDj/room-235/team/
+PASS research-speaker --name-file / symlink (10 ms)
+PASS research-speaker --name-file / valid (16 ms)
+PASS research-speaker --context-file / fifo (5 ms)
+PASS research-speaker --context-file / dir (7 ms)
+PASS research-speaker --context-file / missing (7 ms)
+FAIL research-speaker --context-file / capplus1: exit 1 without the refusal form: ERROR: No profile found for speaker 'bnd-speaker' in /tmp/bnd-ff-4iEvDj/room-254/team/
+FAIL research-speaker --context-file / proc: exit 1 without the refusal form: ERROR: No profile found for speaker 'bnd-speaker' in /tmp/bnd-ff-4iEvDj/room-256/team/
+FAIL research-speaker --context-file / nul: exit 1 without the refusal form: /home/jsagi/dev/MindrianOS-Plugin-bnd/scripts/research-speaker: line 132: warning: command substitution: ignored null byte in input | ERROR: No profile found for speaker 'bnd-speaker' in /tmp/bnd-ff-4
+FAIL research-speaker --context-file / big: exit 1 without the refusal form: ERROR: No profile found for speaker 'bnd-speaker' in /tmp/bnd-ff-4iEvDj/room-262/team/
+PASS research-speaker --context-file / symlink (14 ms)
+PASS research-speaker --context-file / valid (11 ms)
+PASS room-registry create --name-file / fifo (15 ms)
+PASS room-registry create --name-file / dir (14 ms)
+PASS room-registry create --name-file / missing (13 ms)
+FAIL room-registry create --name-file / capplus1: exit 0, want a refusal
+FAIL room-registry create --name-file / proc: exit 0, want a refusal
+FAIL room-registry create --name-file / nul: exit 0, want a refusal
+FAIL room-registry create --name-file / big: exit 126 without the refusal form: /home/jsagi/dev/MindrianOS-Plugin-bnd/scripts/room-registry: line 515: /usr/bin/python3: Argument list too long | room-registry: exited 126; python is Python 3.12.3 (python3)
+PASS room-registry create --name-file / symlink (87 ms)
+PASS room-registry create --name-file / valid (106 ms)
+PASS room-registry create --stage-file / fifo (16 ms)
+PASS room-registry create --stage-file / dir (12 ms)
+PASS room-registry create --stage-file / missing (12 ms)
+FAIL room-registry create --stage-file / capplus1: exit 0, want a refusal
+FAIL room-registry create --stage-file / proc: exit 0, want a refusal
+FAIL room-registry create --stage-file / nul: exit 0, want a refusal
+FAIL room-registry create --stage-file / big: exit 126 without the refusal form: /home/jsagi/dev/MindrianOS-Plugin-bnd/scripts/room-registry: line 515: /usr/bin/python3: Argument list too long | room-registry: exited 126; python is Python 3.12.3 (python3)
+PASS room-registry create --stage-file / symlink (67 ms)
+PASS room-registry create --stage-file / valid (69 ms)
+
+flag-file-read: 91 passed, 35 failed, 0 skipped

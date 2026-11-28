@@ -376,7 +376,10 @@ describe('SQLITE-02: Edge creator functions', () => {
 // All 21 exports exist
 // ============================================================
 
-describe('All 21 exports present', () => {
+// Re-based by 367-03: the pin was 21 and red at BASE (30 keys at c8180a3de);
+// 367-01 added getArtifactId, 367-03 added computeHash, _readArtifactContent
+// and indexArtifactsBatch (34 keys, measured).
+describe('All 34 exports present', () => {
   const expectedExports = [
     'EDGE_TYPES', 'openGraph', 'closeGraph', 'initSchema',
     'indexArtifact', 'rebuildGraph', 'queryGraph', 'graphStats',
@@ -387,8 +390,8 @@ describe('All 21 exports present', () => {
     'linkWhitespaceToSection', 'linkDiscoveryCycleSource',
   ];
 
-  it('module exports exactly 21 keys', () => {
-    assert.strictEqual(Object.keys(lazygraph).length, 21);
+  it('module exports exactly 34 keys', () => {
+    assert.strictEqual(Object.keys(lazygraph).length, 34);
   });
 
   for (const name of expectedExports) {

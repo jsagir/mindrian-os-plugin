@@ -55,7 +55,7 @@ Also query CONTRADICTS edges that share the same TRIZ parameter pattern as the v
 Read `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` for `brain_cross_domain` and `brain_search_semantic` patterns.
 
 1. **brain_cross_domain**: Find bridging frameworks between the venture's domain and other domains
-2. **brain_search_semantic**: Vector search using the abstract function description as query text
+2. **mcp__mindrian-brain__brain_search**: Vector search with a generic domain handle only as `query` (the TRIZ parameter names, or one to three plain keywords that name a field); when no generic handle exists, ask the person and send nothing
 3. **brain_analogy_search**: Find frameworks from DIFFERENT domains that address the SAME problem type
 
 ```cypher

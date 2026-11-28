@@ -203,7 +203,9 @@ function makeMigrationPending(roomDir) {
   const { DatabaseSync } = require('node:sqlite');
   const dbPath = path.join(roomDir, '.mindrian', 'room.db');
   const raw = new DatabaseSync(dbPath, { timeout: 0 });
+  // Plan 400.3-06b: a pending migration is now a user_version that does not match the stamp.
   raw.prepare('DELETE FROM identity WHERE key = ?').run(PENDING_MIGRATION_SENTINEL);
+  raw.exec('PRAGMA user_version = 0');
   raw.close();
 }
 
@@ -218,7 +220,9 @@ function injectMidMigrationThrow(roomDir) {
   const raw = new DatabaseSync(dbPath, { timeout: 0 });
   raw.exec('DROP INDEX IF EXISTS idx_session_focus_set_at');
   raw.exec('ALTER TABLE session_focus DROP COLUMN set_at');
+  // Plan 400.3-06b: a pending migration is now a user_version that does not match the stamp.
   raw.prepare('DELETE FROM identity WHERE key = ?').run(PENDING_MIGRATION_SENTINEL);
+  raw.exec('PRAGMA user_version = 0');
   raw.close();
 }
 

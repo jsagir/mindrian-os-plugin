@@ -312,10 +312,10 @@ Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"` to find the active room.
 
 ### Step 2: Reopen the Claim
 
-Run:
+Write the claim id or the words, exactly as given, to a file in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/words.txt`, with the Write tool; the words never go on a command line. Run the command below. Then remove that directory, also when the person declines.
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/claim-checks.cjs" show --room "<room path>" <id or words>
+node "${CLAUDE_PLUGIN_ROOT}/scripts/claim-checks.cjs" show --room "<room path>" --words-file "<dir>/words.txt"
 ```
 
 - On `More than one claim matches`: fire an AskUserQuestion card offering up to 4 of the candidate claims (from the script's candidate list). If more than 4 claims match, ask the officer for fewer or more specific words instead of firing a 4-way card that drops candidates.
@@ -343,13 +343,13 @@ Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"` to find the active room.
 
 ### Step 2: Find and Show the Claim
 
-Same as the `claim` subcommand: run `node "${CLAUDE_PLUGIN_ROOT}/scripts/claim-checks.cjs" show --room "<room path>" <id or words>`, resolve ambiguity the same way (AskUserQuestion over up to 4 candidates), and use the same not-found 3-line error.
+Same as the `claim` subcommand: write the claim id or the words, exactly as given, to a file in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/words.txt`, with the Write tool; then run `node "${CLAUDE_PLUGIN_ROOT}/scripts/claim-checks.cjs" show --room "<room path>" --words-file "<dir>/words.txt"`, resolve ambiguity the same way (AskUserQuestion over up to 4 candidates), and use the same not-found 3-line error. Keep the directory for Steps 3 and 5; when the flow stops here, remove it.
 
 ### Step 3: Gather the Four Fields
 
 Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/claim-checks.cjs" options` to read the four option lists (rungs, against_kinds, methods, results). Every value shown to the officer comes verbatim from this JSON; never drop, merge or reword a value.
 
-1. Ask in plain text: "What did you check it against?" (a document, a field note, a person, a source). The answer becomes `--against`.
+1. Ask in plain text: "What did you check it against?" (a document, a field note, a person, a source). Write the answer, exactly as given, to `<dir>/against.txt` in the private directory of Step 2, with the Write tool; the answer never goes on a command line. The file becomes `--against-file`.
 2. Fire an AskUserQuestion card for the against kind, using the `against_kinds` values verbatim as options.
 3. Fire an AskUserQuestion card for the rung, with option labels `Rung N - <label>` built from the `rungs` list (rung 1 is the lowest).
 4. Fire an AskUserQuestion card for the method, using the `methods` values verbatim as options.
@@ -369,10 +369,10 @@ Pass `--resolves-dispute` on the recording call ONLY after an explicit Yes from 
 
 ### Step 5: Record the Check
 
-Run:
+Run the command below. Then remove that directory, also when the person declines.
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/claim-checks.cjs" record --room "<room path>" --claim "<claim id>" --against "<answer>" --against-kind <kind> --rung <N> --method <method> --result <result>
+node "${CLAUDE_PLUGIN_ROOT}/scripts/claim-checks.cjs" record --room "<room path>" --claim "<claim id>" --against-file "<dir>/against.txt" --against-kind <kind> --rung <N> --method <method> --result <result>
 ```
 
 Add `--resolves-dispute` only when Step 4 fired and the person answered Yes.
@@ -450,16 +450,16 @@ Print the output verbatim, then one plain sentence: every version is kept exactl
 ### Step 4: Set
 
 1. Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" show --room "<room path>" --json` to read the current version and any pending change.
-2. Take the officer's question text exactly as written after `set`. If none was given, ask in plain text: "What is the question this room's work serves?"
+2. Take the officer's question text exactly as written after `set`. If none was given, ask in plain text: "What is the question this room's work serves?" Write the text, unchanged, to a file in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/question.txt`, with the Write tool; the text never goes on a command line.
 3. Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" origins --json` and fire an AskUserQuestion card "Where did this question come from?" with one option per origin labeled `<id> - <label>` verbatim from the JSON. If more than 4 origins are returned, show the first 3 plus a 4th option "More options".
 4. Run:
    ```bash
-   node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" set --room "<room path>" --origin <id> --based-on <current version, omitted when there is none> "<question text>"
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" set --room "<room path>" --origin <id> --based-on <current version, omitted when there is none> --text-file "<dir>/question.txt"
    ```
-5. Branch on the result:
+5. Branch on the result. When the flow has ended (recorded, cancelled or stopped), remove that directory, also when the person declines. The branches:
    - **Exit 0:** render a Shape E mini report with the output verbatim.
    - **Exit 1, `Why: change_needs_account`:** the change is now waiting and the script has already printed the ask "What did the old question get wrong?" to stderr, along with the Decision Gate card and its AskUserQuestion contract. Fire AskUserQuestion with exactly the card's options ("Write what it got wrong (files as refines)", "It is a new question (files as relocates)", "Cancel the change").
-     - On "Write what it got wrong": ask in plain text "In your own words: what did the old question get wrong?" and pass the answer VERBATIM as `--account "<the officer's words>"` (escape double quotes; never write, shorten or polish it; if the officer typed the answer into the card's free-text field, that text is the account).
+     - On "Write what it got wrong": ask in plain text "In your own words: what did the old question get wrong?", write the answer VERBATIM to `<dir>/account.txt` in the same private directory with the Write tool, and re-run Step 4.4 with `--account-file "<dir>/account.txt"` (the words never go on a command line; never compose, shorten or polish them; if the officer typed the answer into the card's free-text field, that text is the account).
      - On "It is a new question": re-run Step 4.4 with `--relocate`.
      - On "Cancel the change": run `node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" cancel --room "<room path>"`.
    - **Exit 1, `Why: question_changed_meanwhile`:** show the block and restart from Step 4.1.

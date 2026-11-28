@@ -240,9 +240,9 @@ Route to /mos:ignite after Step 2 (the adoption check -- Step 1 already captured
 
 ### Step 4: Register Room
 
-Run:
+Write the venture name, on one line, to a file in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/venture-name.txt`, with the Write tool; a name never goes on a command line. Run the command below (the stage is `Pre-Opportunity`, the default of the script). Then remove that directory, also when the person declines.
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" create <slug> "<slug>" "<venture_name>" "Pre-Opportunity"
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" create <slug> "<slug>" --name-file "<dir>/venture-name.txt"
 ```
 
 The registry create command automatically sets the new room as active and parks the previous one.

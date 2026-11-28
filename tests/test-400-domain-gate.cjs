@@ -109,13 +109,14 @@ async function main() {
     assert.equal(r1.ok, true);
     assert.equal(r1.stage, 1);
     assert.equal(r1.header, STAGE1.header);
-    assert.deepEqual(r1.options, STAGE1.options.map((o) => ({ id: o.id, label: o.label })));
+    // Phase 400.4 QA-F10: options carry the data description.
+    assert.deepEqual(r1.options, STAGE1.options.map((o) => ({ id: o.id, label: o.label, description: o.description })));
     assert.deepEqual(r1.approving.slice().sort(), S1_IDS.slice().sort());
     const r2 = card.normalizeOptions(opts([S2_IDS[1], S2_IDS[0]]));
     assert.equal(r2.ok, true);
     assert.equal(r2.stage, 2);
     assert.equal(r2.header, STAGE2.header);
-    assert.deepEqual(r2.options, STAGE2.options.map((o) => ({ id: o.id, label: o.label })));
+    assert.deepEqual(r2.options, STAGE2.options.map((o) => ({ id: o.id, label: o.label, description: o.description })));
     assert.deepEqual(r2.approving.slice().sort(), S2_IDS.slice().sort());
     const valid = { 1: S1_IDS, 2: S2_IDS };
     const bad = [

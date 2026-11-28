@@ -166,6 +166,7 @@ function runBashHook(scriptPath, envelope, env, cwd) {
     // The advisory prefix the SKILL.md trigger keys off is `^post-write: cascade
     // complete` OR `^queued MINTO regen`; the side-channel records cascade_status
     // 'complete' as the in-payload signal the renderer pairs with that prefix.
+    // Plan 400.3-03b re-pinned complete after the 2 legacy faults were fixed (OA-2).
     assert.equal(payload.cascade_status, 'complete',
       label + ': cascade_status must be "complete" (the advisory-prefix companion signal)');
 

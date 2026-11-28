@@ -32,7 +32,7 @@
     {
       "role": "decide_engine",
       "path": "lib/core/navigation-engine.cjs",
-      "digest": "04f425ff84e2f369b4978f286c97c96f3113b82a9bf2418e6e5ed33af10bf2f7"
+      "digest": "619a790a03f0196b2966c5a839634d3cc560e0fa7539b795ca79500a25577d54"
     },
     {
       "role": "cockpit",

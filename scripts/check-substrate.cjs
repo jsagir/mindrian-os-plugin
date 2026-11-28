@@ -89,6 +89,13 @@ const ALLOWED_DIRECT_IMPORT = [
   // scaffold (it INVOKES room-birth.cjs birthRoom) and makes ZERO Brain call.
   // Allow-listed alongside graph-derivation.cjs.
   /^lib\/core\/graph-self-heal\.cjs$/,
+  // 2.0.0-beta.95 cut (owner approved on a card, 2026-11-27): the doctor Eureka
+  // smoke probe builds a throwaway room under os.tmpdir(). Since Phase 400.3
+  // wave 2 (W2-CD-10) the navigation door treats a 0-byte room.db as absent and
+  // never fills it, so the probe creates its temp room.db with room-db.cjs
+  // openRoomDb and closes it at once; every read and write after that goes
+  // through the navigation door (openRoomDbForCaller, writeEdge) and insertNode.
+  /^lib\/core\/doctor\/class-s-eureka-smoke\.cjs$/,
   /^tests\//,
   /^tests\/fixtures\//,
   /^scripts\/migrate-/,
@@ -172,6 +179,8 @@ const ALLOWED_DIRECT_IMPORT = [
   // a measurement harness for a derived threshold file, not graph state (Canon Part
   // 9). It makes no network or Brain call (Canon Part 8).
   /^scripts\/eureka-portfolio-calibrate\.cjs$/,
+  // Phase 367 catch-up indexer: generated index of room files
+  /^scripts\/graph-catchup\.cjs$/,
 ];
 
 function isAllowedPath(p) {
@@ -200,8 +209,15 @@ function isAllowedPath(p) {
 // trips the --diff hook on an already-baselined, sanctioned line, which is
 // exactly the false-positive the diff scan's own "net-new after baseline"
 // contract (see scanStagedDiff's header comment) says should NOT block.
+//
+// graph-ops.cjs (Phase 400.3 plan 01, owner decision 2026-11-26, option A): the
+// already-baselined lindexArtifact -> openGraph(roomDir) call is CHANGED, not
+// added, by plan 01; the --diff scan reads the changed line as a new
+// opengraph-bypass. Same narrow, diff-only exemption as node-insert.cjs; the
+// --baseline count still sees every opengraph-bypass call in this file.
 const DIFF_ONLY_RULE_EXEMPTIONS = {
   'lib/core/node-insert.cjs': new Set(['raw-graph-write']),
+  'lib/core/graph-ops.cjs': new Set(['opengraph-bypass']),
 };
 
 function isDiffExemptHit(filePath, rule) {

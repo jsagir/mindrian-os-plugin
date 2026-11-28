@@ -115,13 +115,13 @@ function main() {
 
   // Static legs.
   const lib = fs.readFileSync(GATE_LIB, 'utf8');
-  assert.match(lib, /RELEASE_GATE_SUITES=\(tests\/run-all-366\.sh\)/, 'the default suite list is tests/run-all-366.sh');
+  assert.match(lib, /RELEASE_GATE_SUITES=\(tests\/run-all-366\.sh tests\/run-all-395\.sh\)/, 'the default suite list is tests/run-all-366.sh and tests/run-all-395.sh (RCA 395-tests-after-beta93)');
   assert.strictEqual((lib.match(/\bexit /g) || []).length, 0, 'suite-gate.sh never terminates the caller shell');
   const snapLib = fs.readFileSync(SNAP_LIB, 'utf8');
   for (const [label, text] of [['suite-gate.sh', lib], ['canon-snapshot-gate.sh', snapLib]]) {
     assert.ok(!new RegExp('[' + String.fromCharCode(0x2013) + String.fromCharCode(0x2014) + ']').test(text), label + ' carries no em-dash or en-dash');
   }
-  ok('static: default list is tests/run-all-366.sh, no exit in the lib, hyphens only');
+  ok('static: default list is tests/run-all-366.sh and tests/run-all-395.sh, no exit in the lib, hyphens only');
 
   const rel = fs.readFileSync(RELEASE_SH, 'utf8');
   for (const libName of ['canon-snapshot-gate.sh', 'suite-gate.sh']) {

@@ -250,7 +250,10 @@ leg('P1 byte preservation: every pre-phase section is identical (whitespace rout
         // Step 1 command gains the approval token. Everything else stays byte for byte.
         const stripped = curChunk
           .replace(/<!-- approval-step-begin -->[\s\S]*?<!-- approval-step-end -->\n\n/, '')
-          .replace(' external --approve TOKEN', ' external');
+          .replace(' external --approve TOKEN', ' external')
+          // Quick 261127-bnd, F12: the 2 base sentences were false (Semantic Scholar does receive
+          // room words). Everything else stays byte for byte.
+          .replace("Nothing in this pipeline goes to the Brain. Semantic Scholar does receive words from this room: the searches are built from the titles and section names of the room's artifacts and from framework names, and when no keyword is found the room folder name is used. Nothing is sent until the navigator approves the exact search list (Step 0 of `external`). The searches go to the public Semantic Scholar API over HTTPS, and the returned abstracts stay on disk in the room.", "No user-specific strings are ever sent to Semantic Scholar or Brain in this pipeline. The query keywords are extracted from local artifact titles and framework names, sent to the public Semantic Scholar API over HTTPS, and the returned abstracts stay on disk in the room.");
         assert.equal(stripped, baseChunk, rel + ': section changed: ' + heading);
         continue;
       }

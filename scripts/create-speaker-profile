@@ -2,7 +2,13 @@
 # create-speaker-profile -- Create ICM nested folder profile for a new speaker
 #
 # Usage: create-speaker-profile <room_dir> <speaker-slug> <speaker-role> <display-name>
+#        create-speaker-profile <room_dir> <speaker-slug> --role-file <file> --name-file <file>
 # Example: create-speaker-profile room/ tyler-chen researcher "Tyler Chen"
+#
+# File form (quick 261127-bnd): when argument 3 starts with --, the role and
+# the name are the first line of each file. An instruction file uses the file
+# form only: a shell runs $(...) and backticks that a name on a command line
+# holds. The argument form stays for callers with an argument array.
 #
 # Creates the ICM nested folder structure under room/team/{role-plural}/{speaker-slug}/
 # with PROFILE.md, insights/, advice/, connections/, concerns/ subdirectories.
@@ -18,6 +24,10 @@ create-speaker-profile -- Create ICM nested folder profile for a new speaker
 
 USAGE:
   create-speaker-profile <room_dir> <speaker-slug> <speaker-role> <display-name>
+  create-speaker-profile <room_dir> <speaker-slug> --role-file <file> --name-file <file>
+
+  An instruction file uses the file form only: a shell runs $(...) and
+  backticks that a name on a command line holds.
 
 ARGUMENTS:
   room_dir      Path to the room directory (e.g., room/)
@@ -173,6 +183,56 @@ fi
 # Legacy path (unchanged): positional 4-arg invocation
 # ---------------------------------------------------------------------------
 
+# Quick 261127-bnd: the file form reads the role and the name from files.
+# The text is data: it is never put in a command line or a program text.
+# Quick 261127-bnd follow-up: the one read rule of a file flag, the same body in
+# scripts/create-speaker-profile, scripts/research-speaker and scripts/room-registry.
+# A regular file only ([[ -f ]] follows a symlink, so a symlink to a regular file
+# stays allowed as before; a FIFO is never opened). At most 65536 bytes: head -c
+# reads 65537 bytes from the open file, so the stat size is never trusted and the
+# time does not grow with the file size. A NUL byte is refused. It prints the
+# bytes; a refusal prints nothing and returns 1.
+_mos_flag_file_read() {
+  local f="${1:-}" max=65536 n z
+  [[ -n "$f" && -f "$f" && -r "$f" ]] || return 1
+  n=$(head -c $((max + 1)) -- "$f" 2>/dev/null | wc -c) || return 1
+  n="${n//[[:space:]]/}"
+  [[ -n "$n" && "$n" -le "$max" ]] || return 1
+  z=$(head -c $((max + 1)) -- "$f" 2>/dev/null | tr -cd '\000' | wc -c) || return 1
+  z="${z//[[:space:]]/}"
+  [[ "$z" == 0 ]] || return 1
+  head -c "$max" -- "$f"
+}
+_csp_first_line() {
+  local f="$1" l=""
+  l=$(_mos_flag_file_read "$f") || return 1
+  l="${l%%$'\n'*}"
+  l="${l%$'\r'}"
+  [[ -n "$l" ]] || return 1
+  printf '%s' "$l"
+}
+if [[ $# -ge 3 && "$3" == --* ]]; then
+  ROOM_DIR="$1"
+  SPEAKER_SLUG="$2"
+  _CSP_ROLE_FILE=""
+  _CSP_NAME_FILE=""
+  shift 2
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --role-file) _CSP_ROLE_FILE="${2:-}"; shift 2 2>/dev/null || shift $# ;;
+      --name-file) _CSP_NAME_FILE="${2:-}"; shift 2 2>/dev/null || shift $# ;;
+      *) shift ;;
+    esac
+  done
+  if ! SPEAKER_ROLE=$(_csp_first_line "$_CSP_ROLE_FILE"); then
+    echo "ERROR: --role-file needs a readable file that is not empty (a regular file, at most 65536 bytes, no NUL byte): ${_CSP_ROLE_FILE}" >&2
+    exit 1
+  fi
+  if ! DISPLAY_NAME=$(_csp_first_line "$_CSP_NAME_FILE"); then
+    echo "ERROR: --name-file needs a readable file that is not empty (a regular file, at most 65536 bytes, no NUL byte): ${_CSP_NAME_FILE}" >&2
+    exit 1
+  fi
+else
 # Validate arguments
 if [[ $# -lt 4 ]]; then
   echo "ERROR: 4 arguments required: room_dir, speaker-slug, speaker-role, display-name" >&2
@@ -184,6 +244,7 @@ ROOM_DIR="$1"
 SPEAKER_SLUG="$2"
 SPEAKER_ROLE="$3"
 DISPLAY_NAME="$4"
+fi
 
 # Validate room_dir exists
 if [[ ! -d "$ROOM_DIR" ]]; then

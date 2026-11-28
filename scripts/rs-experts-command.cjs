@@ -21,8 +21,10 @@
  * process and is never sent to a remote service.
  */
 
+const fs = require('fs');
 const path = require('path');
 const navigation = require('../lib/core/navigation.cjs');
+const flagFileRead = require('../lib/core/flag-file-read.cjs');
 const { searchLocalExperts } = require('../lib/core/rs-local-expert-search.cjs');
 
 let egressPrompts = null;
@@ -38,6 +40,7 @@ function parseArgs(argv) {
     const a = rest[i];
     if (a === '--json') { args.json = true; continue; }
     if (a === '--help' || a === '-h') { args.help = true; continue; }
+    if (a === '--topic-file') { args.topicFile = i + 1 < rest.length ? rest[i + 1] : ''; i += 1; continue; }
     if (a === '--limit' && i + 1 < rest.length) {
       const n = parseInt(rest[i + 1], 10);
       if (Number.isFinite(n) && n > 0 && n <= 100) args.limit = n;
@@ -47,6 +50,18 @@ function parseArgs(argv) {
     if (!args.topic) { args.topic = a; continue; }
   }
   return args;
+}
+
+const TOPIC_FILE_MAX_BYTES = 65536;
+
+// Follow-up after the independent verification: the read itself is the shared
+// rule of lib/core/flag-file-read.cjs (a regular file, at most cap + 1 bytes read
+// from the open file, never the stat size, no NUL byte).
+function readTopicFile(p) {
+  const r = flagFileRead.readFlagFileText(p, TOPIC_FILE_MAX_BYTES);
+  if (!r.ok) return null;
+  const t = r.text.replace(/\r?\n$/, '').trim();
+  return t === '' ? null : t;
 }
 
 function printError(what, why, fix) {
@@ -66,6 +81,7 @@ function printHelp() {
     'Options:',
     '  --json          emit structured JSON output',
     '  --limit <n>     cap returned authors (default 25)',
+    '  --topic-file <file>  read the topic from a file (an instruction file uses this form only)',
     '',
   ].join('\n'));
 }
@@ -102,6 +118,22 @@ function searchLocalRoom(topic, roomDir, limit) {
 async function main() {
   const args = parseArgs(process.argv);
   if (args.help) { printHelp(); process.exit(0); }
+  // Quick 261127-bnd: --topic-file gives the topic in a file, so an
+  // instruction line never puts the topic on a shell command line. The read
+  // rule: a regular file, at most 65536 bytes, UTF-8, one byte order mark
+  // removed, one line break at the end removed, then trimmed.
+  if (args.topicFile !== undefined) {
+    if (args.topic) {
+      printError('Two topics given', 'give the topic as an argument or as --topic-file, not both', '/mos:rs-experts <topic>');
+      process.exit(1);
+    }
+    const t = readTopicFile(args.topicFile);
+    if (t === null) {
+      printError('Topic file refused', '--topic-file needs a readable file that is not empty (at most ' + TOPIC_FILE_MAX_BYTES + ' bytes)', 'write the topic to a file, then pass --topic-file <file>');
+      process.exit(1);
+    }
+    args.topic = t;
+  }
   if (!args.topic) {
     printError('No topic provided', 'rs-experts requires a topic argument', '/mos:rs-experts <topic>');
     process.exit(1);

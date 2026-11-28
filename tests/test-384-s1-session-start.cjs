@@ -16,7 +16,7 @@
  *                 (sha256 after the same normalization; room.db by row counts) are equal for tree A and tree B.
  *             Passes on the code before the change and after it.
  *   mechanism M1 node starts of one run, counted with a PATH shim, are at most BASELINE_NODE_STARTS minus
- *                 REMOVED_NODE_STARTS in three repeats.
+ *                 REMOVED_NODE_STARTS plus ADDED_NODE_STARTS (Phase 367) in three repeats.
  *             M2 exactly one start runs session-start-reconcile.cjs and no start holds code of the four old
  *                 inline blocks.
  *             M3 runAll runs all blocks in order after a failing first block, the default order is the old order,
@@ -63,6 +63,10 @@ const BASELINE_NODE_STARTS = 39;
 // The sites table (measurements/fix-s1-sites.md) promises: 4 reconcile starts become 1 (3 removed) and the
 // 3 field parses of the archetype JSON become 1 (2 removed).
 const REMOVED_NODE_STARTS = 5;
+// Phase 367 plan 06 (design 5.3, 2026-11-26): session-start spawns one detached graph catch-up runner
+// (scripts/graph-catchup.cjs). The env below sets MOS_NO_GRAPH_CATCHUP=1, so that runner exits at once and
+// writes nothing (P3 parity stays about the reconcile blocks), but its node start is still one start of the run.
+const ADDED_NODE_STARTS = 1;
 
 const H = require(path.join(REPO, 'tools', 'perf', 'perf-harness.cjs'));
 
@@ -221,7 +225,7 @@ async function runOnce(tree, opts) {
     const before = manifest(kit);
     const payload = JSON.stringify(H.buildEventPayload(def, ctx));
     const marker = 'MOS_S1_RUN=' + process.pid + '-' + (runSeq += 1);
-    const extra = { MOS_S1_RUN: marker.split('=')[1] };
+    const extra = { MOS_S1_RUN: marker.split('=')[1], MOS_NO_GRAPH_CATCHUP: '1' };
     let shimLog = null;
     let shimDir = null;
     const env = ctx.env(extra);
@@ -312,7 +316,7 @@ async function mechanism() {
     counts.push(r.starts.length);
     last = r;
   }
-  const limit = BASELINE_NODE_STARTS - REMOVED_NODE_STARTS;
+  const limit = BASELINE_NODE_STARTS - REMOVED_NODE_STARTS + ADDED_NODE_STARTS;
   check('M1 node starts at most ' + limit + ' in three repeats', counts.every((n) => n <= limit), 'counts ' + counts.join(','));
   const recRecords = last.starts.filter((r) => r.indexOf('session-start-reconcile.cjs') >= 0);
   check('M2 exactly one start runs session-start-reconcile.cjs', recRecords.length === 1, 'found ' + recRecords.length);
@@ -350,7 +354,11 @@ async function mechanism() {
   // an empty room.db, so that blocks 3 and 4 get past their no-database return and reach the missing runner module
   fs.mkdirSync(path.join(tmpRoom, '.mindrian'), { recursive: true });
   const { DatabaseSync } = require('node:sqlite');
-  new DatabaseSync(path.join(tmpRoom, '.mindrian', 'room.db')).close();
+  // Plan 400.3-06c, owner ruling D-10: a 0-byte room.db is no room.db, so the empty database gets a real header
+  // (journal_mode WAL writes it) and blocks 3 and 4 still get past their no-database return.
+  const m3db = new DatabaseSync(path.join(tmpRoom, '.mindrian', 'room.db'));
+  m3db.exec('PRAGMA journal_mode = WAL');
+  m3db.close();
   const child = cp.spawnSync(process.execPath, [recPath], {
     cwd: tmpRoom, encoding: 'utf8', timeout: 60000,
     env: Object.assign({}, process.env, { ACTIVE_ROOM_FOR_RECONCILE: tmpRoom, PLUGIN_ROOT_FOR_NODE_RECONCILE: bogus, PLUGIN_ROOT_RECONCILE: bogus, HOME: tmpRoom }),

@@ -1,0 +1,25 @@
+{
+  "ts": 1795760549743,
+  "reason": "reached-registry-gate-no-card",
+  "ran_entries": [
+    "scripts/intent-classifier.cjs"
+  ],
+  "gate_signature_empty": false,
+  "matched_glyph_span_length": 145,
+  "output_text_length": 1295,
+  "session_hash": "738fcabb07df",
+  "hand_class": "prose fork",
+  "synthetic_text": "Two paths are open here. 1. Wait for the test results before the next build step. 2. Build ahead now with a best guess, which risks rework. 3. Pause the goal until later. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn. The record holds no other detail for this turn.",
+  "expected_without_key": {
+    "class": "block",
+    "log_reason": "reached-registry-gate-no-card"
+  },
+  "expected_with_stop_hook_active_true": {
+    "class": "pass",
+    "log_reason": "stop-hook-active-pass",
+    "envelope": {
+      "continue": true,
+      "suppressOutput": true
+    }
+  }
+}

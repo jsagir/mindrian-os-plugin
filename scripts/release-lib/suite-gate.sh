@@ -32,7 +32,7 @@
 #
 # Phase 366 Plan 06 (EPV366-01). Hyphens only.
 
-RELEASE_GATE_SUITES=(tests/run-all-366.sh)
+RELEASE_GATE_SUITES=(tests/run-all-366.sh tests/run-all-395.sh)
 
 # mos_suite_gate(plugin_dir, dry_run, no_check)
 mos_suite_gate() {

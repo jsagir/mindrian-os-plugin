@@ -223,14 +223,16 @@ leg('Q2 module load: the hook process never loads part8-egress-ontology.cjs or n
     "  }",
     "  return m;",
     "};",
-    "process.on('exit', function () { fs.writeFileSync(" + JSON.stringify(out) + ", JSON.stringify(Object.keys(require.cache))); });",
+    // 400.3-05a: the hook now runs as a parent plus an --inner child, and both load this spy; each appends its own line.
+    "process.on('exit', function () { fs.appendFileSync(" + JSON.stringify(out) + ", JSON.stringify(Object.keys(require.cache)) + '\\n'); });",
     '',
   ].join('\n'));
   [GENERIC, WORD_A].forEach(function (q) {
     try { fs.unlinkSync(opens); } catch (_e) { /* none */ }
+    try { fs.unlinkSync(out); } catch (_e) { /* none */ }
     const h = runHook(q, SESSION.A, ['-r', spy]);
     assert.strictEqual(h.code, q === GENERIC ? 0 : 2, 'hook exit ' + h.code);
-    const keys = JSON.parse(fs.readFileSync(out, 'utf8'));
+    const keys = [].concat.apply([], fs.readFileSync(out, 'utf8').split('\n').filter(Boolean).map(function (l) { return JSON.parse(l); }));
     assert.ok(keys.some(function (k) { return /part8-egress-guard-hook\.cjs$/.test(k); }), 'the spy did not see the hook');
     ['part8-egress-ontology.cjs', 'navigation.cjs'].forEach(function (m) {
       assert.ok(!keys.some(function (k) { return k.endsWith(path.sep + m); }), m + ' is in the hook require.cache');

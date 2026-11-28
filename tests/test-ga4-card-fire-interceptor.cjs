@@ -184,10 +184,10 @@ ok('buildEnforcementEnvelope is exported as a function',
 const interceptEnv = m.buildEnforcementEnvelope(ra);
 ok('ENVELOPE: an intercept envelope NEVER carries hookSpecificOutput (Stop has no such schema variant)',
   interceptEnv && interceptEnv.hookSpecificOutput === undefined);
-ok('ENVELOPE: an intercept envelope carries decision:block + continue:false',
-  interceptEnv.decision === 'block' && interceptEnv.continue === false);
+ok('ENVELOPE: an intercept envelope carries decision:block and no continue key (402 K4-R1)',
+  interceptEnv.decision === 'block' && !('continue' in interceptEnv) && !('stopReason' in interceptEnv));
 ok('ENVELOPE: an intercept envelope carries a non-empty systemMessage (the calm, human-facing surface)',
-  typeof interceptEnv.systemMessage === 'string' && interceptEnv.systemMessage.length > 0);
+  typeof m.CARD_FIRE_BLOCK_SYSTEM_MESSAGE === 'string' && m.CARD_FIRE_BLOCK_SYSTEM_MESSAGE.length > 0 && interceptEnv.systemMessage === m.CARD_FIRE_BLOCK_SYSTEM_MESSAGE);
 
 const degradeEnv = m.buildEnforcementEnvelope(dg);
 ok('ENVELOPE: a degrade envelope is { continue: true } (no infinite loop)',
@@ -205,11 +205,11 @@ ok('ENVELOPE: a degrade envelope is { continue: true } (no infinite loop)',
 const SLUG = 'ascii-box-backstop-no-card';
 const slugEnv = m.buildEnforcementEnvelope({ intercept: true, reason: SLUG, degrade: false });
 ok('ENVELOPE CR-06: an intercept envelope carries a non-empty string systemMessage',
-  typeof slugEnv.systemMessage === 'string' && slugEnv.systemMessage.length > 0);
+  slugEnv.systemMessage === m.CARD_FIRE_BLOCK_SYSTEM_MESSAGE);
 ok('ENVELOPE CR-06: the systemMessage does NOT leak the raw classification slug',
   slugEnv.systemMessage.indexOf(SLUG) === -1);
 ok('ENVELOPE CR-06: the reason field is a calm phrase, NOT the raw slug (Claude shows it verbatim)',
-  typeof slugEnv.reason === 'string' && slugEnv.reason.length > 0 && slugEnv.reason.indexOf(SLUG) === -1);
+  slugEnv.reason === m.CARD_FIRE_BLOCK_REASON && slugEnv.reason.length > 0 && slugEnv.reason.length <= 80 && slugEnv.reason.indexOf(SLUG) === -1);
 ok('ENVELOPE CR-06: the degrade envelope reason is also a calm phrase, NOT the raw slug',
   typeof degradeEnv.reason === 'string' && degradeEnv.reason.length > 0
   && degradeEnv.reason.indexOf('bounded-escape') === -1);

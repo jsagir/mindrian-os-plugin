@@ -149,7 +149,8 @@ const TABLE = [
   ['PostToolUse', 'query-efficiency-telemetry.cjs', 3],
   ['PostToolUse', 'brain-response-sanitize-hook.cjs', 5],
   ['UserPromptSubmit', 'admin-command-gate.cjs', 3],
-  ['UserPromptSubmit', 'run-hook.cmd" intent-classifier', 5],
+  // Phase 400.4 QA-F11: node direct, 400.3-15 pattern (no cmd or bash step before node).
+  ['UserPromptSubmit', 'intent-classifier.cjs"', 5],
   ['UserPromptSubmit', 'first-install-router.cjs', 3],
   ['UserPromptSubmit', 'brain-derivation-drain.cjs', 3],
   ['UserPromptSubmit', 'jtbd-update.cjs" userprompt', 3],

@@ -514,6 +514,42 @@ check('D16. accept_persona is done only when every hat is resolved', () => {
   assert.deepEqual(out.pending, []);
 });
 
+// D29, D30 (Phase 400.2.1 P0, S1 and S2)
+check('D29. S1: status on a room that holds only scaffold files is not room_ok and counts 0 sections', () => {
+  const room = mkTmp('room');
+  put(room, 'STATE.md', '---\nventure: Harbor Light Studio\nstage: seed\n---\n\n# Harbor Light Studio\n');
+  for (const sec of ['problem-definition', 'market-analysis', 'solution-design']) {
+    for (const b of ['ROOM.md', 'MINTO.md', 'BRIEF.md', 'BRAIN.md', 'CONTEXT.md']) put(room, sec + '/' + b, '# ' + b + '\n');
+  }
+  const s = door.cmdStatus({ roomDir: room }, {});
+  assert.equal(s.ok, true, JSON.stringify(s));
+  assert.equal(s.sections_with_artifacts, 0);
+  assert.equal(s.room_ok, false);
+});
+
+check('D30. S2: a system rewrite of BRIEF.md and MINTO.md between write-persona and accept-persona keeps persona_files filled', () => {
+  const room = makeRoom();
+  put(room, 'problem-definition/BRIEF.md', '# Brief\nfirst render\n');
+  put(room, 'market-analysis/MINTO.md', '# Minto\nfirst render\n');
+  const env = makeEnv();
+  const res = startDeep(room, env);
+  assert.equal(res.ok, true, JSON.stringify(res));
+  for (const h of HATS) writeSpec(res, h, validSpec(h));
+  const w = door.cmdWritePersona({ roomDir: room, runId: res.run_id }, opts(env));
+  assert.equal(w.ok, true, JSON.stringify(w));
+  put(room, 'problem-definition/BRIEF.md', '# Brief\nsecond render by a hook\n');
+  put(room, 'market-analysis/MINTO.md', '# Minto\nsecond render by a hook\n');
+  const answer = {};
+  for (const h of HATS) answer[h] = { decision: 'accept' };
+  const a = door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath: writeAnswer(res, answer) }, opts(env));
+  assert.equal(a.ok, true, JSON.stringify(a));
+  assert.equal(a.accept_done, true);
+  for (const h of HATS) {
+    const f = a.persona_files[h];
+    assert.ok(typeof f === 'string' && f.startsWith('personas/' + h + '-'), h + ': ' + f);
+  }
+});
+
 // D24 (CR-01)
 check('D24. CR-01: the door prints the persona file name: hats.<hat>.persona_file in start, persona_files in accept-persona', () => {
   const room = makeRoom();

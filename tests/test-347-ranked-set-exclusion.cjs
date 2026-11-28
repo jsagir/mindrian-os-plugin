@@ -21,11 +21,12 @@
  * FIXTURE NOTE on edge direction: chain-state.cjs's own writer only ever
  * creates SOURCED_FROM (chain_state -> subject) and FEEDS_INTO (chain_state
  * -> chain_state successor) edges -- both edges with a chain_state row as
- * SOURCE. NEIGHBORHOOD_SQL walks strictly source-to-target outward from the
- * focus (neighborhood.cjs:19-25), so a real chain_state record is never
- * reachable outward from an ordinary room node through edges chain-state.cjs
- * itself ever writes. This fixture adds ONE additional synthetic INFORMS
- * edge from an ordinary claim node to the chain_state record, purely to
+ * SOURCE. Phase 400.4 QA-F7: NEIGHBORHOOD_SQL now walks the edges in both
+ * directions, so a chain_state record that points at a node IS reachable from
+ * that node through the stored inbound edge. The exclusion still acts on row
+ * type alone, whichever way the row was reached. This fixture keeps ONE
+ * additional synthetic INFORMS edge from an ordinary claim node to the
+ * chain_state record, purely to
  * construct a room where a ranked-neighborhood walk from that ordinary
  * claim WOULD surface a chain_state row absent the guard -- exactly the
  * dilution scenario WD-347-4 names. The guard under test (filterRankedExclusions)

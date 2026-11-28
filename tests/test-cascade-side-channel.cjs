@@ -43,6 +43,9 @@
  *      MUST start with one of the two recognized prefixes.
  *   5. silent path emits zero or valid bytes -- file path with no room walk
  *      hit; assert exit 0 + envelope-shape passes.
+ *   6. Phase 400.3 plan 02b (D-01, D-07, D-10): a .room-root room with an
+ *      existing room.db outside /room/ and /rooms/ writes an 8-key record
+ *      with cascade_status "indexed" and an "indexed" advisory.
  *
  * All scenarios use helpers cloned from tests/test-hook-envelope-shape.cjs
  * so the tests stay independent of changes elsewhere. The runHook variant
@@ -80,6 +83,17 @@ const TRIGGER_PREFIXES = [
   // skipped or failed cascade does not trigger it.
   'post-write: cascade skipped for ',
   'post-write: cascade failed for ',
+  // Phase 400.3 plan 02b (D-01, D-07, D-10): a .room-root room with an
+  // existing room.db outside /room/ and /rooms/ is indexed (index only); a
+  // room without room.db stays skipped. These 2 are honest advisories, not
+  // room-proactive triggers (the room-proactive skill keys off the first 2
+  // prefixes only).
+  'post-write: indexed ',
+  'post-write: index failed for ',
+  // Phase 400.3 plan 03 (OR-6, D-07): a full cascade with 1 or more failed
+  // steps outside a section. An honest status prefix, not a room-proactive
+  // trigger (the section form keeps the 'queued MINTO regen for ' prefix).
+  'post-write: cascade partial for ',
 ];
 
 let passed = 0;
@@ -465,6 +479,45 @@ const POST_WRITE = path.join(REPO, 'scripts', 'post-write');
     ok(label);
   } catch (e) {
     fail(label, e);
+  }
+})();
+
+(function test6_indexedRecordForRoomWithRoomDb() {
+  // Phase 400.3 plan 02b (D-01, D-07, D-10): a .room-root room with an
+  // existing room.db outside /room/ and /rooms/ is indexed (index only); a
+  // room without room.db (test3) stays skipped.
+  const label = 'post-write: indexed record for a room with room.db';
+  const scratch = makeScratchDir('indexed');
+  try {
+    const { roomDir, sectionDir } = makeRoomRoot(scratch);
+    const { openRoomDb, closeRoomDb } = require(path.join(REPO, 'lib', 'core', 'room-db.cjs'));
+    closeRoomDb(openRoomDb(roomDir));
+    const target = path.join(sectionDir, 'indexed-artifact.md');
+    fs.writeFileSync(target, '---\nname: indexed-artifact\n---\n# Body\n\nOne line.\n');
+
+    const envelope = { tool_name: 'Write', tool_input: { file_path: target } };
+    const { stdout, status } = runBashHook(POST_WRITE, envelope, {
+      env: { MINDRIAN_ROOMS_HOME: scratch },
+      timeoutMs: 30000,
+    });
+    assert.equal(status, 0, label + ': hook must exit 0');
+    assertEnvelopeShape(stdout, label);
+    const advisory = JSON.parse(stdout.trim()).hookSpecificOutput.additionalContext;
+    assert.equal(advisory.startsWith('post-write: indexed '), true,
+      label + ': advisory must start with "post-write: indexed ". Got: ' + advisory);
+
+    const payload = JSON.parse(fs.readFileSync(path.join(roomDir, '.mindrian', 'last-cascade.json'), 'utf8'));
+    for (const k of ['timestamp', 'file_path', 'section', 'cascade_status', 'classification', 'git_commit', 'graph_index', 'proactive_intelligence']) {
+      assert.equal(Object.prototype.hasOwnProperty.call(payload, k), true,
+        label + ': side-channel JSON missing required key "' + k + '"');
+    }
+    assert.equal(payload.cascade_status, 'indexed', label + ': cascade_status must be "indexed"');
+    assert.equal(payload.graph_index && payload.graph_index.status, 'ok', label + ': graph_index.status must be "ok"');
+    ok(label);
+  } catch (e) {
+    fail(label, e);
+  } finally {
+    rmrf(scratch);
   }
 })();
 

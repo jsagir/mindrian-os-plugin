@@ -34,6 +34,20 @@
  * The hook opens no network connection and writes no file except the outage
  * line. Node built-ins and lib/core/web-path-gate.cjs only.
  *
+ * Plan 400.3-05a (OR-5, V3, V9, review B-a): the hook runs in 2 modes. The
+ * parent mode (no '--inner' argument) reads stdin once, exits 0 at once for
+ * empty or unparsable input, and otherwise runs this same file with '--inner'
+ * in a child node process through lib/core/hook-deadline.cjs
+ * runUnderDeadline, with the node flags of the parent (process.execArgv). The
+ * child gets the time left to the deadline, 1 s under the 5 s host budget of
+ * hooks/hooks.json. A child that does not finish in time is killed with
+ * SIGKILL; the parent writes one outage line (mode deadline_exceeded) and
+ * blocks with the reason web_credential_check_deadline (exit 2). A spawn
+ * failure or any child status other than 0 or 2 takes the BASE outage branch
+ * with mode hook_uncaught (fail closed, FAIL_CLOSED true). The '--inner' mode
+ * is the BASE code path, unchanged. onFailure block and the 5 s budget are
+ * unchanged. Native Windows is UNMEASURED.
+ *
  * No em-dashes. License: BSL 1.1.
  */
 
@@ -153,6 +167,76 @@ function main() {
   if (ok === true) return allow();
   return block('Canon Part 8 (web lines): a credential-shaped value was found in the outgoing web request (reason credential_shaped). The request was blocked and nothing was sent. Remove the credential and try again.');
 }
+
+// ---------------------------------------------------------------------------
+// Plan 400.3-05a (OR-5): the parent mode and the --inner stall seam. The parent
+// always ends with process.exit, so the BASE code below runs only in the
+// --inner child. The --inner mode does not require hook-deadline.cjs.
+// ---------------------------------------------------------------------------
+// hooks/hooks.json PreToolUse timeout 5 (seconds) for this hook; arm G8 of
+// tests/test-400-3-guard-deadline.cjs pins this constant to it.
+const HOST_BUDGET_MS = 5000;
+const INNER = process.argv.indexOf('--inner') !== -1;
+const DEADLINE_SENTENCE = 'Canon Part 8 (web lines): the credential check did not finish in time (reason web_credential_check_deadline). The request was blocked and nothing was sent. Send the request again.';
+
+function runParent() {
+  let toolName = '';
+  try {
+    const raw = readStdinSync();
+    if (!raw || !raw.trim()) return allow();
+    let payload;
+    try {
+      payload = JSON.parse(raw);
+    } catch (_) {
+      return allow();
+    }
+    if (!payload || typeof payload !== 'object') return allow();
+    toolName = typeof payload.tool_name === 'string' ? payload.tool_name : '';
+    // Wave 2 Goldfish W2-D-08 / W2-CD-11: the 2 BASE allow pre-checks run here, before the spawn, so a child that
+    // stalls or cannot start never blocks a call that BASE allowed at once: a tool_input that is not an object, and
+    // a tool_input with no string in it. A collect failure goes to the child (the BASE outage branch).
+    const toolInput = payload.tool_input;
+    if (!toolInput || typeof toolInput !== 'object') return allow();
+    try {
+      const strings = [];
+      collectStrings(toolInput, strings, 0);
+      if (strings.length === 0) return allow();
+    } catch (_) { /* the child decides */ }
+    const hd = require(path.join(LIB_CORE, 'hook-deadline.cjs'));
+    const r = hd.runUnderDeadline({ script: __filename, args: ['--inner'], input: raw, deadlineAt: hd.deadlineFor(HOST_BUDGET_MS) });
+    if (r.kind === 'done' && (r.status === 0 || r.status === 2)) {
+      hd.writeAllSync(1, r.stdout);
+      hd.writeAllSync(2, r.stderr);
+      return process.exit(r.status);
+    }
+    if (r.kind === 'deadline') {
+      try {
+        if (fs.existsSync(OUTAGE_LOG_PATH)) require(OUTAGE_LOG_PATH).recordGuardOutage(toolName, 'deadline_exceeded');
+      } catch (_) { /* a failing log never changes a verdict */ }
+      return block(DEADLINE_SENTENCE);
+    }
+    return outage(toolName, 'hook_uncaught');
+  } catch (_) {
+    try {
+      return outage(toolName, 'hook_uncaught');
+    } catch (_e) {
+      return process.exit(2);
+    }
+  }
+}
+
+// Test seam (plan 400.3-05a): a stall in the --inner child only, so a test can
+// prove the deny at the deadline. It can only make the deny come sooner.
+function innerStall() {
+  const raw = process.env.MOS_HOOK_DEADLINE_TEST_STALL_MS;
+  if (typeof raw !== 'string' || !/^[1-9][0-9]*$/.test(raw)) return;
+  const ms = parseInt(raw, 10);
+  if (ms > 60000) return;
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+if (!INNER) runParent();
+innerStall();
 
 try {
   main();

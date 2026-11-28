@@ -21,7 +21,7 @@
  *       decision path's own primary for the section argument and for the session's focus; a nest with nothing runnable
  *       answers 'sensor_order' with the reason; the sensor `suggestion` field is kept
  *   X5  footer census: formatSuggestedNext keeps the marker, names suggest_next and the brief, names no other command, and
- *       the call-site count of formatSuggestedNext( in tool-router.cjs is still 65
+ *       the count of formatSuggestedNext( matches in tool-router.cjs (the definition plus every call site) is 67 (400.3.1: 65 to 66 at e914630f0, 66 to 67 at 0e5fc4523)
  *   X6  against the real decide() and the real ranker (the plan 18 carry-over): the face ids as toTierCandidates returns
  *       them (bare) do not steer the ranker at all, the ids the producer writes do, and decide()'s offer_next_step
  *       follows the face (inside the face's set, away from the unsteered offer)
@@ -399,7 +399,9 @@ arm('X5 the footer points at the decision path and recommends no command of its 
   const out2 = fn('act', { command: 'whitespace' }, 'Scout intelligence gathered');
   check(out2 === out, 'one fixed footer for every call site');
   const sites = (src0.match(/formatSuggestedNext\(/g) || []).length;
-  eq(sites, 65, 'formatSuggestedNext( occurrences in tool-router.cjs (call sites untouched)');
+  // 400.3.1 RE-PINNED 65 to 67: e914630f0 (314-06 eureka-portfolio view) and 0e5fc4523 (386-23 grants.gov approval) each added
+  // one normal footer call. The count includes the definition line.
+  eq(sites, 67, 'formatSuggestedNext( matches in tool-router.cjs (definition plus call sites)');
 });
 
 // ---- X6 ---------------------------------------------------------------------------------------------------------

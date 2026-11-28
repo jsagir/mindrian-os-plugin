@@ -231,6 +231,11 @@ async function main() {
     const noFocus2 = JSON.parse((await reg.cb({}, { sessionId: 'sess-347-06-c' })).content[0].text);
     delete noFocus1._meta.legTimingsMs;
     delete noFocus2._meta.legTimingsMs;
+    // 400.4 plan 03 (QA-F6): _meta.reply_bytes is the byte length of the real reply, and that reply carries
+    // legTimingsMs, whose digit count changes from call to call. It is wall-clock dependent in the same way, so it
+    // leaves this comparison with the timings.
+    delete noFocus1._meta.reply_bytes;
+    delete noFocus2._meta.reply_bytes;
     assert.deepStrictEqual(
       noFocus1, noFocus2,
       'two calls with no focus_node_id over the same fixture must be byte-identical (the pre-347-06 response)'

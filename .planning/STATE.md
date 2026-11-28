@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 400 executing (plan 01/15 done); Phase 400.1 efficiency research running; Phase 399 COMPLETE, not pushed, owner push-gate review pending
-last_updated: "2026-11-24T09:30:00.000Z"
-last_activity: "2026-11-24 - Phase 400 plan 01 executed (job-sentence module, description budget guard, 20 provisional vocabulary sentences, frontmatter writer, registry job_sentence field); phases 400.1 and 401-404 added; Phase 399 complete: verification passed, review fixes applied (WR-01..08, IN-01, IN-04); Phase 399 plan 10 executed (routing benchmark, internal only, circular and excluding-26 views, option shuffles, phase gates reported); plan 09 executed (ground-truth label, selection_observations, recordSelectionOutcome wired into closeOffer and gate_answer, overrule state, K5-K7 legs); plan 08 executed (composeWorkflow advisor ranking inside the one door, framework_run and act --chain pass job and level, one-selector fence); plan 07 executed (advisor key and pool source in composeNextMove, abstain on tie, band words in suggest_next); plan 06 executed (73-command run-step scope, v0 job-only calibrated table, shortlist lookup); plan 05 executed (decision_advisor egress line off, transport script, capture-server proof); plan 04 executed (adapter, labels-only validator, Gemini and Jev shapes, fence); plan 03 executed (2 agent + 4 MCP tool labels, recorded fixture, 399-LABEL-REVIEW.md); plan 02 executed (26 job labels applied, data/job-label-rulings.json); plan 01 executed (data/job-vocabulary.json, lib/core/problem-axes.cjs); earlier: 2026-11-08 recorded 391/389/390 progress; v2.0.0-beta.81 cut (tag 8455416a5), repo 2.0.0-beta.82 in progress; 383-11 pending the owner"
+stopped_at: "Completed 400.4-11-PLAN.md (cold-start replay on a QA-shaped room, legs A1-A11 and A13, 13 ok; SEED-170 and SEED-171 filed; final hook pass matches the recorded base lines; runner PASSED=87 FAILED=0 KNOWN=9; Phase 400.4 plans 01-12 and 14 done, plan 13 moved to Phase 400.5; ready for phase verification)"
+last_updated: "2026-11-26T14:58:02.584Z"
+last_activity: "2026-11-26 - Completed 400.4-11 (cold-start replay acceptance and close-out of Phase 400.4)"
 progress:
-  total_phases: 154
-  completed_phases: 41
-  total_plans: 814
-  completed_plans: 685
-  percent: 27
+  total_phases: 170
+  completed_phases: 51
+  total_plans: 935
+  completed_plans: 815
+  percent: 30
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -7445,6 +7445,13 @@ Progress: [█████████░] 86%
 | Phase 388 P04 | 1 session | 3 tasks | 12 files |
 | Phase 391 P03 | 40min | 2 tasks | 4 files |
 | Phase 389 P01 | 1 session | 2 tasks | 20 files |
+| Phase 400.4 P03 | 1h | 2 tasks | 4 files |
+| Phase 400.4 P05 | 40min | 2 tasks | 4 files |
+| Phase 400.4 P06 | 35min | 2 tasks | 4 files |
+| Phase 400.4 P10 | 2h | 3 tasks | 13 files |
+| Phase 400.4 P04 | 50min | 4 tasks | 8 files |
+| Phase 400.4 P12 | 25min | 3 tasks | 14 files |
+| Phase 400.4 P11 | 50min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -9208,6 +9215,7 @@ Progress: [█████████░] 86%
 - [Phase 383]: 383-05: no-room memory and missing-tools sentences sit in the second Operating invisibly bullet, not on the Operating policy line (D7h freeze); larry-extended body is 12740 B of the 12752 B cap, so plan 06 must cut as much as it adds
 - [Phase 383]: 383-06: check-card-fire.cjs unchanged (F1 to F3 green at HEAD); QA383-05 is a doctrine-wording fix. larry-extended SEED-117 sentence shortened to fit the 12752 B body cap (12735 B now); Give not Show to pass D7h.
 - [Phase 383]: [383-07] Reply length is a shadow voice-length row (counts only, never blocks); promotion is a human edit after a reviewed window
+- [Phase 400.4]: [400.4-11] seeds filed as SEED-170 and SEED-171 to avoid collisions with other sessions; budget test passed unchanged so no AFTER record was added
 
 ### Pending Todos
 
@@ -9235,6 +9243,8 @@ Progress: [█████████░] 86%
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Status | Directory |
+| 261127-hdl | Claude surface model doctrine: chat and Cowork merged into one cloud Claude (rollout from 2026-09-16); MindrianOS runs in full only in local Claude Code (CLI, local Desktop Code tab); docs/CLAUDE-SURFACE-MODEL.md, CLAUDE.md Tri-Polar table and Three surfaces line, decisions.md row 4, SEED-173 for the product fixes, the surface radar (17 primary Anthropic pages, Tavily, 2026-11-27; room copy in rethinking-mindrianos); product fixes go to Phase 405 | 2026-11-27 | docs(quick-261127-hdl) 9f8211d7b, d700f0ee1, f15f6e7ef, 447a09f9c | complete | [261127-hdl-surface-model-cowork-merged-into-chat](./quick/261127-hdl-surface-model-cowork-merged-into-chat/) |
+| 261126-ter | Fix the two release-gate failures Phase 400.4 caused on main: test-400.4-card-descriptions regex uses unicode escapes instead of literal dash characters (test-389 Test 6), and test-374 B9 re-pins the test-270 budget line (400.4 plans 03, 05, 06 grew three tool descriptions; job tools unchanged) | 2026-11-26 | fix(261126-ter) 75df94618, d8d9586f1 | complete | [261126-ter-400-4-release-gate-tests](./quick/261126-ter-400-4-release-gate-tests/) |
 | 261119-g5g | get-mindrian installer skill (EGM): one public SKILL.md in jsagir/mindrian-marketplace routes by surface, detects the system, web-searches dependencies, bundles troubleshooting; AGENT-INSTALL.md is a pointer; goldfish rounds 1-3 FAIL, round 4 PASS, rechecks 5-6 clean; pushed | 2026-11-19 | marketplace 2f7d3bb, 463cc1d, 39f6e20; plugin 24d5ccb6a | complete | [261119-g5g-get-mindrian-installer-skill-egm](./quick/261119-g5g-get-mindrian-installer-skill-egm/) |
 | 261125-rtc | Runtime core and Larry pin: a partial floor of the operating rules in the forced output style, for a MindrianOS conversation where the Larry agent did not load (Claude Code 2.1.323 deprecated the plugin default agent); the get-mindrian skill pins Larry in the rooms folder only (preview, apply, undo); website install chooser trust line (C-99) on a local branch; six goldfish, one skill goldfish, one Codex deep review (3 Blocker fixed, hotfix pushed on the owner card); open: rename to /m:os-Theo_Local, doctor migration before the plugin agent key is removed, clean-machine install, the room wiring faults of 2026-11-24 | 2026-11-25 | marketplace ff0cfaf, a6e71b4; plugin 2086ed966, ccd7a09bb; website bf3e07af (local) | complete, open items listed | [261125-rtc-runtime-core-and-larry-pin](./quick/261125-rtc-runtime-core-and-larry-pin/) |
 | 261109-rec | Hand-recorded finished work in STATE, ROADMAP and REQUIREMENTS with the Edit tool only (no gsd-tools write command): Phases 389 (14/14), 374 (14/14, ADAPT374-02 and 06 left open), 370 (11/11) and 391 (8/8) ticked; Phase 392 not started; Phase 369.6 left as is (plan 13 owner checkpoint pending) | 2026-11-09 | docs(quick-261109-rec) commit | complete | [261109-rec-record-finished-phases-in-planning-files](./quick/261109-rec-record-finished-phases-in-planning-files/) |
@@ -9455,8 +9465,8 @@ Progress: [█████████░] 86%
 **Phase 399 plan 10 (2026-11-24, hand-written):** three commits, a2a2b4bc5 (scripts/bench-decision-routing.cjs, tests/test-399-bench.cjs: top-3 recall, AUC, ECE, Brier, 5 folds by command, a view without the 26 circular D-07 labels, 4 shuffled option orders for Jev and 1 for Gemini, provider mode refuses with egress_line_off), 49a7982a7 (runner runs 5 phase-owned checks) and dda98c8f1 (dash check in the vocabulary test as escapes). Decision: the advisor stays opt-in; the numbers (73.6% per-command top-3 recall excluding the 26 labels, 31.9% random; ECE 0.027) are internal and partly circular. Gates: doctor acceptance 25/25, drift 0 findings, connector OK, shape 55 WARN, 395/36925/3696 failures match base. NEXT: owner README refresh and release-ceremony wiring of the table check.
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-11-08T05:21:46.861Z
-Stopped at: Completed 389-01-PLAN.md (MVA caller proof, baseline, stale text fixed; Phase 389 plans 02 to 14 next)
+Last session: 2026-11-26T14:57:57.615Z
+Stopped at: Completed 400.4-11-PLAN.md (cold-start replay on a QA-shaped room, legs A1-A11 and A13, 13 ok; SEED-170 and SEED-171 filed; final hook pass matches the recorded base lines; runner PASSED=87 FAILED=0 KNOWN=9; Phase 400.4 plans 01-12 and 14 done, plan 13 moved to Phase 400.5; ready for phase verification)
 
 **Quick 261108-asx (2026-11-08, hand-written; no gsd-tools state write used):** Phase 391 has 8 plans, summaries 01 to 06 (391-04 ended at owner cards C1 to C6, PENDING; 391-07 and 391-08 wait for owner tokens). Phase 389 has 14 plans, summaries 01 to 05 (389-02 ended at owner cards D1 to D11, PENDING; 389-06 to 389-13 are gated on owner tokens). Phase 390 has 5 plans, all with summaries (Wave 0 complete; 390-05 ended at group answers G1 to G6, PENDING; no cut executed). Release: v2.0.0-beta.81 is cut (tag 8455416a5 on origin, npm latest); repo is 2.0.0-beta.82 in progress; Phase 383 shipped partial, plan 383-11 (Windows retest) pending the owner; website step skipped on purpose. The frontmatter `stopped_at` above is the newer pointer.
 

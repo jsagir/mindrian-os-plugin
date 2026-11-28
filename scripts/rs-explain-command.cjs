@@ -8,7 +8,8 @@
  * The user-visible bidirectional NL-Graph entry point in v1.11.0:
  *
  *   user NL -> rs-nl-to-query.translate(nl) -> {cypher, sql, brain_query}
- *           -> execute against room.db (SQLite) + Aura (Cypher) + Brain
+ *           -> execute the SQL against the room's own room.db; the Cypher
+ *              text is not run (quick 261127-bnd); Brain gets enum-only asks
  *           -> aggregate into query_results
  *           -> rs-query-to-text.explain(query_results) -> Larry-voiced NL
  *
@@ -77,7 +78,7 @@ function printHelp() {
     '',
     'Options:',
     '  --json          structured JSON output: {nl, bundle, query_results, explanation}',
-    '  --tier <tier>   tier0 forces local-only, skips remote Aura + Brain',
+    '  --tier <tier>   tier0 forces local-only, skips the Brain',
     '',
   ].join('\n'));
 }
@@ -93,7 +94,7 @@ function inferKindFromBundle(bundle) {
     if (id === 'expert_network') return 'expert_network';
     if (id === 'discovery_history') return 'discovery_history';
   }
-  if (bundle && (bundle.sql || bundle.cypher)) return 'rs_discovery';
+  if (bundle && bundle.sql) return 'rs_discovery';
   return 'fallback';
 }
 
@@ -119,21 +120,9 @@ async function executeBundle(bundle, opts) {
     }
   }
 
-  // Execute Cypher against Aura local instance when reachable + non-tier0.
-  if (!tier0 && bundle && bundle.cypher && brainClient && typeof brainClient.isAvailable === 'function' && brainClient.isAvailable()) {
-    try {
-      const result = await brainClient.query(bundle.cypher, bundle.cypher_params || {});
-      if (result && Array.isArray(result.records)) {
-        for (let i = 0; i < result.records.length; i += 1) out.rows.push(result.records[i]);
-      }
-    } catch (err) {
-      if (err && (err.name === 'AuraUnreachableError' || /unreachable|connect|ECONNREFUSED/i.test(err.message || ''))) {
-        out._cypher_degraded = 'aura_unreachable';
-      } else {
-        out._cypher_error = err && err.message ? err.message : String(err);
-      }
-    }
-  }
+  // Quick 261127-bnd (Canon Part 8): the remote Cypher leg was removed. Its
+  // client was the remote methodology server, not a local instance, and it
+  // carried the room slug or topic words. The SQL leg above answers a room question.
 
   // Execute Brain query (methodology graph) ONLY when present + non-tier0 + reachable.
   // BUG 2 fix: use brain.ask(nl_question) instead of brain.query(raw_cypher).
@@ -304,8 +293,10 @@ async function main() {
   const brainNote = brainDegraded === 'brain_unreachable'
     ? ' (Brain refused: unreachable)'
     : (brainDegraded ? ' (Brain offline: Mode B)' : '');
-  const auraNote = queryResults._cypher_degraded ? ' (Aura offline: Tier 0)' : '';
-  process.stdout.write('  Query summary: ' + localCount + ' rows aggregated' + brainNote + auraNote + '\n\n');
+  const localNote = (bundle && bundle.cypher && !bundle.sql && !bundle.brain_query)
+    ? ' (not answered from this room: run /mos:rs-experts "<topic>" for a local expert search)'
+    : '';
+  process.stdout.write('  Query summary: ' + localCount + ' rows aggregated' + brainNote + localNote + '\n\n');
   process.stdout.write('  -> Bank Opportunity         (Canon Part 3 verb)\n');
   process.stdout.write('  -> Run Methodology          /mos:lean-canvas | /mos:think-hats\n');
   process.stdout.write('  -> Reformulate              /mos:beautiful-question\n\n');

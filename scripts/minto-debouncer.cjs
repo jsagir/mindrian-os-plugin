@@ -40,7 +40,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { acquireLock, releaseLock } = require('../lib/core/write-lock.cjs');
+const { acquireLockWithBackoff, releaseLock } = require('../lib/core/write-lock.cjs');
 
 const QUEUE_RELATIVE = path.join('.mindrian', 'minto-queue.json');
 const SCHEMA_VERSION = 1;
@@ -142,29 +142,6 @@ function writeQueueAtomic(qp, queue) {
 }
 
 /**
- * Synchronous sleep. Used between lock retries because the debouncer is
- * called from CLI hook scripts that are already blocking on subprocess
- * exit; there is no event loop to yield to. Node's Atomics.wait is the
- * only real sync-sleep primitive on Node built-ins (no 'sleep' module).
- *
- * @param {number} ms
- */
-function sleepSync(ms) {
-  if (ms <= 0) return;
-  // Atomics.wait on a sab int32 with non-matching value is a portable
-  // sync sleep with sub-ms precision. Fallback to busy-wait if SAB is
-  // unavailable (shouldn't happen on Node 18+).
-  try {
-    const sab = new SharedArrayBuffer(4);
-    const view = new Int32Array(sab);
-    Atomics.wait(view, 0, 0, ms);
-  } catch (_) {
-    const deadline = Date.now() + ms;
-    while (Date.now() < deadline) { /* busy wait */ }
-  }
-}
-
-/**
  * Lock acquisition with exponential-backoff retry loop. The underlying
  * write-lock primitive already retries once internally for stale/dead-PID
  * cleanup; the retry loop here rides out bursts of concurrent producers.
@@ -181,20 +158,20 @@ function sleepSync(ms) {
  * @returns {boolean} true on success, false on give-up.
  */
 function tryAcquire(roomDir) {
-  let backoff = LOCK_RETRY_BASE_MS;
+  // Plan 400.3-01 (D-05 tightened, review M-1): the backoff loop moved to
+  // lib/core/write-lock.cjs acquireLockWithBackoff, the one implementation
+  // shared with the index path. Same constants, same retry-any-error rule,
+  // same sleep after every failed attempt, same warn line and boolean.
   let lastErr;
-  for (let attempt = 0; attempt < LOCK_RETRY_MAX_ATTEMPTS; attempt++) {
-    try {
-      acquireLock(roomDir);
-      return true;
-    } catch (e) {
-      lastErr = e;
-      // Randomized half-jitter reduces thundering-herd risk when many
-      // producers wake up at the same tick.
-      const jitter = Math.floor(Math.random() * (backoff / 2));
-      sleepSync(backoff + jitter);
-      backoff = Math.min(backoff * 2, LOCK_RETRY_CAP_MS);
-    }
+  try {
+    acquireLockWithBackoff(roomDir, {
+      baseMs: LOCK_RETRY_BASE_MS,
+      capMs: LOCK_RETRY_CAP_MS,
+      maxAttempts: LOCK_RETRY_MAX_ATTEMPTS,
+    });
+    return true;
+  } catch (e) {
+    lastErr = e;
   }
   process.stderr.write(
     '[minto-debouncer] warn: could not acquire write lock after ' +

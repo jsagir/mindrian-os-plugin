@@ -122,7 +122,7 @@
     {
       "id": "binding-gate-injection",
       "rule": "A [BINDING: call the AskUserQuestion tool ...] marker is injected into the model's context on a UserPromptSubmit turn.",
-      "mechanism": "hooks/run-hook.cmd intent-classifier",
+      "mechanism": "scripts/intent-classifier.cjs",
       "hook_event": "UserPromptSubmit",
       "policy_file": null,
       "rung_today": null,
@@ -130,7 +130,7 @@
       "floor": "none",
       "floor_source": null,
       "arbiter_input": true,
-      "reason": "scripts/intent-classifier.cjs's emitBindingGate (F.8) is the live proof-of-mechanism named in the WATCH file: a [BINDING: call the AskUserQuestion tool ...] marker fired on the 'less like Larry' complaint itself, again on the rollback question, and on six consecutive turns of an unrelated command-inventory conversation (incidents 1, 2, 3, 4 and 4b). Proposed logged rather than declared because it already has real observable fires worth an evidence log, not just a report line. hooks/hooks.json dispatches this rule through the run-hook.cmd intent-classifier verb, which execs the thin bash wrapper scripts/intent-classifier that in turn execs scripts/intent-classifier.cjs; the mechanism field above names the literal dispatch path."
+      "reason": "scripts/intent-classifier.cjs's emitBindingGate (F.8) is the live proof-of-mechanism named in the WATCH file: a [BINDING: call the AskUserQuestion tool ...] marker fired on the 'less like Larry' complaint itself, again on the rollback question, and on six consecutive turns of an unrelated command-inventory conversation (incidents 1, 2, 3, 4 and 4b). Proposed logged rather than declared because it already has real observable fires worth an evidence log, not just a report line. hooks/hooks.json dispatches this rule with node directly on scripts/intent-classifier.cjs (Phase 400.4 QA-F11: no cmd or bash step before node); the mechanism field above names the literal dispatch path."
     },
     {
       "id": "hmi-compliance-poll",

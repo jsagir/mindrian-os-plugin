@@ -1,5 +1,5 @@
 ---
-status: gathering
+status: fixing
 kind: qa-sweep
 trigger: persona-deep-first-live-run-defects
 severity: critical
@@ -56,6 +56,9 @@ owner_ruling: "need to put it in gsd as bug fix critical next" (2026-11-26)
 - `run-research` output: `evidence_items` 10 per researching hat; `counts.strings_approved 8, strings_refused 1`.
 - `check` output: `rule_lines` `self_search_room_detail_suspected:1` for white, yellow, green.
 - Review artifact: green evidence titles include "Hairy Black Holes in a Box", "Post-mortem privacy 2.0", "Natural Law Theory and the Is-Ought Problem".
+
+- 2026-11-26 (jsagi-b3): S1 and S2 FIXED in 9c4e45b10, merged b0779f9cd, shipped in v2.0.0-beta.93 (origin/main f328ed520). Root cause: roomArtifactIndex in lib/core/persona-ops.cjs counted and hashed scaffold files; walkIndexable now skips them through scaffold-predicate isScaffoldFile (lazy require). New legs F13, F14 (test-4002-persona-freshness) and D29, D30 (test-4002-door-order).
+- 2026-11-26 (jsagi-53): S3, S4, S6 to S10 and S5 (owner ruling "A: screen with a hook") in progress on branch work/400.2.1-persona-defects (EGM, rounds 1 and 2 committed, round 3 running); rebase on origin/main before merge.
 
 ## Suspected root causes (to verify)
 

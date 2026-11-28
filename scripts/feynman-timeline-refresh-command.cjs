@@ -102,18 +102,23 @@ function resolveActiveRoom(rootsOverride) {
 }
 
 /**
- * resolveRoomDb(roomDir) -> sqlite3 handle | null
+ * resolveRoomDb(roomDir, opts) -> sqlite3 handle | null
  *
  * Opens roomDir/.mindrian/room.db (the Phase 109 standard path) via node:sqlite.
  * Returns null on missing file OR if node:sqlite is unavailable; the caller
  * treats null as a soft-fail (timeline is enrichment, not a gate).
+ * Plan 400.3-06c: the one script opener. It opens with a busy timeout (the Phase 276 C4 rule): opts.busyMs when it is a non-negative integer, else DEFAULT_BUSY_MS 5000, through the hook cap (capBusyMs); a missing, 0-byte or non-file room.db is null (roomDbPresent, plan 06a); the callers wait once per run through withRoomTx.
  */
-function resolveRoomDb(roomDir) {
+function resolveRoomDb(roomDir, opts) {
   const dbPath = path.join(roomDir, '.mindrian', 'room.db');
-  if (!safeIsFile(dbPath)) return null;
   try {
+    // Wave 2 Goldfish W2-CD-10: one presence check (roomDbPresent covers the missing, 0-byte and non-file cases).
+    if (!require(path.join(REPO_ROOT, 'lib', 'core', 'room-root.cjs')).roomDbPresent(roomDir)) return null;
+    const busyCap = require(path.join(REPO_ROOT, 'lib', 'core', 'hook-busy-cap.cjs'));
+    const o = opts && typeof opts === 'object' ? opts : {};
+    const ms = (Number.isInteger(o.busyMs) && o.busyMs >= 0) ? o.busyMs : busyCap.DEFAULT_BUSY_MS;
     const sqlite = require('node:sqlite');
-    return new sqlite.DatabaseSync(dbPath);
+    return new sqlite.DatabaseSync(dbPath, { timeout: busyCap.capBusyMs(ms) });
   } catch (_) {
     return null;
   }
@@ -210,8 +215,31 @@ function main() {
     return;
   }
 
+  // Plan 400.3-06c: the refresh runs inside one navigation.withRoomTx (one wait for the write lock, all or
+  // nothing); a busy room gives a plain message and exit 0.
+  const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
   let result;
   try {
+    result = navigation.withRoomTx(db, () => refreshInTx(db, roomDir, opts));
+  } catch (err) {
+    if (!require(path.join(REPO_ROOT, 'lib', 'core', 'hook-busy-cap.cjs')).isBusyError(err)) throw err;  // wave 2 Goldfish W2-CD-03
+    try { require(path.join(REPO_ROOT, 'lib', 'core', 'hook-busy-cap.cjs')).noteBusy(); } catch (_) { /* tolerant */ }
+    try { db.close(); } catch (_) {}
+    process.stdout.write('room.db is busy (another process is writing). Nothing was refreshed. Run the command again.\n');
+    process.exit(0);
+    return;
+  } finally {
+    try { db.close(); } catch (_) {}
+  }
+
+  process.stdout.write(renderReport(result) + '\n');
+  process.exit(0);
+}
+
+// Plan 400.3-06c: the refresh body of main, run inside withRoomTx.
+function refreshInTx(db, roomDir, opts) {
+  let result;
+  {
     if (opts.section) {
       const r = runner.refreshSection(roomDir, opts.section, { db: db });
       if (r.status === 'refreshed') {
@@ -249,13 +277,10 @@ function main() {
         result = runner.refreshAll(roomDir, { db: db });
       }
     }
-  } finally {
-    try { db.close(); } catch (_) {}
   }
-
-  process.stdout.write(renderReport(result) + '\n');
-  process.exit(0);
+  return result;
 }
+
 
 // ---------- Exports ----------
 

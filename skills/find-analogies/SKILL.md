@@ -172,7 +172,7 @@ ORDER BY bridge IS NOT NULL DESC
 LIMIT 15
 ```
 
-3. Run `brain_search_semantic` with the abstract function description as query text
+3. Call `mcp__mindrian-brain__brain_search` with a generic domain handle only as `query` (the TRIZ parameter names, or one to three plain keywords that name a field); when no generic handle exists, ask the person and send nothing
 
 4. Merge Brain results with LLM candidates, deduplicate, rank by structural fitness
 

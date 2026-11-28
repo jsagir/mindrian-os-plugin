@@ -148,10 +148,26 @@ function composeInput(extra) {
 }
 const order = (m) => (m.primary ? [m.primary.command] : []).concat(m.alternatives.map((a) => a.command));
 const sansAdvisor = (m) => { const o = Object.assign({}, m); delete o.advisor; return JSON.stringify(o); };
+// Phase 400.4 QA-F4: alternatives follow the advisor shortlist, so the advisor-on alternatives differ from the 399 ones.
+// sansAlt drops the alternatives and outcomes_differ; every other key (primary, why, advisor, provenance) is still compared.
+const sansAlt = (m) => { const o = Object.assign({}, m); delete o.alternatives; delete o.outcomes_differ; return JSON.stringify(o); };
 function nest(roomDir) {
   return { section: 'problem-definition', job: { id: NM_JOB }, roomDir, face: { keyed: false }, runs: [], need: { counterevidence: 0, assumptions: 0 } };
 }
 const nestMove = (M, roomDir) => M.nextMoveForSection({ roomDir, nest: nest(roomDir), surface: 'mcp' });
+// Phase 400.4-01 (QA-F5): the current resolver reports a name in no registry key and no data/framework-names.json entry as
+// unresolved (optional false, unresolved true, reason). The 399 reference has no such field and keeps optional true.
+// This helper maps that one new shape back to the 399 shape so the rest of each step is still compared deep-equal.
+function composeSansF5(chain, o) {
+  return RES.composeWorkflow(chain, o).map((st) => {
+    if (st.unresolved !== true) return st;
+    assert.equal(st.reason, 'unknown_framework_name');
+    const out = Object.assign({}, st, { optional: true });
+    delete out.unresolved;
+    delete out.reason;
+    return out;
+  });
+}
 const CHAINS = [[WF_FW], [WF_FW, 'S-Curve Analysis', 'No Such Framework 400'], ['Jobs to Be Done (JTBD)', 'Systems Thinking']];
 
 check('fixture: the 399 references load from git, and the workflow framework has the expected commands', () => {
@@ -169,8 +185,8 @@ check('X1 advisor off: both consumers equal the 399 modules, and the room is not
       assert.equal(JSON.stringify(nestMove(NM, ROOMS[d].nm)), JSON.stringify(nestMove(NM0, ROOMS[d].nm)), 'nest ' + d);
       assert.equal(RES.advisorOptsForRoom(ROOMS[d].wf), null);
       for (const chain of CHAINS) {
-        assert.deepStrictEqual(RES.composeWorkflow(chain), RES0.composeWorkflow(chain));
-        assert.deepStrictEqual(RES.composeWorkflow(chain, { jobId: WF_JOB, causeEffect: d }), RES0.composeWorkflow(chain, { jobId: WF_JOB }));
+        assert.deepStrictEqual(composeSansF5(chain), RES0.composeWorkflow(chain));
+        assert.deepStrictEqual(composeSansF5(chain, { jobId: WF_JOB, causeEffect: d }), RES0.composeWorkflow(chain, { jobId: WF_JOB }));
       }
     }
     assert.equal(JSON.stringify(NM.composeNextMove(composeInput({ causeEffect: 'complex' }))), JSON.stringify(NM0.composeNextMove(composeInput())));
@@ -182,13 +198,15 @@ check('X2 advisor on and no stored domain: both consumers equal the 399 modules 
   domainReads = 0;
   withEnv(ON, () => {
     const cur = nestMove(NM, ROOMS.none.nm);
-    assert.equal(JSON.stringify(cur), JSON.stringify(nestMove(NM0, ROOMS.none.nm)));
+    // Phase 400.4 QA-F4: alternatives follow the advisor shortlist (the 399 module offered think-hats from the ledger first).
+    assert.equal(sansAlt(cur), sansAlt(nestMove(NM0, ROOMS.none.nm)));
+    assert.deepEqual(cur.alternatives.map((a) => a.command), cur.advisor.options.map((o) => o.command.replace(/^\/mos:/, '')).filter((n) => n !== cur.primary.command).slice(0, 2));
     assert.ok(cur.advisor, 'the advisor block is present with the advisor on');
-    assert.equal(JSON.stringify(NM.composeNextMove(composeInput())), JSON.stringify(NM0.composeNextMove(composeInput())));
+    assert.equal(sansAlt(NM.composeNextMove(composeInput())), sansAlt(NM0.composeNextMove(composeInput()))); // Phase 400.4 QA-F4: alternatives follow the advisor shortlist.
     assert.deepEqual(order(NM.composeNextMove(composeInput())), ['opportunities', 'beautiful-question', 'bono']);
     const opts = RES.advisorOptsForRoom(ROOMS.none.wf);
     assert.deepStrictEqual(opts, RES0.advisorOptsForRoom(ROOMS.none.wf));
-    for (const chain of CHAINS) assert.deepStrictEqual(RES.composeWorkflow(chain, opts), RES0.composeWorkflow(chain, opts));
+    for (const chain of CHAINS) assert.deepStrictEqual(composeSansF5(chain, opts), RES0.composeWorkflow(chain, opts));
     const wf = RES.composeWorkflow([WF_FW], opts);
     assert.deepEqual(wf[0].ranked_commands, ['/mos:bono', '/mos:think-hats', '/mos:hat-briefing', '/mos:persona']);
     assert.equal(wf[0].command_basis, 'registry_order');
@@ -259,14 +277,14 @@ check('X5 disorder: the order equals X2, and the note is present', () => {
 
     const n = nestMove(NM, ROOMS.disorder.nm);
     const n2 = nestMove(NM0, ROOMS.disorder.nm);
-    assert.equal(sansAdvisor(n), sansAdvisor(n2), 'nest order equals the 399 order');
+    assert.equal(sansAdvisor(Object.assign({}, n, { alternatives: [], outcomes_differ: false })), sansAdvisor(Object.assign({}, n2, { alternatives: [], outcomes_differ: false })), 'nest primary equals the 399 primary'); // Phase 400.4 QA-F4: alternatives follow the advisor shortlist.
     assert.equal(n.advisor.domain_note, CY.host_notes.disorder.text);
 
     const opts = RES.advisorOptsForRoom(ROOMS.disorder.wf);
     assert.equal(opts.causeEffect, 'disorder');
     const noDomain = Object.assign({}, opts);
     delete noDomain.causeEffect;
-    for (const chain of CHAINS) assert.deepStrictEqual(RES.composeWorkflow(chain, opts), RES0.composeWorkflow(chain, noDomain));
+    for (const chain of CHAINS) assert.deepStrictEqual(composeSansF5(chain, opts), RES0.composeWorkflow(chain, noDomain));
   });
 });
 
@@ -275,7 +293,7 @@ check('X5b an unknown or invalid domain value gives exactly the 399 output in bo
     for (const bad of [undefined, null, '', 'Complex', 'wicked', 7]) {
       assert.equal(JSON.stringify(NM.composeNextMove(composeInput({ causeEffect: bad }))), JSON.stringify(NM0.composeNextMove(composeInput())), String(bad));
       for (const chain of CHAINS) {
-        assert.deepStrictEqual(RES.composeWorkflow(chain, { jobId: WF_JOB, causeEffect: bad }), RES0.composeWorkflow(chain, { jobId: WF_JOB }), String(bad));
+        assert.deepStrictEqual(composeSansF5(chain, { jobId: WF_JOB, causeEffect: bad }), RES0.composeWorkflow(chain, { jobId: WF_JOB }), String(bad));
       }
     }
   });

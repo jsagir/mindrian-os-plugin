@@ -62,8 +62,8 @@ Commands:
   visualize graph [roomDir]      Generate knowledge graph Mermaid diagram
   visualize chain [roomDir]      Generate methodology chain Mermaid diagram
   visualize mermaid [roomDir] [type]  Output raw Mermaid syntax to stdout
-  cascade [roomDir] [filePath]       Run intelligence cascade on a filed artifact
-  bank-opportunity [roomDir] <json>   Bank an opportunity from conversation (room or scratchpad)
+  cascade [roomDir] [filePath] [--index-only]  Run intelligence cascade on a filed artifact (--index-only: graph-index only)
+  bank-opportunity [roomDir] <json> | --file <file.json>   Bank an opportunity from conversation (room or scratchpad)
   record-decision --room DIR --key KEY --decision approve|reject|defer [--reason "..."] [--source-artifact ID] [--target-artifact ID]
                                      Record user decision on a proactive intelligence finding
   detect-integrations                Detect all integration statuses (env, MCP, filesystem)
@@ -574,13 +574,21 @@ async function main() {
     }
 
     case 'cascade': {
+      // Phase 400.3 plan 02 (revision W1): --index-only (set only by the
+      // post-write .room-root fallback) narrows the cascade to graph-index.
+      // Spliced out before the positional arguments are read (the --raw idiom).
+      const indexOnlyAt = argv.indexOf('--index-only');
+      const indexOnly = indexOnlyAt !== -1;
+      if (indexOnly) argv.splice(indexOnlyAt, 1);
       const cascadeRoomDir = argv[1] || './room';
       const cascadeFilePath = argv[2] || null;
       const cascade = require('../lib/core/intelligence-cascade.cjs');
-      const cascadeResult = await cascade.runCascade(cascadeRoomDir, {
+      const cascadeOpts = {
         trigger: 'cli-hook',
         filePath: cascadeFilePath
-      });
+      };
+      if (indexOnly) cascadeOpts.indexOnly = true;
+      const cascadeResult = await cascade.runCascade(cascadeRoomDir, cascadeOpts);
       if (raw) {
         process.stdout.write(JSON.stringify(cascadeResult));
       } else {
@@ -736,14 +744,30 @@ async function main() {
       // argv[1] could be roomDir or JSON. If it parses as JSON, no roomDir given.
       let bkRoom = null;
       let bkJson = argv[1];
-      if (argv[2]) {
-        // Two args: roomDir + JSON
-        bkRoom = argv[1];
-        bkJson = argv[2];
-      }
-      if (!bkJson) error('bank-opportunity requires a JSON argument');
       let bkData;
-      try { bkData = JSON.parse(bkJson); } catch (_e) { error('Invalid JSON for bank-opportunity'); }
+      const bkFileAt = argv.indexOf('--file', 1);
+      if (bkFileAt !== -1) {
+        // Quick 261127-bnd: --file <file.json> gives the opportunity in a file, so an
+        // instruction line never puts a person's words on a shell command line.
+        const bkPath = argv[bkFileAt + 1];
+        const bkRest = argv.slice(1).filter((_a, i) => i + 1 !== bkFileAt && i + 1 !== bkFileAt + 1);
+        bkRoom = bkRest[0] || null;
+        // Follow-up after the independent verification: the shared read rule of
+        // lib/core/flag-file-read.cjs (a regular file, at most 65536 bytes read
+        // from the open file, never the stat size, no NUL byte).
+        const bkRead = require('../lib/core/flag-file-read.cjs').readFlagFileText(bkPath, 65536);
+        if (!bkRead.ok) error('bank-opportunity --file needs a readable JSON file of at most 65536 bytes with no NUL byte');
+        const bkText = bkRead.text;
+        try { bkData = JSON.parse(bkText); } catch (_e) { error('bank-opportunity --file holds text that is not JSON'); }
+      } else {
+        if (argv[2]) {
+          // Two args: roomDir + JSON
+          bkRoom = argv[1];
+          bkJson = argv[2];
+        }
+        if (!bkJson) error('bank-opportunity requires a JSON argument');
+        try { bkData = JSON.parse(bkJson); } catch (_e) { error('Invalid JSON for bank-opportunity'); }
+      }
 
       // If room exists, bank directly to room
       if (bkRoom) {

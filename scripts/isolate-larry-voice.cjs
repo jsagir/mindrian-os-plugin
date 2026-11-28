@@ -76,6 +76,7 @@ const T = [
   { name: 'MINDRIAN_DOGFOOD_DRAIN_SKIP', kind: 'switch', value: '1', defaultOn: false, reason: 'session-start skips the dogfood drain' },
   { name: 'SCOUT_CADENCE_SKIP', kind: 'switch', value: '1', defaultOn: false, reason: 'session-start skips the scout cadence slot' },
   { name: 'BRAIN_STALENESS_SKIP', kind: 'switch', value: '1', defaultOn: false, reason: 'session-start skips the Brain staleness annotation' },
+  { name: 'MOS_NO_GRAPH_CATCHUP', kind: 'switch', value: '1', defaultOn: false, reason: 'session-start and on-stop spawn no Phase 367 graph catch-up runner child' },
   { name: 'MINDRIAN_SKIP_LIVE_CLAUDE', kind: 'switch', value: '1', defaultOn: false, reason: 'scripts that would start a live claude stay offline' },
   { name: 'MOS_NO_DETACHED_DERIVE', kind: 'switch', value: '1', defaultOn: false, reason: 'derive drain runs in process instead of detached' },
   { name: 'CLAUDE_CODE_SESSION_ID', kind: 'absent', reason: 'session-start reads it; absent, so it derives its own session id' },
@@ -433,12 +434,15 @@ const STARTUP_CONTAINMENT = Object.freeze({
     kind: 'scan_gated',
     reason: 'every write target derives from HOME, MINDRIAN_ROOMS_*, CLAUDE_CONFIG_DIR or TMPDIR; contained only while the scan finds no literal path',
     fallback_reason: 'hardcoded_path_write',
+    // Re-pinned by 367-06 (2026-11-26): the five lines were stale at BASE (test-3696-isolation B5b red).
+    // The Phase 367 graph catch-up runner child writes only under the room's .mindrian folder.
     evidence: [
-      ev('scripts/session-start', 413, 'BRIDGE_FILE="${TMPDIR:-/tmp}/mindrian-context-state"'),
-      ev('scripts/session-start', 1332, 'tmp=$(mktemp 2>/dev/null || echo "${TMPDIR:-/tmp}/mos-sealed-$$")'),
-      ev('scripts/session-start', 1829, 'UPDATE_CACHE="${TMPDIR:-/tmp}/mindrian-update-check"'),
-      ev('scripts/session-start', 1867, 'echo "$TODAY" > "$UPDATE_CACHE"'),
-      ev('scripts/session-start', 1980, '( node "${PLUGIN_ROOT}/lib/core/brain-prewarm.cjs" >/dev/null 2>&1 || true ) &'),
+      ev('scripts/session-start', 419, 'BRIDGE_FILE="${TMPDIR:-/tmp}/mindrian-context-state"'),
+      ev('scripts/session-start', 1339, 'tmp=$(mktemp 2>/dev/null || echo "${TMPDIR:-/tmp}/mos-sealed-$$")'),
+      ev('scripts/session-start', 1670, 'UPDATE_CACHE="${TMPDIR:-/tmp}/mindrian-update-check"'),
+      ev('scripts/session-start', 1708, 'echo "$TODAY" > "$UPDATE_CACHE"'),
+      ev('scripts/session-start', 1821, '( node "${PLUGIN_ROOT}/lib/core/brain-prewarm.cjs" >/dev/null 2>&1 || true ) &'),
+      ev('scripts/session-start', 135, '( node "${SCRIPT_DIR}/graph-catchup.cjs" --cwd "$PWD" --room "${ROOM_DIR:-}" --trigger session_start || true ) </dev/null >/dev/null 2>&1 &'),
     ],
   }),
   'scripts/sessionstart-coordinator.cjs': Object.freeze({
@@ -475,7 +479,8 @@ const STARTUP_CONTAINMENT = Object.freeze({
     kind: 'switch:MINDRIAN_DERIVE_SKIP',
     reason: 'the entry point re-spawns a detached worker; the switch ends the hook before the self-detach and before any work',
     evidence: [
-      ev('scripts/gsd-graph-derive-drain.cjs', 956, "if (process.env.MINDRIAN_DERIVE_SKIP === '1') { process.exit(0); }"),
+      // Re-pinned by 367-06: 367-05 moved two functions of the drain to lib/core/bg-worker.cjs (956 -> 929).
+      ev('scripts/gsd-graph-derive-drain.cjs', 929, "if (process.env.MINDRIAN_DERIVE_SKIP === '1') { process.exit(0); }"),
     ],
   }),
   'scripts/agentshield-sessionstart-scan.cjs': Object.freeze({
@@ -491,7 +496,8 @@ const STARTUP_CONTAINMENT = Object.freeze({
 const HOOK_SWITCHES = Object.freeze({
   'scripts/sessionstart-post-update-preflight.cjs': ['MOS_SESSION_VERIFY_NO_PROBE'],
   'scripts/gsd-graph-derive-drain.cjs': ['MINDRIAN_DERIVE_SKIP'],
-  'hooks/run-hook.cmd session-start': ['MINDRIAN_DOGFOOD_DRAIN_SKIP', 'SCOUT_CADENCE_SKIP', 'BRAIN_STALENESS_SKIP'],
+  // MOS_NO_GRAPH_CATCHUP (367-06): keeps the canary and the live legs free of a graph catch-up runner child.
+  'hooks/run-hook.cmd session-start': ['MINDRIAN_DOGFOOD_DRAIN_SKIP', 'SCOUT_CADENCE_SKIP', 'BRAIN_STALENESS_SKIP', 'MOS_NO_GRAPH_CATCHUP'],
 });
 
 function hookKey(command) {

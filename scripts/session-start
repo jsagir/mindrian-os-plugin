@@ -130,6 +130,9 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ]; then
   ' 2>/dev/null || echo "")
 fi
 # --- end 369.25 plan 13 heal net ---
+# Phase 367 design 5.3 and Goldfish R5 IR-B2: one detached catch-up run per session start; the runner exits
+# when there is no room. The whole subshell is detached from the hook pipes.
+( node "${SCRIPT_DIR}/graph-catchup.cjs" --cwd "$PWD" --room "${ROOM_DIR:-}" --trigger session_start || true ) </dev/null >/dev/null 2>&1 &
 
 # Read current version from plugin.json via platform.cjs (plan 85-06 sweep).
 # python3 is a Microsoft Store alias stub on Windows and produces "vunknown".

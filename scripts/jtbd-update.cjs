@@ -36,9 +36,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 
+const { HookExit, makeSink, finishCli } = require('../lib/core/hook-io.cjs');
+
 const PLUGIN_ROOT = path.resolve(__dirname, '..');
 const CONFIDENCE_DELTA_THRESHOLD = 0.15;
-const DEBUG = process.env.MINDRIAN_DEBUG === '1';
+// Phase 400.4 plan 12: read at call time, not at module load, so a long-lived caller sees the current env.
+function isDebug() { return process.env.MINDRIAN_DEBUG === '1'; }
 
 // Phase 127.3 Plan 01: route registry resolution through the single chokepoint
 // (lib/core/resolve-active-room.cjs). Before this refactor, this file carried
@@ -54,27 +57,40 @@ const DEBUG = process.env.MINDRIAN_DEBUG === '1';
 const { resolveActiveRoom, resolveActiveRoomDir } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'resolve-active-room.cjs'));
 
 // Lazy module load -- Tier 0 graceful skip if any dep missing.
+// Phase 400.4 plan 12: the loads moved from module scope into ensureDeps(sink), called at the start of run(), so that
+// require() of this file has no side effect. A missing required dep writes the same stderr note to the sink and ends
+// the run with code 0 (it was process.exit(0) at module load).
 let classifyFn = null, jtbdState = null, stateMdParser = null, operatorMod = null;
 
-try {
-  classifyFn = require(path.join(PLUGIN_ROOT, 'lib', 'hmi', 'jtbd-classifier.cjs')).classify;
-} catch (e) {
-  process.stderr.write('[jtbd-update] cannot load classifier: ' + e.message.slice(0, 200) + '\n');
-  process.exit(0);
+function ensureDeps(sink) {
+  if (!classifyFn) {
+    try {
+      classifyFn = require(path.join(PLUGIN_ROOT, 'lib', 'hmi', 'jtbd-classifier.cjs')).classify;
+    } catch (e) {
+      sink.err('[jtbd-update] cannot load classifier: ' + e.message.slice(0, 200) + '\n');
+      throw new HookExit(0);
+    }
+  }
+  if (!jtbdState) {
+    try {
+      jtbdState = require(path.join(PLUGIN_ROOT, 'lib', 'hmi', 'jtbd-state.cjs'));
+    } catch (e) {
+      sink.err('[jtbd-update] cannot load jtbd-state: ' + e.message.slice(0, 200) + '\n');
+      throw new HookExit(0);
+    }
+  }
+  // Optional: STATE.md parser (degrade to no recency stratum)
+  if (!stateMdParser) {
+    try { stateMdParser = require(path.join(PLUGIN_ROOT, 'lib', 'state', 'state-md-parser.cjs')); } catch (_e) { stateMdParser = null; }
+  }
+  // Optional: Phase 99 operator (degrade to 2-strata classifier)
+  if (!operatorMod) {
+    try { operatorMod = require(path.join(PLUGIN_ROOT, 'lib', 'conversation', 'operator.cjs')); } catch (_e) { operatorMod = null; }
+  }
 }
-try {
-  jtbdState = require(path.join(PLUGIN_ROOT, 'lib', 'hmi', 'jtbd-state.cjs'));
-} catch (e) {
-  process.stderr.write('[jtbd-update] cannot load jtbd-state: ' + e.message.slice(0, 200) + '\n');
-  process.exit(0);
-}
-// Optional: STATE.md parser (degrade to no recency stratum)
-try { stateMdParser = require(path.join(PLUGIN_ROOT, 'lib', 'state', 'state-md-parser.cjs')); } catch (_e) { stateMdParser = null; }
-// Optional: Phase 99 operator (degrade to 2-strata classifier)
-try { operatorMod = require(path.join(PLUGIN_ROOT, 'lib', 'conversation', 'operator.cjs')); } catch (_e) { operatorMod = null; }
 
 function debugLog(roomDir, msg) {
-  if (!DEBUG || !roomDir) return;
+  if (!isDebug() || !roomDir) return;
   try {
     const dir = path.join(roomDir, '.mindrian');
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -85,11 +101,16 @@ function debugLog(roomDir, msg) {
 // Resolve active room: see chokepoint import near top of file (Phase 127.3 Plan 01).
 
 // Read msg from env (test fixtures) or stdin JSON envelope (BASH-95-01).
+// Phase 400.4 plan 12: the stdin text comes from a reader the caller sets. run() sets a once-reader over its input
+// (the text the first time, '' afterwards, as a second read of a pipe gave); the CLI main sets a reader of fd 0 that
+// runs only when a read is needed (never when the env var wins), exactly as before.
+let stdinReader = function () { return ''; };
+function takeStdin() { return stdinReader(); }
 function readEnvelopeField(envVar, fields) {
   const v = process.env[envVar];
   if (typeof v === 'string' && v.length > 0) return v;
   try {
-    const raw = fs.readFileSync(0, 'utf8');
+    const raw = takeStdin();
     if (!raw || !raw.trim()) return '';
     const env = JSON.parse(raw);
     for (const f of fields) {
@@ -129,10 +150,41 @@ function isTransition(prev, next) {
   return Math.abs(b - a) > CONFIDENCE_DELTA_THRESHOLD;
 }
 
-function main() {
+// ---------- Phase 400.4 plan 10 (QA-F11): write-lock gate ----------
+// room.db opens with a 5 s busy wait but this hook has a 3 s host budget. Check the write lock first with one
+// busy wait of up to HOOK_BUSY_MS (750 ms). After the first busy the process cap drops to 0, so the second try
+// is a no-wait re-probe (the one retry). When room.db stays busy: one stderr note, exit 0, nothing written.
+// Returns true when the caller must stop. A room with no room.db, or a probe that cannot run, does not stop.
+function roomDbIsBusyForHook(roomDir, sink) {
+  try {
+    const busyCap = require('../lib/core/hook-busy-cap.cjs');
+    busyCap.setHookBusyCap(busyCap.HOOK_BUSY_MS);
+    const navigation = require('../lib/core/navigation.cjs');
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const reasonSink = [];
+      const handle = navigation.openRoomDbForCaller(roomDir, {
+        busyMs: busyCap.HOOK_BUSY_MS,
+        probeWrite: true,
+        reasonSink: reasonSink,
+      });
+      if (handle) {
+        navigation.closeRoomDbForCaller(handle);
+        return false;
+      }
+      if (!reasonSink.includes('room_db_busy')) return false;
+    }
+    sink.err('[jtbd-update] room_db_busy: room.db is locked by another process; this prompt skips jtbd-update.\n');
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
+function main(event, sink) {
+  const DEBUG = isDebug();
   const t0 = DEBUG && typeof performance !== 'undefined' ? performance.now() : 0;
-  const event = process.argv[2];
   if (event !== 'userprompt' && event !== 'stop') return;
+  ensureDeps(sink);
 
   const roomDir = resolveActiveRoomDir();
   if (!roomDir) { debugLog(null, 'no active room; exit'); return; }
@@ -151,6 +203,9 @@ function main() {
     }
     userMessage = readUserMessage() || lastResponse;
   }
+
+  // QA-F11: userprompt only (the stop hook has its own budget). Nothing has been written yet.
+  if (event === 'userprompt' && roomDbIsBusyForHook(roomDir, sink)) return;
 
   const operator = readOperator(roomDir);
   const decisionsRecency = readDecisionsRecency(roomDir);
@@ -277,7 +332,7 @@ function main() {
     }
   } catch (err) {
     // NEVER throw upward -- Phase 100 Stop hook must remain reliable.
-    process.stderr.write('[jtbd-update] across-session promote error: ' +
+    sink.err('[jtbd-update] across-session promote error: ' +
       String(err && err.message ? err.message.slice(0, 200) : 'unknown') + '\n');
   }
   // === End Phase 103-05 additive ===
@@ -289,11 +344,36 @@ function main() {
   }
 }
 
-try {
-  main();
-  process.exit(0);
-} catch (e) {
-  // Final defensive net. NEVER block Larry.
-  process.stderr.write('[jtbd-update] error: ' + (e && e.message ? e.message.slice(0, 200) : 'unknown') + '\n');
-  process.exit(0);
+// runWith(reader, argv) -- the one body of run and of the CLI. Resolves {code, stdout, stderr}; never rejects.
+async function runWith(reader, argv) {
+  const sink = makeSink();
+  stdinReader = reader;
+  try {
+    main(argv[0], sink);
+    return sink.take(0);
+  } catch (e) {
+    if (e instanceof HookExit) return sink.take(e.code);
+    // Final defensive net. NEVER block Larry.
+    sink.err('[jtbd-update] error: ' + (e && e.message ? e.message.slice(0, 200) : 'unknown') + '\n');
+    return sink.take(0);
+  } finally {
+    stdinReader = function () { return ''; };
+  }
+}
+
+// run(input, opts) -- the in-process entry point (Phase 400.4 plan 12, QA-F11 part B base).
+// input is the raw stdin text. opts.argv[0] is the event, 'userprompt' or 'stop'. Resolves {code, stdout, stderr}.
+// Never calls process.exit, never reads fd 0, never writes to the process streams, never rejects.
+// Fail-open: any error resolves code 0 with the stderr note the CLI wrote. NEVER block Larry.
+async function run(input, opts) {
+  let used = false;
+  const text = typeof input === 'string' ? input : '';
+  const reader = function () { if (used) return ''; used = true; return text; };
+  return runWith(reader, opts && Array.isArray(opts.argv) ? opts.argv : []);
+}
+
+module.exports = { run };
+
+if (require.main === module) {
+  runWith(function () { return fs.readFileSync(0, 'utf8'); }, process.argv.slice(2)).then(finishCli);
 }

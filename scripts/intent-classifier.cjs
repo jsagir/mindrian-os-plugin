@@ -35,13 +35,50 @@ if (require.main === module) {
 // node start does both jobs in the same order: the drain first, then the
 // classifier. The wrapper exports MOS_MINTO_DRAIN_ROOM only for a room with a
 // .mindrian folder; it is deleted here so no child inherits it.
-if (require.main === module && typeof process.env.MOS_MINTO_DRAIN_ROOM === 'string' && process.env.MOS_MINTO_DRAIN_ROOM) {
-  const mintoDrainRoom = process.env.MOS_MINTO_DRAIN_ROOM;
+//
+// Phase 400.4 plan 10 (QA-F11): the bash wrapper (scripts/intent-classifier) is no longer on the hook path;
+// hooks/hooks.json calls this file with node directly (no cmd, no bash step). So this file finds the drain
+// room itself when MOS_MINTO_DRAIN_ROOM is not set: the active room (the same registry the wrapper's
+// scripts/resolve-room read), used only when that folder holds .mindrian. An inherited MOS_MINTO_DRAIN_ROOM
+// still wins, as before. The same block caps every room.db wait of this process at HOOK_BUSY_MS, so the
+// classifier answers inside its host budget while room.db is write-locked by another process.
+//
+// Phase 400.4 plan 12 (QA-F11 part B base): the block is now mintoDrainFirst(), called at the start of runTurn(), so
+// require() of this file has no side effect and run(input, opts) does the same drain first in-process. The CLI main
+// at the end of the file calls runTurn() when this file is the main module.
+function mintoDrainFirst() {
+  try {
+    const hookBusyCap = require('../lib/core/hook-busy-cap.cjs');
+    hookBusyCap.setHookBusyCap(hookBusyCap.HOOK_BUSY_MS);
+  } catch (_e) { /* the 5 s wait stays */ }
+  let mintoDrainRoom = (typeof process.env.MOS_MINTO_DRAIN_ROOM === 'string') ? process.env.MOS_MINTO_DRAIN_ROOM : '';
   delete process.env.MOS_MINTO_DRAIN_ROOM;
-  try { require('./minto-drain-on-prompt.cjs').drainOnPrompt(mintoDrainRoom); } catch (_e) { /* soft-fail */ }
+  if (!mintoDrainRoom) {
+    try {
+      // The chokepoint reads MINDRIAN_ROOMS_HOME; bridge this script's older MINDRIAN_ROOMS_ROOT name first.
+      if (process.env.MINDRIAN_ROOMS_ROOT && !process.env.MINDRIAN_ROOMS_HOME) {
+        process.env.MINDRIAN_ROOMS_HOME = process.env.MINDRIAN_ROOMS_ROOT;
+      }
+      const found = require('../lib/core/resolve-active-room.cjs').resolveActiveRoomDir();
+      if (typeof found === 'string' && found.length > 0
+        && require('node:fs').existsSync(require('node:path').join(found, '.mindrian'))) {
+        mintoDrainRoom = found;
+      }
+    } catch (_e) { mintoDrainRoom = ''; }
+  }
+  if (mintoDrainRoom) {
+    try { require('./minto-drain-on-prompt.cjs').drainOnPrompt(mintoDrainRoom); } catch (_e) { /* soft-fail */ }
+  }
 }
 
 const fs = require('node:fs');
+const hookIo = require('../lib/core/hook-io.cjs');
+
+// Phase 400.4 plan 12: every stdout write of this file goes through OUT. The default writes the process stream (the CLI).
+// run() swaps in a hook-io sink for the turn and restores the default in a finally block, so run() never writes to the
+// process streams. This file has no stderr write and no console call; a future one must use a sink err, never the process.
+const DEFAULT_OUT = function (text) { process.stdout.write(text); };
+let OUT = DEFAULT_OUT;
 const path = require('node:path');
 const os = require('node:os');
 const crypto = require('node:crypto');
@@ -434,12 +471,15 @@ function extractCwd(raw) {
 // Phase 83 main() reads it again, but readStdinSync of fd 0 returns ''
 // on second call (EOF) -- which is fine because main() also early-
 // exits on empty message. We pass the raw stdin in via module scope.
-const STDIN_RAW = readStdinSync();
-const STDIN_MESSAGE = extractMessage(STDIN_RAW);
+// Phase 400.4 plan 12: the per-turn input is state set by setTurnInput(raw), not a read at module load. The CLI main
+// calls setTurnInput(readStdinSync()); run(input) calls setTurnInput(input). At module load the values are empty, so
+// require() reads no stdin. Phase 91-02 reasoning is unchanged: one parse of the payload per turn, shared by all uses.
+let STDIN_RAW = '';
+let STDIN_MESSAGE = '';
 // reach-sensor-relevance-gap A1: the real Claude session UUID from the hook
 // payload (empty string when absent). resolveSessionId prefers this over the
 // env/hash fallback so the CLI read key matches the MCP room_bind write key.
-const STDIN_SESSION_ID = extractSessionId(STDIN_RAW);
+let STDIN_SESSION_ID = '';
 
 // Phase 360 (D-06): the verdict comes from the ONE shared classifier in
 // lib/hmi/turn-text.cjs (SPEC R4); it judges exactly the same text the
@@ -457,10 +497,24 @@ function harnessVerdict(text) {
     return tt.classifyUserPromptText(text) === 'harness';
   } catch (_e) { return false; }
 }
-const TURN_IS_HARNESS = harnessVerdict(STDIN_MESSAGE);
-// Phase 360 (N-1): the hook stdin's cwd, read once at module init (same
-// STDIN_RAW, no second parse of a different shape than extractSessionId's).
-const STDIN_CWD = extractCwd(STDIN_RAW);
+let TURN_IS_HARNESS = false;
+// Phase 360 (N-1): the hook stdin's cwd, set once per turn from the same payload (no second parse of a different
+// shape than extractSessionId's).
+let STDIN_CWD;
+// Phase 400.4 plan 14 (QA-F12 D1): which leg of resolveSessionRoom answered the NAV block site this turn
+// ('session.primary', 'cwd.room_root', 'reg.active'), for the decision trace. Reset every turn by setTurnInput.
+let TURN_ROOM_SOURCE = null;
+
+function setTurnInput(raw) {
+  STDIN_RAW = typeof raw === 'string' ? raw : '';
+  STDIN_MESSAGE = extractMessage(STDIN_RAW);
+  STDIN_SESSION_ID = extractSessionId(STDIN_RAW);
+  TURN_IS_HARNESS = harnessVerdict(STDIN_MESSAGE);
+  STDIN_CWD = extractCwd(STDIN_RAW);
+  TURN_ROOM_SOURCE = null;
+  // A binding read memoized for an earlier turn must not answer this turn (a long-lived process runs many turns).
+  SESSION_BINDING_CACHE = null;
+}
 
 // WR-03 fix (360-REVIEW.md): the picker-suppression guard below, the zero-score gate,
 // and the F.8 binding gate each independently called session-binding.cjs's
@@ -551,10 +605,10 @@ function emitStrictModeOverride(strictMatch, activeSlug, roomsRoot) {
   };
 
   try {
-    process.stdout.write(JSON.stringify(envelope) + '\n');
+    OUT(JSON.stringify(envelope) + '\n');
   } catch (_e) {
     // Last-resort fallback: raw text.
-    try { process.stdout.write(overrideWarning + '\n'); } catch (_e2) {}
+    try { OUT(overrideWarning + '\n'); } catch (_e2) {}
   }
 
   // Persist a Section-8 decision-trace edge so /mos:explain-decision
@@ -871,10 +925,10 @@ function main() {
     systemMessage: systemMessage
   };
   try {
-    process.stdout.write(JSON.stringify(envelope) + '\n');
+    OUT(JSON.stringify(envelope) + '\n');
   } catch (_e) {
     // Last-resort fallback: raw text (preserves pre-retrofit behavior).
-    process.stdout.write(warning + '\n');
+    OUT(warning + '\n');
   }
   return 0;
 }
@@ -983,7 +1037,7 @@ function injectGraphFindings(injectionStart) {
   for (let i = 0; i < top.length; i++) {
     lines.push((i + 1) + '. ' + formatFinding(top[i].ins));
   }
-  process.stdout.write(lines.join('\n') + '\n');
+  OUT(lines.join('\n') + '\n');
 }
 
 // ---------------------------------------------------------------------------
@@ -1087,6 +1141,20 @@ function sectionSlugForEngine(roomDir, sectionPath) {
 // NAV_HARD_TIMEOUT_MS timer cannot stop the selector after it starts. When the hook has already used that budget
 // before it builds the context for decide(), no section is given, so decide() does not start the selector and runs as
 // it did before Phase 395-03. The same rule as shouldSkipReachPenalties: a missing or non-finite clock never skips.
+// Phase 400.4 plan 14: the section the session's focus node sits in (the same read suggest_next uses), as a slug whose
+// folder exists in the room; undefined when there is no focus. Never throws.
+function focusSectionSlug(roomDb, navigationMod, roomDir, sessionId) {
+  try {
+    if (!roomDb || !navigationMod || typeof navigationMod.resolveFocusSection !== 'function') return undefined;
+    const focus = navigationMod.resolveFocusSection(roomDb, sessionId);
+    if (focus && focus.ok === true && typeof focus.section === 'string' && /^[a-z0-9-]+$/.test(focus.section)
+        && fs.existsSync(path.join(roomDir, focus.section))) {
+      return focus.section;
+    }
+  } catch (_e) { /* no focus */ }
+  return undefined;
+}
+
 function sectionForSelector(roomDir, sectionPath, elapsedMs) {
   if (shouldSkipReachPenalties(elapsedMs)) return undefined;
   return sectionSlugForEngine(roomDir, sectionPath);
@@ -1148,8 +1216,13 @@ function resolveSessionRoomDir(sessionId, machineWideDir, opts) {
         sessionId: sessionId,
         home: home,
         requireOwnership: requireOwnership,
+        // Phase 400.4 plan 14 (QA-F12 D1): the hook stdin cwd, an opt-in leg below the binding.
+        cwd: (opts && typeof opts.cwd === 'string') ? opts.cwd : undefined,
       });
-      if (r && typeof r.abs_path === 'string' && r.abs_path.length > 0) return r.abs_path;
+      if (r && typeof r.abs_path === 'string' && r.abs_path.length > 0) {
+        if (opts && opts.recordSource === true) TURN_ROOM_SOURCE = typeof r.source === 'string' ? r.source : null;
+        return r.abs_path;
+      }
       if (requireOwnership) return null;
     }
   } catch (_) { /* fall through to the machine-wide value */ }
@@ -1270,10 +1343,25 @@ function formatEngineDecisionBlock(decision, routing, offerLine) {
     'fire_skill: ' + fireSkill,
     'suppress_skills: ' + suppressSkills,
     'offer_next_step: ' + offer,
-    'persona_updates: ' + persona,
-    'tier_mode: ' + tierMode,
-    'brain_md_recommended_marker_rendered: ' + recommended,
   ];
+  // Phase 400.4 plan 14 (QA-F12 D2, PD-1): one line that names the selector's move, so the block names the same move
+  // as suggest_next also when the offer abstains. 'next_move: <command> | <job phrase>'; no line when the selector
+  // named nothing (the trace key is null).
+  try {
+    const sm = trace.selector_next_move;
+    if (sm && typeof sm === 'object') {
+      if (typeof sm.command === 'string' && sm.command) {
+        const cue = require(path.join(__dirname, '..', 'lib', 'statusline', 'next-move-cache.cjs'));
+        const phrase = cue.shortJobPhrase(sm.command, sm.job_when);
+        lines.push('next_move: ' + sm.command + (phrase ? ' | ' + phrase : ''));
+      } else if (typeof sm.job_id === 'string' && sm.job_id) {
+        lines.push('next_move: none for goal job ' + sm.job_id);
+      }
+    }
+  } catch (_e) { /* the line is optional */ }
+  lines.push('persona_updates: ' + persona);
+  lines.push('tier_mode: ' + tierMode);
+  lines.push('brain_md_recommended_marker_rendered: ' + recommended);
   // Phase 91-03: append router output (routing_source + activated_skills)
   // when the caller has computed it. Two new lines summarize which
   // activation set won (engine vs legacy vs mixed) and which skills are
@@ -1866,7 +1954,11 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
 
   let hash = null;
   try {
-    hash = crypto.createHash('sha256').update(finalBlock, 'utf8').digest('hex');
+    // Phase 400.4 plan 14 (QA-F12 D5, PD-8): the hash covers the turn key (room slug, goal job id, selector command,
+    // offer command) plus the block, so a changed room, goal job or top move always gives the full block again.
+    // Without a turn key the hash is the block alone, as before.
+    const hashInput = (ctx && typeof ctx.turnKey === 'string') ? (ctx.turnKey + '\n' + finalBlock) : finalBlock;
+    hash = crypto.createHash('sha256').update(hashInput, 'utf8').digest('hex');
     if (ctx && typeof ctx.onBlockHash === 'function') {
       ctx.onBlockHash(hash, Buffer.byteLength(finalBlock, 'utf8'));
     }
@@ -2417,6 +2509,7 @@ function runNavigationEngine(roomDir, sessionId) {
         }
       }
 
+      const selectorGuard = shouldSkipReachPenalties(Date.now() - startedAt) === true;
       const context = {
         quadruple: quadruple,
         brainAvailable: brainAvailable,
@@ -2426,7 +2519,11 @@ function runNavigationEngine(roomDir, sessionId) {
         operator: operatorState,
         sectionPath: sectionPath, // scope + the [[wikilink]] target the grounded reason needs
         // Phase 395-03: the selector inputs. section is the slug decide() joins to roomDir; the hook runs in Claude Code only.
-        section: sectionForSelector(roomDir, sectionPath, Date.now() - startedAt),
+        // Phase 400.4 plan 14 (QA-F12 D2, PD-3): the session's focus section is the nest; with none, decide() uses the
+        // goal-job nest, then sectionFallback (the old active-section guess). The time guard gives no selector at all.
+        section: selectorGuard ? undefined : focusSectionSlug(roomDb, navigationMod, roomDir, sessionId),
+        sectionFallback: sectionForSelector(roomDir, sectionPath, Date.now() - startedAt),
+        selectorSkipped: selectorGuard,
         surface: 'cli',
         problemType: userPersona && userPersona.problem_type, // rankForSelector input (null when unknown)
         jtbd: jtbd,
@@ -2561,17 +2658,26 @@ function runNavigationEngine(roomDir, sessionId) {
           // is LAZY -- the research/ scan runs only when the engine abstained, and the
           // scanner require is loaded inside the provider body so the common routed
           // path never pays for it.
+          let priorCueRoom = null;
           try {
             const nextMoveCache = require(
               path.join(__dirname, '..', 'lib', 'statusline', 'next-move-cache.cjs')
             );
+            // Phase 400.4 plan 14 (QA-F12 D1, D4, D5): the room of the session's own cue record BEFORE this turn's
+            // write (so a changed room re-emits the full block), then the per-session write with the room slug.
+            try {
+              const priorCue = sessionId ? nextMoveCache.readSessionCue(sessionId) : null;
+              priorCueRoom = priorCue && typeof priorCue.room === 'string' ? priorCue.room : null;
+            } catch (_priorErr) { priorCueRoom = null; }
             nextMoveCache.persistFromDecision(decision, {
+              sessionId: STDIN_SESSION_ID || sessionId,
+              room: path.basename(roomDir),
               fallbackProvider: function () {
                 try {
                   const ratNext = require(
                     path.join(__dirname, '..', 'lib', 'statusline', 'ratification-next.cjs')
                   );
-                  const r = ratNext.scanRatificationNext();
+                  const r = ratNext.scanRatificationNext(roomDir);
                   return r && typeof r.cue === 'string' ? r.cue : null;
                 } catch (_scanErr) { return null; }
               },
@@ -2808,6 +2914,8 @@ function runNavigationEngine(roomDir, sessionId) {
             // relevantNodes/cortexNodes. Presence-only LOCAL fields; never a
             // Brain wire (Part 8). Absent -> null -> buildDialSlotContext {}.
             room_context: context.roomContext || null,
+            // Phase 400.4 plan 14 (D5): the room of this session's cue record before this turn wrote it.
+            prior_cue_room: priorCueRoom,
           });
         })
         .catch(function () { resolve(null); })
@@ -3185,10 +3293,10 @@ function emitBindingGate(args) {
     systemMessage: systemMessage,
   };
   try {
-    process.stdout.write(JSON.stringify(envelope) + '\n');
+    OUT(JSON.stringify(envelope) + '\n');
   } catch (_e) {
     // Last-resort fallback: raw text (never throws back into the hook).
-    try { process.stdout.write(additionalContext + '\n'); } catch (_) {}
+    try { OUT(additionalContext + '\n'); } catch (_) {}
   }
   // T-dia-02: stamp the dedicated, never-rotated per-(session, off-scope room)
   // marker so bindingGateAlreadyOffered's suppression survives arbitrarily many
@@ -3460,10 +3568,10 @@ function emitNoMatchGate(args) {
     systemMessage: systemMessage,
   };
   try {
-    process.stdout.write(JSON.stringify(envelope) + '\n');
+    OUT(JSON.stringify(envelope) + '\n');
   } catch (_e) {
     // Last-resort fallback: raw text (never throws back into the hook).
-    try { process.stdout.write(additionalContext + '\n'); } catch (_) {}
+    try { OUT(additionalContext + '\n'); } catch (_) {}
   }
   return true;
 }
@@ -3690,6 +3798,10 @@ module.exports = {
   // Phase 395-05: exported for tests/test-395-carried.cjs.
   sectionForSelector: sectionForSelector,
   NAV_HARD_TIMEOUT_MS: NAV_HARD_TIMEOUT_MS,
+  // Phase 400.4 plan 12: the in-process entry point and its two parts.
+  run: run,
+  setTurnInput: setTurnInput,
+  runTurn: runTurn,
 };
 
 // 369.6-12 (D-16, D-34, R-06): the static per-turn voice and operation line. One line from the one constant
@@ -3701,14 +3813,20 @@ function emitVoiceReminder() {
   try {
     const identity = require(path.join(__dirname, '..', 'lib', 'hmi', 'larry-identity.cjs'));
     if (identity.shouldEmitVoiceReminder(STDIN_MESSAGE, process.env)) {
-      process.stdout.write(identity.REMINDER_LINE + '\n');
+      OUT(identity.REMINDER_LINE + '\n');
     }
   } catch (_) {
     // Fail-silent.
   }
 }
 
-if (require.main === module) {
+// runTurn() -- one turn of the classifier. Returns a Promise of the exit code, resolved after the navigation engine block
+// has settled (bounded by NAV_HARD_TIMEOUT_MS inside emitEngineDecisionBlock). Order: the MINTO drain first, then the
+// classifier, the voice line, the graph findings, and the navigation engine block last. Never calls process.exit.
+async function runTurn() {
+  mintoDrainFirst();
+  // The engine closure below can run after the turn was abandoned; it keeps the writer of THIS turn.
+  const emit = OUT;
 try {
   const injectionStart = Date.now();
   const code = main();
@@ -3747,11 +3865,22 @@ try {
     // Every uncertain case (no ownership recorded, owner is me, owner's process
     // is gone, no session id, any fault) still inherits exactly as before, which
     // is what keeps the tier-0 single-session user whole.
+    //
+    // Phase 400.4 plan 14 (QA-F12 D1): the session's room, in this order: the session binding (session.primary), the
+    // room whose .room-root sentinel is at or above the hook stdin cwd, then the registry active room with the
+    // ownership gate. The site no longer skips when the registry has no active room: a bound session or a cwd inside a
+    // room still gets its block. With no room at all the block is skipped and the cue says so.
     const machineWideDir = resolveActiveRoomDir();
-    const sessionId = machineWideDir ? resolveSessionId(machineWideDir) : null;
-    const roomDir = machineWideDir
-      ? resolveSessionRoomDir(sessionId, machineWideDir, { requireOwnership: true })
-      : null;
+    const sessionId = resolveSessionId(machineWideDir || '');
+    const roomDir = resolveSessionRoomDir(sessionId, machineWideDir, {
+      requireOwnership: true, cwd: STDIN_CWD, recordSource: true,
+    });
+    if (!roomDir && STDIN_SESSION_ID) {
+      try {
+        require(path.join(__dirname, '..', 'lib', 'statusline', 'next-move-cache.cjs'))
+          .persistFromDecision(null, { sessionId: STDIN_SESSION_ID, room: null, roomless: true });
+      } catch (_roomlessErr) { /* the cue is optional */ }
+    }
     if (roomDir) {
       // Phase 159-02 (HOW-4, DCW-01/04): the turn-start consumer. Fire BEFORE the
       // new turn's dial render, reading the PRIOR turn's persisted f1_closer_payload
@@ -3993,6 +4122,8 @@ try {
           turn: turnNo,
           at: new Date().toISOString(),
           elapsed_ms: out.elapsed_ms,
+          // Phase 400.4 plan 14 (QA-F12 D1): which leg named this session's room (the cwd leg or the binding).
+          room_source: TURN_ROOM_SOURCE,
         });
         if (routing && typeof routing === 'object') {
           traceEntry.routing_source = routing.source;
@@ -4033,7 +4164,21 @@ try {
         // render seam captures {hash, bytes} via onBlockHash so this closure
         // can persist them onto the SAME decision trace + write the sidecar
         // AFTER the block is composed, without adding a second render pass.
-        const prevNavHash = process.env.MINDRIAN_NAV_NO_SUPPRESS
+        // Phase 400.4 plan 14 (QA-F12 D5): a changed room (the room of the prior cue record differs from this turn's
+        // room) never suppresses. The turn key below adds the goal job and the move to the hash.
+        const roomSlugForKey = path.basename(roomDir);
+        const roomChanged = typeof out.prior_cue_room === 'string' && out.prior_cue_room !== roomSlugForKey;
+        const traceForKey = (out.decision && out.decision.decision_trace) || {};
+        const smForKey = traceForKey.selector_next_move && typeof traceForKey.selector_next_move === 'object'
+          ? traceForKey.selector_next_move : {};
+        const turnKey = [
+          roomSlugForKey,
+          typeof smForKey.job_id === 'string' ? smForKey.job_id : '',
+          typeof smForKey.command === 'string' ? smForKey.command : '',
+          (out.decision && out.decision.offer_next_step && typeof out.decision.offer_next_step.command === 'string')
+            ? out.decision.offer_next_step.command : '',
+        ].join('|');
+        const prevNavHash = (process.env.MINDRIAN_NAV_NO_SUPPRESS || roomChanged)
           ? null
           : readNavBlockHash(roomDir, sessionId);
         let navBlockHashLocal = null;
@@ -4057,6 +4202,7 @@ try {
             reach_penalties: out.reach_penalties,
             onRenderNote: function (note) { traceEntry.dial_render_note = note; },
             prevBlockHash: prevNavHash,
+            turnKey: turnKey,
             onBlockHash: function (hash, bytes) {
               navBlockHashLocal = hash;
               navBlockBytesLocal = bytes;
@@ -4074,7 +4220,7 @@ try {
         }
         persistDecisionTrace(roomDir, sessionId, traceEntry);
         if (block && block.length > 0) {
-          try { process.stdout.write(block + '\n'); } catch (_) {}
+          try { emit(block + '\n'); } catch (_) {}
         }
         // Idempotent on a suppressed turn (writes the SAME hash back).
         if (navBlockHashLocal) {
@@ -4087,13 +4233,56 @@ try {
   } catch (_) { /* engine block is fire-and-forget */ }
   // Wait for engine to settle (bounded by NAV_HARD_TIMEOUT_MS) before
   // exiting so the additionalContext write lands before stdout closes.
-  navP.then(function () {
-    process.exit(typeof code === 'number' ? code : 0);
-  }, function () {
-    process.exit(typeof code === 'number' ? code : 0);
-  });
+  await navP.then(function () {}, function () {});
+  return typeof code === 'number' ? code : 0;
 } catch (_) {
   // Fail-silent on any unexpected error. Classifier is advisory.
-  process.exit(0);
+  return 0;
 }
+}
+
+// run(input, opts) -- the in-process entry point (Phase 400.4 plan 12, QA-F11 part B base).
+// input is the raw stdin text. opts is {argv, deadlineAt}: deadlineAt (epoch ms) is advisory; when it passes, run resolves
+// with the output written so far. Resolves {code, stdout, stderr}. Never calls process.exit, never reads fd 0, never
+// writes to the process streams, never rejects. Runs are serialized (the turn state is module state).
+let RUN_CHAIN = Promise.resolve();
+function run(input, opts) {
+  const job = RUN_CHAIN.then(function () { return runOnce(input, opts); });
+  RUN_CHAIN = job.then(function () {}, function () {});
+  return job;
+}
+
+async function runOnce(input, opts) {
+  const sink = hookIo.makeSink();
+  const prevOut = OUT;
+  OUT = function (text) { sink.out(text); };
+  let timer = null;
+  try {
+    setTurnInput(input);
+    const deadlineAt = opts && Number.isFinite(opts.deadlineAt) ? opts.deadlineAt : null;
+    let turn = runTurn();
+    if (deadlineAt !== null) {
+      const waitMs = Math.max(0, deadlineAt - Date.now());
+      turn = Promise.race([turn, new Promise(function (resolve) {
+        timer = setTimeout(function () { resolve(0); }, waitMs);
+        if (timer && typeof timer.unref === 'function') timer.unref();
+      })]);
+    }
+    const code = await turn;
+    return sink.take(typeof code === 'number' ? code : 0);
+  } catch (_e) {
+    return sink.take(0);
+  } finally {
+    if (timer) clearTimeout(timer);
+    OUT = prevOut;
+  }
+}
+
+if (require.main === module) {
+  setTurnInput(readStdinSync());
+  runTurn().then(function (code) {
+    process.exit(typeof code === 'number' ? code : 0);
+  }, function () {
+    process.exit(0);
+  });
 }

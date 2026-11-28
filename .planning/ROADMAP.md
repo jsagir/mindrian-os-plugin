@@ -1618,6 +1618,7 @@ Plans:
 **Goal:** Filing through the governed tools must leave a connected, correct local graph. A Windows field session (plugin 2.0.0-beta.51, re-verified at HEAD beta.52) born a room through `/mos:ignite`, filed a transcript and 18 claims through `artifact_file`, and 50 minutes later had no filed document as an `Artifact` node, every claim hung off a generic `jtbd:*` anchor, and the MCP graph tool reading a different directory. The graph became usable only after the agent called library internals by hand, which a navigator on a hookless surface cannot do. Evidence: `.planning/debug/newborn-room-graph-not-connected-2026-09-30.md`; seed: `.planning/seeds/SEED-101-newborn-room-graph-connected-without-repair.md`. Phase 363.1 already closed the scaffold-as-content half of this report (P2-2 compute-state counts, P2-3 Eureka structural exclusion, P2-4 MINTO template health); this phase takes what is left.
 **Deliverables.** (1, P1-1, data safety first) `room_graph` resolves the room per call the way `room_state` does (`sessionRoom.resolveSessionRoomDir`), never the boot-time closure, and every result carries `room_dir`; `rebuildGraph` starts with `clearIndexerOwnedRows`, so today a call in a session bound to room B can wipe room A's indexer-owned rows; a regression test binds two rooms and proves isolation. (2, P1-2) `graph-index` takes a validated room-relative `path` parameter contained inside the room by realpath, because its current `section` parameter's schema forbids `/` and `.`, so the command cannot be called at all through MCP. (3, P1-3) `artifact_file` indexes the file it just wrote, writes `SOURCED_FROM` from the claim to that `Artifact` node and sets `source_section`; a PostToolUse hook indexes any indexable file written inside the bound room by Write, Edit or a shell. (4, P2-1) the derivation queue enqueued at birth is drained in-session, or STATE says plainly that derivation is pending and how to run it. (5) The graph checks on a cadence: extend the Phase 343 organ (`lib/core/navigation/graph-integrity-counts.cjs`), never a second script (ICM invariant 8): files on disk with no node, nodes with no file, hypotheses with no `SUPPORTS`, isolated content nodes, and a tightened no-anchor statement that no longer counts a `jtbd:*` `SOURCED_FROM` as an anchor (which is why 343 could not see P1-3); counts only under SEED-074, `null` never `0` on a legacy schema, a `watched_by` per statement; a Stop-hook trigger after any write to the bound room and every N turns, and Larry's `stop_gate_check` duty on Desktop and Cowork. (6, P2-5) Brain egress: a question that names a framework and asks for its steps passes; "wicked" classifies as wicked; a refusal names the term that tripped it. (7, P3) `skills/ignite` uses `CLAUDE_CODE_SESSION_ID` (the skill names `CLAUDE_SESSION_ID`, which is empty in Claude Code, so a birth from the skill text is write-blocked); meeting and person node types; `room-registry rename`; the room-binding gate that fires on pasted content belonging to the bound room; `whitespace_scan` unsupported-claims rule check; the emoji-rule contradiction between the session-start context and the Larry agent (Part 12: the glyph wins).
 **Requirements**: TBD (minted at plan time)
+**Scope revision (2026-11-26, owner rulings OR-1 to OR-3, EGM design `367-DESIGN.md`):** the owner reported that the local graph is written only when he reminds MindrianOS ("this needs to be an automated process"). Phase 367 now builds one detached catch-up runner that indexes every room file at turn end and session start on the CLI and at every mindrian-os tool call on Desktop and Cowork, plus a host-attested card-answer ledger: an answered terminal card lands as a confirmed decision (OR-1, a change to the HITL rule for this one input). This covers deliverable (3) (the hook half and the catch-up) and the file counts of (5), and absorbs the record half of Phase 280 / SEED-008. Deliverables (2), (4), (6), (7), the Stop-hook health cadence of (5) and the claim-to-Artifact `SOURCED_FROM` of (3) move to Phase 367.1 (to be planned). Soft dependency on 400.3-01/02/02b (three stand-ins until they land).
 **Depends on:** Phase 343 (the integrity organ), Phase 363.1 (the scaffold predicate). Feeds Phase 366 (claims with a section column reach the Eureka perspective directly). Consults icm-architect and langtalks-graph-expert before any graph-design assumption.
 
 ### Phase 368: Background intelligence runs like background work: resource guards, then the algorithmic fixes (promotes SEED-099)
@@ -2408,7 +2409,7 @@ Plans:
 
 ### Phase 280: SEED-008: Close the Loop - Wire Local Graph + Artifact Cascade + Memory Into Active Triggering
 
-**Goal:** [To be planned]
+**Goal:** [To be planned] The record half (files and answered cards reach the graph by code) is absorbed by Phase 367 (2026-11-26); the claim half (candidate extraction, basket, F.8 card) remains here.
 **Requirements**: TBD
 **Depends on:** Phase 279
 **Plans:** 0 plans
@@ -4300,6 +4301,71 @@ Plans:
 - [x] 400-14-PLAN.md - plugin relay client behind the off line, O-10 operator release run with audit, release-run bridge to the table pipeline (wave 14)
 - [x] 400-15-PLAN.md - owner review file 400-LABEL-REVIEW.md and the phase gates (wave 15)
 
+### Phase 400.5: Prompt hooks inside the running server (SEED-158 re-scoped, CRITICAL, lands before the next cut): admin gate and install router stay command hooks; the four routable checks run through one mcp_tool hook into the MindrianOS MCP server with the JSON additionalContext contract, a Part 11 EXCLUDED hook tool, a first-prompt fallback and in-server deadlines; supersedes 400.4 plan 13 (INSERTED)
+
+**CRITICAL PATH: must land before the next release cut (owner ruling 2026-11-26).** Order: 400.4 (minus its plan 13) -> 400.5 -> cut.
+**Goal:** Prompt-time help (the F.1 card, the statusline cue, the per-turn navigation context) is produced inside the already-running MindrianOS server, so a cold user on a loaded machine gets it every prompt without a cold start or a cross-process lock wait, while the safety checks stay command hooks that nothing can switch off.
+**Source:** SEED-158 (promoted), EGM review in `.planning/egm/seed-158/` (zoom_out, comprehension, critic, intermediate zoom out reports), spike `400.4-SPIKE-mcp-tool-hook.md`.
+**Requirements**: HR-01 to HR-07 (the seven success criteria; EGM findings S3-S5 carried)
+**Depends on:** Phase 400.4 plans 01-12 and 14 (plan 12's run() exports are the shared base); supersedes 400.4 plan 13 (the command dispatcher).
+**Canon parts:** 8 (local only, no room content to Theo), 9, 11 (check ids are not invocable surfaces), 7 (reuse SENSOR_REGISTRY id pattern and section-job canon, no second selector)
+**Scope (navigator, after EGM Stage 8, 2026-11-26):** the re-scoped transport slice only. Per-nest routing, an applies_when predicate table and a precompiled routing record are OUT (EGM S1, S2, S8). Supersedes 400.4 plan 13.
+**Success criteria:**
+
+1. Two adapters over one transport-independent run(input) core (from 400.4 plan 12): the invariant tier (admin-command-gate, first-install-router) stays a command hook and runs first; the routable tier (brain-derivation-drain, auto-explore-drain, jtbd-update, intent-classifier) runs through ONE mcp_tool UserPromptSubmit hook into the MindrianOS MCP server, in today's fixed order.
+2. Every mcp_tool result is the JSON hookSpecificOutput.additionalContext shape; a test fails if plain text is ever returned (spike: plain text is silently dropped).
+3. The hook tool is declared EXCLUDED with a reason in the connector registry (Part 11), counted in the tool budget, and a direct model call of it is harmless (read-only result or refused).
+4. First-prompt behavior is stated and tested for a cold connect (about 3.2 s measured): the routable checks fall back to the command dispatcher, or skip with a typed note shown on the next turn; never a silent loss of the NAV block.
+5. Inside the server, each routable check runs under plan 13's per-check deadline with skipped_deadline; no queue or worker; the whole tool answers inside the hook timeout.
+6. Output parity: the combined context equals what the six separate hooks produced on the parity cases; a block from admin-command-gate still blocks.
+7. Measured on the QA-shaped fixture under load: 20 consecutive prompts with no UserPromptSubmit timeout; p95 hook overhead reported.
+
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 400.5 after the EGM Stage 8 verdict is folded into CONTEXT)
+
+### Phase 400.4: Cold-start QA fixes from the 2026-11-26 live run: plain job labels and sentences in goal-job offers and the goal card, a set goal job picks a nest, domain note with the advisor off, advisor shortlist drives the alternatives, framework-name aliases, capped cortex context leg, two-way neighbourhood, honest gap scan with isolated-note check, Eureka file excerpts, cause-and-effect card descriptions (INSERTED)
+
+**Goal:** A cold user on a large, unratified room gets a plain-worded job choice, a ranked next move once a job is set, a context pull inside a stated budget, real neighbours, and an honest gap report (QA source: `400.4-QA-SOURCE.md`, findings F1-F10, root causes verified against installed v2.0.0-beta.91).
+**Requirements**: QA-F1 to QA-F12 (see 400.4-QA-SOURCE.md, 400.4-QA-SOURCE-F11-hook-timeouts.md, CONTEXT ADDENDUM 3); advisor default-on is OUT of scope (owner ruling 2026-11-24)
+**Depends on:** Phase 400
+**Canon parts:** 8 (no new egress; Eureka excerpt stays local), 9 (unratified counts never mixed into ratified lists), 11 (no new surface), 7 (reuse existing data files)
+**Success criteria:**
+
+1. `suggest_next` `goal_job.offers` carry id, label and sentence from data/job-vocabulary.json; the strategy_goal card shows the plain job label.
+2. With a goal job set and no active nest, `suggest_next` returns a ranked primary (nest picked from data/section-job-canon.json) and says so.
+3. With a stored domain and the advisor off, the next move carries a domain note; with the advisor on, alternatives follow the advisor shortlist order.
+4. composeWorkflow resolves "Beautiful Question", "beautiful-question" and plural forms; an unknown name returns `unresolved: true` with a reason.
+5. context_assemble cortex leg is capped by a budget parameter, reports the cap in `_meta.omitted`, and the estimate matches the real reply size within 5%.
+6. Neighbourhood traversal walks edges in both directions; a section focus returns its notes.
+7. whitespace_scan reports `unratified_unsupported` and `isolated_artifacts` separately from the ratified unsupported list.
+8. Eureka graph projection carries a bounded local file excerpt for artifact nodes without text.
+9. Cause-and-effect card options carry one-line descriptions.
+10. A cold-start replay on a copy of a large room passes all of the above.
+11. UserPromptSubmit hooks that open room.db finish inside their budget while room.db is locked for 10 s, with a typed room_db_busy outcome (part A); each of the six scripts exports run(input, opts) with a recorded golden (plan 12, the base for Phase 400.5, which owns the transport change).
+12. The statusline cue, the F.1 card and suggest_next name the same next move for the session's own room and goal job, worded with the move's job phrase (QA-F12).
+
+**Plans:** 13/13 plans complete
+
+Plans:
+
+- [x] 400.4-01 (wave 1; [QA-F5])
+- [x] 400.4-02 (wave 2; [QA-F4])
+- [x] 400.4-03 (wave 2; [QA-F6])
+- [x] 400.4-04 (wave 3; [QA-F7])
+- [x] 400.4-05 (wave 2; [QA-F8])
+- [x] 400.4-06 (wave 2; [QA-F9])
+- [x] 400.4-07 (wave 2; [QA-F10])
+- [x] 400.4-08 (wave 3; [QA-F1])
+- [x] 400.4-09 (wave 4; [QA-F2, QA-F3])
+- [x] 400.4-10 (wave 2; [QA-F11])
+- [x] 400.4-11 (wave 6; [QA-F1, QA-F2, QA-F3, QA-F4, QA-F5, QA-F6, QA-F7, QA-F8, QA-F9, QA-F10, QA-F11])
+- [x] 400.4-12 (wave 3; [QA-F11])
+- [x] 400.4-14 (wave 5; [QA-F12])
+- [-] 400.4-13 moved to Phase 400.5 (superseded)
+
 ### Phase 400.2: Persona, hats and research bundle: persona builds six hat personas from the room, each hat runs its own research through the existing Bono leg and then does its persona work in isolation, with deep and quick modes, one approval card per researching hat, and Larry as the synthesizer (SEED-149, EGM method, part of the next cut) (INSERTED)
 
 **Goal:** /mos:persona works with the six hats and with research: six hat personas built from the room, each hat with its own approved research through the existing Bono leg, each hat's persona work done in isolation, Larry as the synthesizer, deep and quick modes. Owner-signed scope: 400.2-CONTEXT.md (SEED-149). Design work runs with the EGM method. Part of the next cut with 399 and 400.
@@ -4361,9 +4427,20 @@ Plans:
 
 Plans:
 
-- [ ] 400.3-01-PLAN.md - BASE, shared lock backoff, openGraph busyMs and mustExist, artifact_file indexes the filed artifact with honest graph_index and partial (wave 1)
-- [ ] 400.3-02-PLAN.md - node as the only room resolver (.room-root plus existing room.db), index-only for newly recognised rooms, pending record, Windows path forms in post-write (wave 2)
-- [ ] 400.3-02b-PLAN.md - older tests pinned to the new behaviour and the BASE regression after-run; same execute session as 02 (wave 3)
+- [x] 400.3-01-PLAN.md - BASE, shared lock backoff, openGraph busyMs and mustExist, artifact_file indexes the filed artifact with honest graph_index and partial (wave 1)
+- [x] 400.3-02-PLAN.md - node as the only room resolver (.room-root plus existing room.db), index-only for newly recognised rooms, pending record, Windows path forms in post-write (wave 2)
+- [x] 400.3-02b-PLAN.md - older tests pinned to the new behaviour and the BASE regression after-run; same execute session as 02 (wave 3)
+
+### Phase 400.3.1: Red tests on main: four pins moved by later work (INSERTED)
+
+**Goal:** The four test files red on main pass again with every moved pin traced to the commit that moved it, and no product code changes. Test 12 reads a planning file now force-added; X5 census 65 to 67; 353 L2 band re-pinned for the beta.90 and beta.92 ledger rebuilds (MOVING); vi3 byte pins for the 389-09 venture-family rename and I8c for the beta.66 ledger rebuild. SEED-172 carries the release-time gate, the part-6 cap and a ledger seam.
+**Requirements**: none (test-only)
+**Depends on:** none
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 400.3.1-01-PLAN.md - re-pin the four tests with causes cited; EGM goldfish review resolved (400.3.1-CONTEXT.md)
 
 ### Phase 401: Efficiency A: hygiene and cheap context cuts (stale pre-Theo Brain references and mcp-server-brain removal, expired commands, shared includes for repeated blocks, schema and nav-block trims, description cap, size test)
 

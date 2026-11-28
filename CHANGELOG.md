@@ -1,7 +1,34 @@
-## [Unreleased] -- v2.0.0-beta.92 (in progress)
+## [Unreleased] -- v2.0.0-beta.96 (in progress)
 
 ### Added
 - 
+
+## [2.0.0-beta.95] - 2026-11-27
+
+### Added
+- **The room graph writes itself in Claude Code (Phase 367).** At every turn end and every session start, MindrianOS catches the room's local graph up with the room's files: a file written by a shell command or by a subagent now reaches the graph too, with no reminder and no tool call. The catch-up runs in the background, never blocks the turn, and writes a short status the doctor can read. Desktop and Cowork, and answered cards as decisions, follow in a later beta. <!-- 367-01..06 -->
+
+### Fixed
+- **A filed artifact now reaches the room's graph without a manual index (Phase 400.3, plans 01-02b).** Filing through Desktop and Cowork indexes the artifact and says honestly when the index did not land (busy, locked or missing graph). In Claude Code, a write into a room in the default rooms folder is indexed too; before, only rooms whose path held /room/ or /rooms/ were. Measured on Linux; native Windows is not measured yet. <!-- 400.3-01, 400.3-02, 400.3-02b -->
+
+- **Busy or slow room files no longer make MindrianOS report the wrong result (Phase 400.3, wave 2).** A write into an older room (a path with /room/ or /rooms/) now adds an `artifact_id` line to the file, and makes a git commit of that one file only when the room folder has its own git repository; a room inside another repository gets no commit there, and a slow background push no longer holds up the write. When a filing step fails, the note says "partial" and names the step. A room.db file of 0 bytes counts as no database: Theo calls from that room are blocked with a plain reason, and nothing fills the empty file. The Theo privacy check keeps a small cache of the room's names in `<room>/.mindrian` (part8-lexicon-cache.json), so it does not open the room database on every call. The two privacy guards answer with a plain reason before their time limit, instead of being stopped by Claude Code. Session start and memory updates hold the room database for a much shorter time. Measured on Linux; native Windows is not measured yet. <!-- 400.3-03, 03b, 05a, 05b, 06a, 06b, 06c, wave 2 Goldfish fixes -->
+
+- **The first minutes in a new room read plainly and answer honestly (Phase 400.4, fixes from the 2026-11-26 cold-start run).** Jobs show as plain words with a one-line sentence, on the goal card and in every suggestion, and the goal job picks the section to work in. Decision cards explain each option as cause and effect. The status line cue, the next-move block and the suggested next step now say the same thing. The room's neighbourhood view follows links in both directions, the gap scan says what it checked, the context estimate states its real size, and Eureka projections carry a short excerpt of each file. A busy room database no longer stalls a prompt hook: the hook gives up early, says so, and writes nothing. <!-- 400.4-01..12, 400.4-14 -->
+
+### Unchanged
+- **The /m:os face panel stays in the plugin, for the Claude Code terminal.** It sends the framework name, the problem type and an optional short excerpt of your own words to Theo, and `/mos-words` turns the excerpt off. Desktop and Cowork do not draw it in this beta (Phase 380).
+
+## [2.0.0-beta.93] - 2026-11-26
+
+### Added
+- **Six thinking hats that each do their own research (Phase 400.2).** `/mos:persona` has a deep mode. Each of the five reading hats gets a persona built from your room, does its own research and gives its own reading in isolation. Blue then reports what was skipped and what to ask next. You approve every search on a card before it leaves your machine, and you rule on each tension the hats disagree on. A tension you have ruled stays settled in later runs. Quick mode is still available as a fast look in one pass, and it says so. <!-- 400.2 -->
+- **AskNature for the Green hat (Phase 400.2).** Green proposes a short nature-terms phrase of its own, for example "organisms that recover metals", and searches it on asknature.org only. <!-- 400.2 PS-09 -->
+
+### Fixed
+- **An empty room no longer reads as ready for the hats, and accepted personas are no longer lost (Phase 400.2.1).** The room check counted the files MindrianOS writes itself (BRIEF, MINTO and the like) as your work. A new room looked full, and every background refresh of those files marked the personas you had just accepted as out of date. Only your own files count now. <!-- 400.2.1 P0 -->
+
+### Known
+- **Deep mode still has open items (Phase 400.2.1, next cut).** Persona file names use a generic domain, Green can pull off-topic papers, a hat's own web searches are screened only after they are sent, and there is no "Larry decides" ruling yet. <!-- 400.2.1 P1 -->
 
 ## [2.0.0-beta.91] - 2026-11-25
 
