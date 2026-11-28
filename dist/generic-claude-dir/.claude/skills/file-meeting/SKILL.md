@@ -10,6 +10,14 @@ hitl_shape: "F.8"
 hitl_why: "Extracted nuggets are routed as an independent set the navigator files in any order."
 argument-hint: "[--latest|--paste|<file>]"
 serves_jtbd: ["file-meeting"]
+job_when: "a meeting just ended and its transcript sits outside my room"
+job_want: "to capture the transcript and send each insight to the right section"
+job_so: "keep the knowledge from that meeting where I can use it"
+job_sentence_status: "provisional"
+fits_domains: []
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When a meeting just happened, /mos:file-meeting captures the transcript and routes the intelligence into the right room sections. Meetings are where institutional knowledge actually lives."
 # Per docs/reward-before-investment-rule.md line 60-62: surface first-paragraph extraction preview before full transcript ask. Remediation tracked as follow-up phase.
 interactive_first_reward: paragraph_preview
@@ -20,7 +28,7 @@ interactive_first_reward: paragraph_preview
 # in data/subagent-dispatch-grants.json (row: commands/file-meeting.md); ratification
 # to status:"granted" is plan 265-23's job, not this plan's.
 allowed-tools: Read Write Bash Glob AskUserQuestion Task
-# --- Phase 165 connector (close the file-meeting orphan; D-165-07) ---
+# == Phase 165 connector (close the file-meeting orphan; D-165-07) ==
 # The meeting-filing event dispatches the blind-spot trigger sensors. Rides the
 # EXISTING 'contradiction' reach (a filed meeting that contradicts a confident
 # claim = the oracle returning a true label). NO new reach_id (frozen bank = 6).
@@ -130,6 +138,8 @@ Check if Velma is configured:
 > - If no: "No problem. Paste the transcript text instead, or point me to a text file with `--file`."
 
 **If configured:**
+The audio file leaves your machine: scripts/transcribe-audio sends the whole file to Modulate (Velma) for transcription. Pasted text and text files are not sent to Modulate.
+
 Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/transcribe-audio" <path>` and use the output as the transcript. Note the source as `velma` (affects artifact frontmatter).
 
 Also capture the full JSON response (written to temp file via stderr) for emotion data parsing downstream.
@@ -277,7 +287,7 @@ For each identified speaker, check `room/team/` profiles:
 - **Partial match** (similar name in existing profile): Present for confirmation
   - Example: "This sounds like Lawrence -- mentor from team directory. Confirm?"
 - **Unknown** (no match in team directory): Infer role from content
-  - Example: "Speaker 2 discussed financials and seems senior -- could this be your advisor?"
+  - Example: "{speaker} discussed financials and seems senior -- could this be your advisor?"
 
 ### Present Smart Hybrid Table
 
@@ -298,7 +308,7 @@ mentor, researcher, team-member, investor, advisor, customer, founder, partner, 
 
 For each CONFIRMED unknown speaker (user has confirmed their identity and role):
 
-Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/create-speaker-profile" <room_dir> <speaker-slug> <speaker-role> <display-name>`
+Write the speaker's role and display name, each on one line, to files in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/speaker-role.txt` and `<dir>/speaker-name.txt`, each with the Write tool; a role or a name never goes on a command line. Then run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/create-speaker-profile" <room_dir> <speaker-slug> --role-file "<dir>/speaker-role.txt" --name-file "<dir>/speaker-name.txt"`. Then remove that directory, also when the person declines.
 
 Add the speaker to the `new_profiles` list for post-pipeline research.
 
@@ -316,7 +326,7 @@ Do not surface routine or weak emotions. Only notable emotional signals that pro
 ### Transcript size probe
 
 Before Step 3 begins, count words and speaker turns in the transcript. State both numbers to
-the navigator in one line, for example: "3,400 words, 62 turns -- extracting now."
+the navigator in one line, for example: "{words} words, {turns} turns -- extracting now."
 
 **Under 12,000 words:** proceed. Say nothing beyond the one line above.
 
@@ -768,7 +778,7 @@ individually via its own toggle.
 truncates (D-05) -- a 40-nugget meeting therefore walks several pages of the same card, never
 a silently-truncated set. Do not invent a per-command cap and do not raise `MAX_TOGGLE_N`.
 
-**4. Nothing files until the navigator confirms.** Every claim minted by Step 3 Pass 4
+**4. No artifact files until the navigator confirms; the claims are already saved as proposed.** Every claim minted by Step 3 Pass 4
 (`navigation.writeClaimNode`) is born `review_status: 'proposed'` -- rendering this gate as
 F.8 does not and cannot change that; the writer is the sole mint point (Canon Part 9 role 5).
 Promotion runs only through `navigation.confirmNode` with a non-agent `byUser` resolved from
@@ -1157,7 +1167,7 @@ After the within-meeting cross-relationship scan, perform cross-meeting pattern 
 1. Extract key topics from the current meeting's metadata (topics inferred from filed segments)
 2. Grep `topics:` across all `room/meetings/*/metadata.yaml` files
 3. Any topic in 3+ meetings (including this one) = convergence signal
-4. Surface each: "Market validation has been raised in 4 of your last 6 meetings. This is becoming a central theme."
+4. Surface each: "Market validation has been raised in {k} of your last {n} meetings. This is becoming a central theme."
 
 #### Contradiction Detection
 1. Pre-filter prior meetings that share topics/speakers with current meeting (via metadata.yaml grep)
@@ -1185,12 +1195,16 @@ After the entire 6-step pipeline is complete, check if any new speaker profiles 
 For each new speaker profile:
 
 1. Extract venture context from `room/STATE.md` (venture name, domain, stage) or use confirmed meeting context
-2. Run: `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-speaker" <room_dir> <speaker-slug> <display-name> "<project-context>"`
-3. Present the research findings to the user:
+<!-- approval-step-begin -->
+2. Show the exact searches first. Write the speaker's display name and the project context to files in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/speaker-name.txt` and `<dir>/project-context.txt`, each with the Write tool; a name or a context never goes on a command line. Run: `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-speaker" <room_dir> <speaker-slug> --name-file "<dir>/speaker-name.txt" --context-file "<dir>/project-context.txt" --list-queries`. It prints the 3 searches and an approval token, and it sends nothing.
+3. Ask the user: "These 3 searches would go to Google, with {name} and the project words. Run them?" Nothing is sent before the user says yes. If the user declines, stop here and leave the profile with `research_status: pending`.
+4. After yes, run: `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-speaker" <room_dir> <speaker-slug> --name-file "<dir>/speaker-name.txt" --context-file "<dir>/project-context.txt" --approve <token>`. A search that looks like it holds a credential is refused before it is sent, and each search that is sent gets one line in the room's audit record.
+<!-- approval-step-end -->
+5. Present the research findings to the user:
    > "Here's what I found about {name}. Want me to update their profile?"
-4. **User confirms** before any research content is written to PROFILE.md
-5. If confirmed, run: `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-speaker" <room_dir> <speaker-slug> <display-name> "<project-context>" --apply`
-6. If declined: Leave profile with `research_status: pending` -- user can research later
+6. **User confirms** before any research content is written to PROFILE.md
+7. If confirmed, run: `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-speaker" <room_dir> <speaker-slug> --name-file "<dir>/speaker-name.txt" --context-file "<dir>/project-context.txt" --approve <token> --apply` (the same token as step 4). Then remove that directory, also when the person declines.
+8. If declined: Leave profile with `research_status: pending` -- user can research later
 
 **Important:** Research runs AFTER the filing pipeline. Never block filing on external API calls. This follows Pitfall 7 from research: proactive research is valuable but must not interrupt the core workflow.
 

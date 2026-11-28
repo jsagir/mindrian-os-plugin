@@ -13,10 +13,14 @@ hitl_shape: "F.0"
 hitl_why: "It surfaces one vault action for a single approve-or-defer decision."
 body_shape_overview: E (Mini Report)
 serves_jtbd: ["prepare-pitch"]
+job_when: "I need my room for offline reading in a notes app"
+job_want: "to export it as a nested vault with its links intact"
+job_so: "browse the room and its graph view without a connection"
+job_sentence_status: "provisional"
 teaching: "When you want the Data Room available in Obsidian for offline reading, /mos:vault exports it as a nested vault with wikilinks intact. Graph view comes free."
 # Phase 265-21 (docs/reward-before-investment-rule.md, --none scripting override clause):
 # vault is a deliberate lifecycle export/import command the navigator runs on purpose (mirrors
-# commands/rooms.md, commands/mva-option.md, commands/pws-brain.md's own --none declarations),
+# commands/rooms.md and the other lifecycle commands' own --none declarations),
 # not a conversational entry flow with a first-reward moment to sequence.
 interactive_first_reward: --none (scripting only)
 ui_reference: skills/ui-system/SKILL.md
@@ -29,7 +33,7 @@ ui_reference: skills/ui-system/SKILL.md
 # prompt rather than granting a capability the command did not already have. Scoped to the
 # invoking turn; clears on the next message.
 allowed-tools: Read Write Bash Glob AskUserQuestion Task
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. Obsidian vault export / sync operations the navigator runs deliberately; a maintenance / archival surface with no problem-state trigger."
@@ -106,7 +110,7 @@ STOP.
 Invoke the orchestrator via the CLI router:
 
 ```bash
-node bin/mindrian-tools.cjs vault {room-arg} {--path <dir> if provided} {--mode <value> if provided}
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" vault {room-arg} {--path <dir> if provided} {--mode <value> if provided}
 ```
 
 Rules for the room arg:
@@ -135,8 +139,8 @@ After the orchestrator exits successfully, render:
 ```
 
 Larry adds a brief observation about the export. Examples:
-- "The vault has 47 markdown files across 6 sections. Three empty sections will show as gaps in the graph view."
-- "Wikilinks injected across 12 team profiles and 8 meeting summaries. Open the graph view in Obsidian to see the structural shape."
+- "The vault has {files} markdown files across {sections} sections. Any empty sections will show as gaps in the graph view."
+- "Wikilinks injected across {teams} team profiles and {meetings} meeting summaries. Open the graph view in Obsidian to see the structural shape."
 
 ## Subcommand: import (Phase 80 / IMPORT-01)
 
@@ -314,7 +318,7 @@ Before running, present a one-line warning:
 If user confirms, run:
 
 ```bash
-node bin/mindrian-tools.cjs vault --in-place
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" vault --in-place
 ```
 
 On completion, render a Shape E mini report showing which files were touched.

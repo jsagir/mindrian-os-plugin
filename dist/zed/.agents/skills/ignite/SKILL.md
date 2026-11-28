@@ -10,10 +10,18 @@ hitl_shape: "F.1"
 hitl_why: "The front door offers a small set of starting moves for the navigator to pick one."
 argument-hint: "[--express | --from-brief <sha8> | --from-opportunity <ref>]"
 serves_jtbd: ["explore", "build"]
+job_when: "I am starting a new room from nothing"
+job_want: "to choose a starting point, approve a blueprint and win a first result"
+job_so: "begin with a clear job, the right sections and one opportunity worth banking"
+job_sentence_status: "provisional"
+fits_domains: ["disorder"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "Larry walks you through three birth gates (starting point, blueprint approve, first win) so every new room begins with a clear JTBD, the right section set, and one bankable opportunity."
 interactive_first_reward: instant_brief
 allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 155.06 connector frontmatter ---
+# == Phase 155.06 connector frontmatter ==
 # ignite is the canonical front door for new room creation (GAP-6).
 # reach_id 'context_block' is in the frozen 6 (Canon Appendix D entry 15).
 # posture 'push_forward' is in the frozen 3.
@@ -53,7 +61,7 @@ Note: /mos:ignite is the canonical front door for new room creation. /mos:new-pr
 
 ## Reward-before-investment (Decision 8 / constraint 10)
 
-Before any gate fires, check whether this session has already delivered an MVA brief reward. Read the mva_brief_pending flag from resolveOption2(null) in lib/core/mva-option-router.cjs. If brief_reward_pending is true: render the instant brief summary FIRST (from the session context or from the brief side-file) before B1. See docs/reward-before-investment-rule.md.
+Before any gate fires, check whether this session has already delivered an MVA brief reward. Read the mva_brief_pending flag from resolveFromBrief(null) in lib/core/pyramid-seed-record.cjs. If brief_reward_pending is true: render the instant brief summary FIRST (from the session context or from the brief side-file) before B1. See docs/reward-before-investment-rule.md.
 
 ## Gate B0 -- Room Chooser (F.1, pre-birth -- FIRST CONSUMER OF Phase 188)
 
@@ -85,7 +93,7 @@ Three entry doors per BIRTH-FLOW-BRIEF.md Section 2:
 
 **B. Directive** -- three directive paths:
 - `--express`: skips conversation, uses current session context as blueprint input, jumps directly to B2. Reward-before-investment invariant preserved.
-- `--from-brief <sha8>`: reads the Phase 118 brief side-file via resolveOption2(sha8) from lib/core/mva-option-router.cjs. Renders brief reward if brief_reward_pending is true, then proceeds to B2 with brief_content as blueprint input.
+- `--from-brief <sha8>`: reads the Seed record (or an older brief side file) via resolveFromBrief(sha8) from lib/core/pyramid-seed-record.cjs. Renders brief reward if brief_reward_pending is true, then proceeds to B2 with brief_content as blueprint input.
 - Imperative ("make me a room for X"): treat as --express with the stated context as blueprint seed.
 
 **C. Umbilical** -- `/mos:ignite --from-opportunity <ref>` (U0 on-demand path). arrival_asset is 'excavated-opportunity'. B1 is SKIPPED because the opportunity context determines the blueprintFamily. B2 is prefilled from the parent room's opportunity data. Proceed directly to B2.
@@ -150,6 +158,8 @@ When role_blend is empty or the role is unknown, fall back to the generic prompt
 **Truth-claim filing doctrine (Part 9 role 5).** Once captured, file the hypothesis_text as a truth-claim node via writeClaimNode (lib/core/navigation/typed-claim.cjs, re-exported on lib/core/navigation.cjs) with knowledge_type 'assumption' and review_status proposed. The node is NEVER auto-confirmed: per Canon Part 9 role 5 only a human byUser promotes a truth-claim from proposed to confirmed at a Decision Gate. Initial evidence tier is None or Practitioner (Canon Part 5; the hypothesis is an unsupported belief until tested). Part 8: the hypothesis_text is LOCAL only -- it files to room.db via writeClaimNode and rides the Wave-2 scratchpad whitelist for B2 replay; it NEVER egresses to Brain.
 
 **Abstraction-level gate (ALWAYS-FIRE; CONTEXT decision 2).** Immediately AFTER the hypothesis is filed and BEFORE the path-forward, fire the instances-vs-structures abstraction gate for EVERY Door 3 hypothesis -- not conditional, no ambiguity classifier. Call buildAbstractionSelector() (lib/core/abstraction-gate.cjs) and present its 3-option single-select via the SEED-020 selector-dispatcher (Shape F.1, arrow-key, multiSelect:false): "Are you testing specific INSTANCES, the general STRUCTURE, or unsure?". This is a Systems-Thinking iceberg move (events -> patterns -> structure): the lift to STRUCTURE must be DELIBERATELY surfaced because navigators default to instances and are blind to structure, so the gate fires unconditionally; the 3rd option ("unsure") absorbs the genuinely-undecided navigator. Record the pick with persistAbstractionLevel(db, { nodeId, abstraction_level }) -- it writes the chosen abstraction_level (instances|structure|unsure) as an ADDITIVE property on the hypothesis truth-claim node (the same node minted above), minting NO new node type or edge type and leaving review_status untouched. The committed domain-neutral fixture (tests/fixtures/abstraction-gate-neutral.json) is a generic "I believe X drives Y"; any AION/venture-specific content stays user-local and NEVER enters the plugin repo (proven by scripts/check-abstraction-fixture-neutral.cjs, which fails CLOSED on a banned token). Part 8: the abstraction pick is LOCAL only; it never egresses to Brain.
+
+**Scientific Roadmapping offer (Phase 364, after birth).** When the navigator arrived through the Researcher pick (role_blend={researcher:1.0}) or through Door 3 with a hypothesis, offer Scientific Roadmapping once, as a next move at or right after Gate B3, and only after the room is born (after Gate B2); before the room exists there is nothing to roadmap. Door 3 arrivals are offered `/mos:scientific-roadmap --from-hypothesis` (the hypothesis claim filed above stands in for the WHAT, which the command confirms at its own F.1 entry gate); Researcher arrivals are offered `/mos:scientific-roadmap`. One line, never auto-run, and it never replaces the B3 first win. Part 8 holds: nothing from the hypothesis crosses to Brain here, and the command itself sends only the framework name.
 
 **Door 4 -- Free-Text (the AskUserQuestion Other / free-text row).** The open path: the navigator describes their start in their own words. Larry interprets the free text and routes it to one of Doors 1-3, or asks one disambiguating question. This routing is itself a single-pick gate -- it renders as an arrow-key single-select AskUserQuestion card, never an ASCII box only.
 

@@ -8,19 +8,32 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Candidate needs are surfaced as an independent set the navigator triages in any order."
 serves_jtbd: ["find-problem"]
+job_when: "I know my customer segment but not which of its needs matter most"
+job_want: "to score each need by importance and by how well it is met today"
+job_so: "aim at the most unmet needs"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the navigator sees the importance/satisfaction scoring
 # structure form up before investing beyond the customer-segment sentence).
 interactive_first_reward: schema_preview
 teaching: "When you need to know which customer jobs matter most, /mos:analyze-needs scores them by importance versus satisfaction. Best after you have a customer segment defined."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Jobs to Be Done (JTBD)"]
 produces: "room/market-analysis/jtbd-analysis/*"
 inputs: ["a customer segment defined"]
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

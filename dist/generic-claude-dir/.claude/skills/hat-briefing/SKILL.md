@@ -11,15 +11,23 @@ hitl_why: "Hat perspectives are consolidated from an independent set gathered in
 interactive_first_reward: methodology_reframe
 body_shape_detail: 6-panel hat grid + synthesis strip
 serves_jtbd: ["prepare-pitch"]
+job_when: "I have run several thinking perspective sessions and a stakeholder review is coming"
+job_want: "to merge what each perspective found into one briefing"
+job_so: "walk into the review with one clear picture"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you have run several Six Hats sessions and need them consolidated, /mos:hat-briefing pulls the hat memory into one briefing. Best right before a stakeholder review."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Six Thinking Hats"]
 produces: "room/**/hat-briefing/*"
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -32,11 +40,15 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-# --- Phase 130-03 lens-engine client frontmatter (READER, not rotator) ---
+# == Phase 130-03 lens-engine client frontmatter (READER, not rotator) ==
 lens_type: cognitive
 lens_set: six-hats
 rotation_mode: consume
-allowed-tools: Read Glob Bash AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Glob
+  - Bash
+  - AskUserQuestion
 ---
 
 <!-- mos:firing-block v2 -->

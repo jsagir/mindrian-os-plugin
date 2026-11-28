@@ -8,19 +8,32 @@ layer: "loop"
 hitl_shape: "F.3"
 hitl_why: "It pushes one trend toward its extreme and asks how far to go, a depth budget."
 serves_jtbd: ["understand-market", "explore"]
+job_when: "current trends in my field might turn into future problems"
+job_want: "to push those trends to their extremes"
+job_so: "see the second order effects before they arrive"
+job_sentence_status: "provisional"
+fits_domains: ["complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming one trend previews the extrapolation-to-absurd
 # structure before the navigator invests in the full push).
 interactive_first_reward: schema_preview
 teaching: "When today's trends could become tomorrow's problems, /mos:explore-trends pushes them to extremes to surface the second-order effects. The future shows up at the edges first."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["S-Curve Analysis"]
 produces: "room/**/trends/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

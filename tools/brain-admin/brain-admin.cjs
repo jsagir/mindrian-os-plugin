@@ -2,10 +2,10 @@
 'use strict';
 
 /**
- * Brain Admin CLI — API key lifecycle management for MindrianOS Brain.
+ * Brain Admin CLI - API key lifecycle management for MindrianOS Brain.
  *
  * Standalone tool for Jonathan to manage Brain API keys from terminal.
- * Zero npm dependencies — uses Node 20 native fetch + crypto.
+ * Zero npm dependencies - uses Node 20 native fetch + crypto.
  *
  * Commands: create, revoke, extend, list, usage, requests, help
  *
@@ -154,7 +154,7 @@ function formatLastUsed(iso) {
 async function cmdCreate(flags) {
   header('Create Brain API Key');
   console.log(`  ${C.dim}Generates a new UUID API key and stores it in the brain_api_keys table.${C.reset}`);
-  console.log(`  ${C.dim}The key is shown once — save it immediately.${C.reset}\n`);
+  console.log(`  ${C.dim}The key is shown once - save it immediately.${C.reset}\n`);
 
   const email = requireFlag(flags, 'email', 'create --email user@example.com --name "User Name"');
   const name = flags.name || '';
@@ -251,7 +251,7 @@ async function cmdList() {
   header('Brain API Keys');
   console.log(`  ${C.dim}Lists all API keys with status, plan, and usage info.${C.reset}\n`);
 
-  // NOTE (v1.11.1): Read total_requests + last_request_at — the columns auth.cjs actually
+  // NOTE (v1.11.1): Read total_requests + last_request_at - the columns auth.cjs actually
   // writes to. Earlier code read request_count + last_used_at, which were stale/dead columns
   // and silently displayed zero for every key. See docs/autopsies/2026-04-28-install-cache-drift-incident.md.
   const keys = await supa('GET', 'brain_api_keys?select=email,name,plan,is_active,expires_at,last_request_at,total_requests&order=created_at.desc');

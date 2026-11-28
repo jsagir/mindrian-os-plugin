@@ -10,15 +10,28 @@ hitl_why: "The leadership shape is diagnosed to a single next-move read."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 9): first delivery at commands/leadership.md:72, the opening adapts to the team data already filed and hands back a read of the team shape before anything is asked.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["explore"]
+job_when: "my team feels the wrong shape for the stage of the venture"
+job_want: "to diagnose which leadership pattern this stage needs"
+job_so: "change how the team is led before the mismatch slows us"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","disorder"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When the team feels wrong-shaped for the stage, /mos:leadership diagnoses which leadership pattern you actually need. Different stages of a venture need different leadership shapes."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Adaptive Leadership"]
 produces: "room/team-execution/leadership/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

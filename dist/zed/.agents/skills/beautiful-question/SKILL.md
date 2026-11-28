@@ -8,19 +8,32 @@ layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "The Why then What-if then How progression is a fixed-order walk."
 serves_jtbd: ["find-problem", "explore"]
+job_when: "my framing of the challenge feels stuck"
+job_want: "to recast the challenge as why, what if and how questions"
+job_so: "find a question that opens more progress than a better answer would"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: Phase 1 (WHY) reframes the navigator's own sentence as
 # a sharper question before they invest beyond it, same shape as onboard).
 interactive_first_reward: reframe_question
 teaching: "When the framing feels stuck, /mos:beautiful-question reshapes the challenge as Why / What-if / How. The right question unlocks more progress than a better answer."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Beautiful Question Framework"]
 produces: "room/problem-definition/beautiful-question/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

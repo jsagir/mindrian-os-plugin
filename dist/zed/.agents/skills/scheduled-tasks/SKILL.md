@@ -11,11 +11,15 @@ hitl_why: "Scheduled tasks offers one next move to confirm a schedule change."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 15): first delivery inferred from hitl_why plus the Configuration section at commands/scheduled-tasks.md:290, a view-then-confirm shape over the plugin's own scheduler configuration.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["plan-execution"]
+job_when: "some work on my room should repeat on its own"
+job_want: "to define a recurring job that runs on a schedule against the room"
+job_so: "get regular sweeps and digests without having to remember them"
+job_sentence_status: "provisional"
 teaching: "When you want Cowork to run something on a schedule against this room, /mos:scheduled-tasks defines the recurring job. Best for nightly grant sweeps or weekly meeting digests."
 ui_reference: skills/ui-system/SKILL.md
 surface: cowork
-allowed-tools: Read Write Glob Bash WebSearch mcp__tavily__tavily-search mcp__mindrian-brain__brain_query AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+allowed-tools: Read Write Glob Bash WebSearch mcp__tavily__tavily-search AskUserQuestion
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. Manages scheduled / background sweeps; a scheduler-config surface run by the navigator or cron, not a contextual reach."
@@ -102,7 +106,7 @@ const urgent = deadlines.filter(p => p.status === 'URGENT');
 ```
 
 If overdue or urgent predictions exist, surface them via resource notification:
-> "You have N overdue predictions and M predictions due within 3 days."
+> "You have N overdue predictions and M predictions due soon."
 
 ### Output
 

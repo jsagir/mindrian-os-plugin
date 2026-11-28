@@ -11,14 +11,22 @@ hitl_why: "Causes are extracted, traced, then predicted in a fixed order, an ord
 interactive_first_reward: methodology_reframe
 argument-hint: "[extract|trace|predict]"
 serves_jtbd: ["find-problem", "find-bottleneck"]
+job_when: "I suspect the problem I see is downstream of something else"
+job_want: "to trace the cause and effect links behind it"
+job_so: "fix the upstream cause instead of the visible effect"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you suspect the visible problem is downstream of something else, /mos:causal traces causal edges in the room's graph. Surfaces the upstream causes worth fixing."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Root Cause Analysis"]
 produces: "room/**/causal/*"
 inputs: []
 autonomous_safe: true
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -31,7 +39,12 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-allowed-tools: Read Write Bash Glob AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
 ---
 
 <!-- mos:firing-block v2 -->

@@ -10,11 +10,15 @@ layer_why: "Manages the multi-room registry (switch, list, archive); a registry 
 hitl_shape: "F.1"
 hitl_why: "Room switch or archive offers a single next move to pick one room."
 serves_jtbd: ["audit-room"]
+job_when: "I run several ventures, each in its own room"
+job_want: "to list, switch and archive my rooms"
+job_so: "keep each venture apart and move between them cleanly"
+job_sentence_status: "provisional"
 teaching: "When you have multiple venture rooms and need to switch, list, or archive them, /mos:rooms manages the registry. One person, many ventures."
 interactive_first_reward: --none (scripting only)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. Multi-room registry management the navigator drives deliberately; an operator surface with no problem-state trigger."
@@ -232,12 +236,14 @@ Route to /mos:ignite after Step 2 (the adoption check -- Step 1 already captured
 
 ### Step 4: Register Room
 
-Run:
+Write the venture name, on one line, to a file in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/venture-name.txt`, with the Write tool; a name never goes on a command line. Run the command below (the stage is `Pre-Opportunity`, the default of the script). Then remove that directory, also when the person declines.
 ```bash
-bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/room-registry" create <slug> "<slug>" "<venture_name>" "Pre-Opportunity"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/room-registry" create <slug> "<slug>" --name-file "<dir>/venture-name.txt"
 ```
 
 The registry create command automatically sets the new room as active and parks the previous one.
+
+> **If a room create or switch fails (SEED-117).** Give the navigator the plain three-line message the failure carries (what failed, why, one fix), never the raw error or a file path. Put the verbatim failure line (it carries the Python error and the Python version), the plugin version and the machine into the bug seed and the log, and stop. Never hand-build a room: do not write the registry by hand, do not create directories and scaffold files yourself, and do not initialise `room.db` outside the birth chokepoint. A room built around a failed create has skipped the wiring the chokepoint guarantees, and every later write to it is unsafe.
 
 **Update INDEX.md:** After registration, refresh the routing index:
 
@@ -304,6 +310,8 @@ bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not foun
 ```
 
 This parks the previous active room and sets the new one as active.
+
+> **If a room create or switch fails (SEED-117).** Give the navigator the plain three-line message the failure carries (what failed, why, one fix), never the raw error or a file path. Put the verbatim failure line (it carries the Python error and the Python version), the plugin version and the machine into the bug seed and the log, and stop. Never hand-build a room: do not write the registry by hand, do not create directories and scaffold files yourself, and do not initialise `room.db` outside the birth chokepoint. A room built around a failed create has skipped the wiring the chokepoint guarantees, and every later write to it is unsafe.
 
 ### Step 4: Report Success
 

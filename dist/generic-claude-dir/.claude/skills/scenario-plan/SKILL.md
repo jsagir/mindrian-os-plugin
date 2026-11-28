@@ -8,19 +8,32 @@ layer: "loop"
 hitl_shape: "F.5"
 hitl_why: "The 2x2 produces four parallel scenario branches the navigator resolves among."
 serves_jtbd: ["compare-options", "plan-execution"]
+job_when: "the future could go different ways on a pair of key uncertainties"
+job_want: "to build a grid of scenarios and name each one"
+job_so: "plan for the world I do not expect"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the two key uncertainties previews the 2x2
 # scenario matrix structure before the navigator invests in the full narrative).
 interactive_first_reward: schema_preview
 teaching: "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Scenario Planning"]
 produces: "room/**/scenarios/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

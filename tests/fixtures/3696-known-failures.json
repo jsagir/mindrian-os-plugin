@@ -21,14 +21,6 @@
       ],
       "note": "wall-clock leg: red in the first base run, green in the second; a green run counts as PASSED (healed), the same red leg counts as KNOWN"
     },
-    "lib/memory/mcp-server-brain-deps.test.cjs": {
-      "command": "node lib/memory/mcp-server-brain-deps.test.cjs",
-      "exit_code": 1,
-      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
-      "failing_legs": [
-        "FAIL T4 docs/install/BRAIN-SETUP.md contains bundled-server deprecation section"
-      ]
-    },
     "lib/memory/offer-presenter.test.cjs": {
       "command": "node lib/memory/offer-presenter.test.cjs",
       "exit_code": 1,

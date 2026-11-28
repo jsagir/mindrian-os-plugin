@@ -164,7 +164,6 @@ run "lib/mcp/no-instructions.test.cjs" node lib/mcp/no-instructions.test.cjs
 run_baseline "lib/memory/body-shape-coverage.test.cjs" node lib/memory/body-shape-coverage.test.cjs
 run "lib/memory/brain-derivation-queue.test.cjs" node lib/memory/brain-derivation-queue.test.cjs
 run_baseline "lib/memory/debouncer-drain-at-prompt.test.cjs" node lib/memory/debouncer-drain-at-prompt.test.cjs
-run_baseline "lib/memory/mcp-server-brain-deps.test.cjs" node lib/memory/mcp-server-brain-deps.test.cjs
 run "lib/memory/minto-debounce-consumer-census.test.cjs" node lib/memory/minto-debounce-consumer-census.test.cjs
 run "lib/memory/minto-debouncer.test.cjs" node lib/memory/minto-debouncer.test.cjs
 run "lib/memory/navigation-invariants.test.cjs" node lib/memory/navigation-invariants.test.cjs

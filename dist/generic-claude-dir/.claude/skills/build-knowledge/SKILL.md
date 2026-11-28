@@ -11,19 +11,31 @@ hitl_stages:
     mode: "ordered"
 hitl_why: "The DIKW ladder is climbed in a fixed order (F.9) along a dependency path (F.2) where each rung needs the one below."
 serves_jtbd: ["explore"]
+job_when: "my room holds a lot of data but little that I can act on"
+job_want: "to sort it into data, information, knowledge and wisdom"
+job_so: "see what I can decide now and what is still raw"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "slice"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming climbing-up or climbing-down surfaces the DIKW
 # ladder structure before the navigator invests further).
 interactive_first_reward: schema_preview
 teaching: "When you have data but not yet wisdom, /mos:build-knowledge climbs Ackoff's DIKW pyramid across the room. Surfaces what you know, what you can decide, and what is still raw."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Ackoff Pyramid"]
 produces: "room/**/knowledge/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob
-# --- Phase 144.1 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

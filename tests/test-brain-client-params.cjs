@@ -4,8 +4,8 @@
 /**
  * Regression suite for lib/core/brain-client.cjs argument shape
  * against the Brain MCP tool registrations in:
- *   - mcp-server-brain/lib/neo4j-tools.cjs  (brain_schema, brain_query, brain_write)
- *   - mcp-server-brain/lib/pinecone-tools.cjs (brain_search, brain_stats)
+ *   - neo4j-tools.cjs of the retired Brain server  (brain_schema, brain_query, brain_write)
+ *   - pinecone-tools.cjs of the retired Brain server (brain_search, brain_stats)
  *
  * Finding I (v1.10.9, 2026-04-15):
  *   brain.query() used to send { query: cypher }. The Brain MCP brain_query
@@ -42,7 +42,7 @@ const {
 
 /**
  * Expected argument shape per tool, derived from
- * mcp-server-brain/lib/neo4j-tools.cjs and pinecone-tools.cjs registrations.
+ * neo4j-tools.cjs of the retired Brain server and pinecone-tools.cjs registrations.
  * Keys are REQUIRED tool-side; optional keys are listed separately.
  */
 const EXPECTED_SCHEMAS = {
