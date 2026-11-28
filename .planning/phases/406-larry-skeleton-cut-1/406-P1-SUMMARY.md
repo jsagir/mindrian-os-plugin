@@ -15,7 +15,7 @@ PROVEN by the orchestrator on base 4314d335a: test-359-prose-budget: 16 passed, 
 
 PROVEN by the orchestrator with git log, git diff and git show:
 
-- `git log 7eebf9979..HEAD -- agents/larry-extended.md`: 09139519d, 426f473f1, 4b1b9bab1, 2a772e4db. `git diff 7eebf9979 HEAD` on the agent: +1 quick 261108-es3 (SEED-147) line (added by 09139519d as SEED-145, changed to SEED-147 by merge 426f473f1); CIRS comment changes from `# --- Phase 172-06` to `# == Phase 172-06` (2a772e4db); +4 job keys (4b1b9bab1). No other line.
+- `git log 7eebf9979..HEAD -- agents/larry-extended.md`: 09139519d, 426f473f1, 4b1b9bab1, 2a772e4db. `git diff 7eebf9979 HEAD` on the agent: +1 quick 261108-es3 (SEED-147) line (added by 09139519d as SEED-145, changed to SEED-147 by merge 426f473f1); the CIRS comment line changes from the triple-dash form to the double-equals form (2a772e4db); +4 job keys (4b1b9bab1). No other line.
 - `git log a695511d5..HEAD -- skills/larry-personality/SKILL.md`: 0ed2f6d41, 4b1b9bab1, 2a772e4db. `git diff a695511d5 HEAD` on the skill: CIRS comment changes (2a772e4db); +4 job keys (4b1b9bab1); `## Composing a Brain call`, blank, `Sprouts, not bodies: references/brain/sprout-split-route.md`, blank (0ed2f6d41). No other line.
 - The five V7 lines are absent from `tests/fixtures/3696-immutable-sources.json` (grep count 0).
 - A scratch check removing the five lines from live frontmatter equals `frontmatterOf(F1.rewriteText(base).text)` (PROVEN).
