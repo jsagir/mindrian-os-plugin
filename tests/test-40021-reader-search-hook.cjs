@@ -172,6 +172,31 @@ check('H6e. the off switch: disarm-reader-screen --run <id> removes the marker, 
   });
 });
 
+check('H6f. fail closed on a read error: an unreadable review folder blocks with reader_search_screen_unavailable, keeps the marker, and the off switch still works', async () => {
+  if (typeof process.getuid === 'function' && process.getuid() === 0) { console.log('  (H6f skipped: root ignores the folder mode)'); return; }
+  await fx.withEnvAsync(NO_KEYS, async () => {
+    const { ctx } = await armedRun();
+    const home = ctx.env.homeDir;
+    const reviews = path.join(ctx.room, 'personas', 'hat-reviews');
+    const markerFile = path.join(door.readerMarkerDir(home), ctx.res.run_id + '.json');
+    fs.chmodSync(reviews, 0o000);
+    let first; let second; let afterOff;
+    try {
+      first = runHook(home, 'WebSearch', { query: 'harbor light retainer pricing' });
+      second = runHook(home, 'WebSearch', { query: 'battery recycling statistics' });
+      assert.equal(fs.existsSync(markerFile), true, 'the marker stays after a read error');
+      assert.deepEqual(door.cmdDisarmReaderScreen({ runId: ctx.res.run_id }, { homeDir: home }), { ok: true, removed: [ctx.res.run_id] });
+      afterOff = runHook(home, 'WebSearch', { query: 'harbor light retainer pricing' });
+    } finally { fs.chmodSync(reviews, 0o755); }
+    assert.equal(first.code, 2, 'a read error is a block: ' + first.stderr);
+    assert.ok(first.stderr.includes('reason reader_search_screen_unavailable'), first.stderr);
+    assert.ok(first.stderr.includes('disarm-reader-screen --run ' + ctx.res.run_id), 'the same plain line names the off switch');
+    assert.equal(/harbor/i.test(first.stderr), false, 'the message never prints the text');
+    assert.equal(second.code, 2, 'the screen stays on: a general search is also blocked while the folder cannot be read');
+    assert.equal(afterOff.code, 0, 'the off switch removes the marker and the search passes');
+  });
+});
+
 check('H7. hooks.json wires the hook on WebSearch and WebFetch with a 5 s timeout and onFailure block; the credential guard stays', () => {
   const hj = JSON.parse(fs.readFileSync(path.join(fx.ROOT, 'hooks', 'hooks.json'), 'utf8'));
   const groups = hj.hooks.PreToolUse.filter(g => (g.hooks || []).some(h => String(h.command).includes('persona-reader-search-guard-hook.cjs')));

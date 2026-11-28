@@ -145,5 +145,61 @@ check('D11. N1: with no STATE.md the screen still runs on the ROOM.md icm_self.r
 });
 
 for (const r of tmpRoots) { try { fs.rmSync(r, { recursive: true, force: true }); } catch (_) { /* ignore */ } }
+// D12 to D14 (fix after the verification): the skeleton heading that the real room birth leaves on disk.
+const { spawnSync } = require('node:child_process');
+
+check('D12. a room made by the real birthRoom, read before any state recompute, gives its room name (never room-state); "solid state" passes', () => {
+  const t = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-40021-birth-'));
+  tmpRoots.push(t);
+  const slug = 'quokka-born-room';
+  const script = [
+    "const path = require('node:path');",
+    'const ROOT = process.argv[1]; const roomsHome = process.argv[2]; const slug = process.argv[3];',
+    "require('node:fs').mkdirSync(roomsHome, { recursive: true });",
+    "const { birthRoom } = require(path.join(ROOT, 'lib', 'core', 'navigation', 'room-birth.cjs'));",
+    "const ops = require(path.join(ROOT, 'lib', 'core', 'persona-ops.cjs'));",
+    "const door = require(path.join(ROOT, 'scripts', 'persona-hats.cjs'));",
+    'const roomDir = path.join(roomsHome, slug);',
+    "const b = birthRoom({ slug, roomDir, sessionId: 'test-40021-d12', ventureText: 'A scratch room.', jtbd: 'Check one question.', approvedBy: 'test-40021' });",
+    "const st = require('node:fs').readFileSync(path.join(roomDir, 'STATE.md'), 'utf8');",
+    'const screen = door.roomIdentityScreen(roomDir, []);',
+    "process.stdout.write('\\nRESULT:' + JSON.stringify({ ok: b.ok, heading: (st.match(/^#\\s+(.+)/m) || [])[1], name: ops.roomVentureNameOf(roomDir), domain: ops.extractDomainSignals(roomDir).primaryDomain, solid: door.checkHandle('solid state', screen), own: door.checkHandle('quokka born', screen) }));",
+  ].join('\n');
+  const env = Object.assign({}, process.env, { HOME: t, MINDRIAN_HOME: path.join(t, '.mindrian'), MINDRIAN_ROOMS_HOME: path.join(t, 'rooms'), TMPDIR: t, NODE_NO_WARNINGS: '1' });
+  const r = spawnSync(process.execPath, ['-e', script, ROOT, path.join(t, 'rooms'), slug], { env, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  const line = r.stdout.split('\n').filter(l => l.startsWith('RESULT:')).pop();
+  assert.ok(line, 'the child printed a result: ' + r.stdout.slice(0, 200));
+  const got = JSON.parse(line.slice('RESULT:'.length));
+  assert.equal(got.ok, true);
+  assert.equal(got.heading, 'Room State', 'the birth leaves the skeleton heading on disk (the case of this test)');
+  assert.deepEqual(got.name, { name: slug, source: 'room_md' });
+  assert.equal(got.domain, slug);
+  assert.deepEqual(got.solid, { ok: true, handle: 'solid state' });
+  assert.equal(got.own.reason, 'room_identity_word', 'the room name is screened');
+});
+
+check('D13. the vault-import skeleton heading (Project State) is generated too: the ROOM.md room name is used', () => {
+  const room = bornRoom('vault-dir', undefined, 'vault-room-name');
+  put(room, 'STATE.md', '---\ncreated_by: phase-80-vault-import\n---\n\n# Project State\n\nRoom scaffolded by vault-import (Case A: no existing room).\n');
+  assert.deepEqual(ops.roomVentureNameOf(room), { name: 'vault-room-name', source: 'room_md' });
+  assert.equal(ops.extractDomainSignals(room).primaryDomain, 'vault-room-name');
+});
+
+check('D14. each generated heading matches its generator exactly: the birth template first heading, the computed heading, the vault-import heading', () => {
+  const screenMod = require(path.join(ROOT, 'lib', 'core', 'persona-reader-screen.cjs'));
+  const tmpl = fs.readFileSync(path.join(ROOT, 'templates', 'room-skeleton', 'STATE.md.tmpl'), 'utf8');
+  const tmplHeading = (tmpl.match(/^#\s+(.+)$/m) || [])[1].trim();
+  const set = screenMod.generatedStateHeadings();
+  assert.ok(set.includes(tmplHeading), 'the birth template heading is in the set: ' + tmplHeading);
+  assert.ok(fs.readFileSync(path.join(ROOT, 'lib', 'core', 'room-render-state.cjs'), 'utf8').includes("out.push('# Data Room State')"));
+  assert.ok(set.includes('Data Room State'));
+  assert.ok(fs.readFileSync(path.join(ROOT, 'scripts', 'vault-import.cjs'), 'utf8').includes("'# Project State',"));
+  assert.ok(set.includes('Project State'));
+  assert.equal(set.length, 3, 'exactly the three generated headings, no word list');
+  assert.equal(screenMod.isGeneratedStateHeading('Room State of Harbor'), false, 'an exact match only');
+  assert.equal(screenMod.isGeneratedStateHeading('room state'), true, 'case does not matter');
+});
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed === 0 ? 0 : 1);
