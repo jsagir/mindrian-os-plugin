@@ -82,7 +82,7 @@ check('L2 unlisted agents do not hold the key', () => {
 });
 check('L3 position mutations are detected', () => {
   const base = readAgent(OMIT_CLAUDE_MD[0]);
-  const inserted = insertKey(base);
+  const inserted = base.split('\n').some((line) => line.replace(/\r$/, '') === 'omitClaudeMd: true') ? base : insertKey(base);
   assert.deepEqual(checkOmit(inserted, true), []);
   const lines = inserted.split('\n');
   const at = lines.findIndex((line) => line === 'omitClaudeMd: true');
