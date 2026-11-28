@@ -33,9 +33,14 @@ const OA = contract.owner_answers || {};
 // phase 400 (plan 400-02) adds the job sentence keys on their own lines; plan 400-06 adds the Cynefin label keys.
 const LATER_PHASE_KEYS = ['job_when', 'job_want', 'job_so', 'job_sentence_status', 'fits_domains', 'move_type', 'move_type_weak', 'cynefin_label_status'];
 const LATER_PHASE_RE = new RegExp('^(' + LATER_PHASE_KEYS.join('|') + '):');
+// Phase 401 plan F1 (quick 261127-f1a), cause (b): the plan rewrote the triple-dash comment lines inside
+// frontmatter (the host ends frontmatter at the first triple dash) and renamed the dead key allowed-tools to
+// pending_tool_grants in both files. The pins below are the digests after those 2 transforms; each live file
+// equals the 2 transforms applied to its base blob, byte for byte. Old pins: grade 8253efce8f7c...,
+// deep-grade 17e942f12d5f....
 const FM_PIN = {
-  'commands/grade.md': '8253efce8f7ccc99bb6caf7bb26454d07f220c50f9f3767841a3bd844d8dddb4',
-  'commands/deep-grade.md': '17e942f12d5fddbe28c1c2012406f108d6fb6d86740d5e26e27e1ba99f5d9dfa',
+  'commands/grade.md': '9d4187b988ef6384428ebf0d800bc03d42a117122436c0449dfc43a4326fe618',
+  'commands/deep-grade.md': '7566eb034de00708cb3fa1d7b9ae58f5d813063e2a5426c9bcc93e424212349f',
 };
 
 function frontmatter(text) {

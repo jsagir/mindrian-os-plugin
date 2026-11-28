@@ -109,7 +109,11 @@ leg('S2', 'loose machinery share at most ' + MACHINERY_MAX + ' percent', loose.s
 // Phase 400 (plan 400-03, O-11) adds the 4 job sentence keys as own frontmatter lines; S3 drops them before the compare.
 const JOB_KEY_RE = /^(job_when|job_want|job_so|job_sentence_status):/;
 const liveFmNoJob = frontmatterOf(live).split('\n').filter(function (l) { return !JOB_KEY_RE.test(l); }).join('\n');
-check('S3 the frontmatter is byte-identical to the base frontmatter', frontmatterOf(live) !== '' && liveFmNoJob === frontmatterOf(base));
+// Phase 401 plan F1 (quick 261127-f1a) rewrote the triple-dash comment lines inside frontmatter, because the
+// host ends frontmatter at the first triple dash. The base fixture is immutable, so the same rewrite is applied
+// to the base before the compare. No key changed.
+const F1 = require(path.join(ROOT, 'scripts', 'check-frontmatter-split.cjs'));
+check('S3 the frontmatter is byte-identical to the base frontmatter', frontmatterOf(live) !== '' && liveFmNoJob === frontmatterOf(F1.rewriteText(base).text));
 check('S4 the heading "## The Three Directions of Elevation (Part 12)" is present', live.split('\n').indexOf('## The Three Directions of Elevation (Part 12)') !== -1);
 {
   const refSec = section(live, 'References');

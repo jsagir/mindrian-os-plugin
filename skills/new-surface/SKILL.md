@@ -18,7 +18,7 @@ job_so: "ship a surface that is wired from birth"
 job_sentence_status: "provisional"
 teaching: "When you are adding a new command, agent, or skill to the harness, /mos:new-surface emits the surface .md with the correct 11-key connector frontmatter so its wiring is declared, never hand-written, then regenerates the connector-registry (its real home) and the harness-manifest wiring digest. Harness-as-code for surfaces."
 allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 # new-surface declares no frameworks: block; the connector carries framework: null
 # and filing: none with NO decision surface that fires a command, so the WFL-01
 # firesCommand gate does not fire (mirrors commands/new-project.md). surface: F.1

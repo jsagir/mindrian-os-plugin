@@ -25,7 +25,7 @@ deprecated_removal: "v2.0.0-beta.86"
 teaching: "Deprecated alias. Use /mos:session-report to get a clean structured report of the conversation you just had. Scheduled removal: v2.0.0-beta.86."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash, AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Deprecated soft alias that forwards to /mos:session-report; it holds no reach of its own, so the replacement carries the connector row."

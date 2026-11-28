@@ -28,7 +28,7 @@ persona_variants:
   student: "Understanding gap detected: one concept is lagging."
   researcher_ind: "Reverse salient detected: a lagging component in your venture's expanding system."
   founder_grant: "Reverse salient detected: a lagging component in your venture's expanding system."
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-02]

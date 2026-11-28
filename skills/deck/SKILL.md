@@ -16,14 +16,19 @@ job_want: "to pick the deck shape that fits and fill it from my room"
 job_so: "present a clear story that lands with the audience"
 job_sentence_status: "provisional"
 teaching: "When your room is full but the story is not yet a deck, /mos:deck asks ONE thing -- which shape fits, Feynman to make it clear, HEART to make it land, or mesh to do both -- then walks the structure section by section, filling each from your own room and binding the MindrianOS look by default. The 6-stage Feynman engine and the design system already exist; the command reaches for them, it never rebuilds them."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: mechanical
 frameworks: []
 produces: ""
 inputs: []
 autonomous_safe: false
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter (born WIRED, CIRS R1/R2) ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter (born WIRED, CIRS R1/R2) ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
@@ -36,7 +41,7 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-# --- Phase 175 CIRS R12 self-declaration ---
+# == Phase 175 CIRS R12 self-declaration ==
 cirs_relationship:
   surfaces_added: ["/mos:deck"]
   surfaces_modified: []

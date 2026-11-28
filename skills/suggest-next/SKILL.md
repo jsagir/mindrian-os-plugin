@@ -19,14 +19,16 @@ move_type: "analyze"
 move_type_weak: true
 cynefin_label_status: "provisional"
 teaching: "When you finish a step and want Larry to recommend the next move, /mos:suggest-next reads the room graph and proposes 3-5 options with reasons. The Navigation Engine made visible."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: meta
 frameworks: []
 produces: null
 inputs: []
 autonomous_safe: false
-allowed-tools: Read mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher mcp__mindrian-brain__brain_search AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

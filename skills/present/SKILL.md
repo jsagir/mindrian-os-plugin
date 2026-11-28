@@ -19,7 +19,7 @@ job_sentence_status: "provisional"
 teaching: "When you need to walk someone through the room visually, /mos:present generates the 6-view presentation and opens it. Dashboard, Wiki, Deck, Insights, Diagrams, Graph in one artifact."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
+# == Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

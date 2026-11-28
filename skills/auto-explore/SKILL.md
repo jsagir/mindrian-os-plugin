@@ -22,7 +22,7 @@ move_type_weak: true
 cynefin_label_status: "provisional"
 teaching: "The room normally starts this domain decomposition on its own the moment a new artifact lands. /mos:auto-explore is the fallback: use it by hand only when the ambient run could not start on this surface."
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

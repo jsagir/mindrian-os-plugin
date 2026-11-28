@@ -20,19 +20,19 @@ cynefin_label_status: "provisional"
 # scenario matrix structure before the navigator invests in the full narrative).
 interactive_first_reward: schema_preview
 teaching: "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Scenario Planning"]
 produces: "room/**/scenarios/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-06]

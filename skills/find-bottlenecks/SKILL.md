@@ -21,14 +21,19 @@ cynefin_label_status: "provisional"
 # Salient structure before the navigator invests in the full bottleneck hunt).
 interactive_first_reward: schema_preview
 teaching: "When progress feels stuck and you cannot say where, /mos:find-bottlenecks runs Reverse Salient analysis to name the lagging component. Hughes 1983, but for your venture."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Reverse Salient Analysis"]
 produces: "room/**/reverse-salients/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

@@ -18,7 +18,7 @@ cynefin_label_status: "provisional"
 teaching: "When you want a fast read on problem-discovery quality, /mos:grade scores the room on six components in under a minute. The lightweight cousin of /mos:deep-grade."
 # Per docs/reward-before-investment-rule.md line 64-66: show anonymized calibration distribution before requiring content. Remediation tracked as follow-up phase.
 interactive_first_reward: calibration_distribution_preview
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["PWS Triple Validation Compass"]
 produces: "room/**/grades/*"
@@ -30,14 +30,14 @@ autonomous_safe: true
 # restriction list (frontmatter contract), so this removes the per-spawn
 # permission prompt rather than granting a capability the command did not
 # already have. Scoped to the invoking turn; clears on the next message.
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash
   - Glob
   - AskUserQuestion
   - Task
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-06, SENS-07]

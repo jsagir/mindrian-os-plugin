@@ -19,14 +19,19 @@ move_type: "probe"
 move_type_weak: true
 cynefin_label_status: "provisional"
 teaching: "When you need to find where leverage lives in a complex system, /mos:analyze-systems decomposes it into layers and surfaces the leverage points. Best when symptoms keep recurring."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Systems Thinking"]
 produces: "room/**/systems/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

@@ -125,6 +125,7 @@ check('S4 no two run-step sentences are identical; organize, mva-brief and mva-r
 // slots, sentence style (at most 40 words, no product name, command name, digit or quote).
 const { execFileSync } = require('node:child_process');
 const BASE = 'c1e496ae8';
+const F1 = require(path.join(ROOT, 'scripts', 'check-frontmatter-split.cjs'));
 const allSentences = new Map();
 function labelErrors(label, fm) {
   const slots = js.slotsFromFrontmatter(fm);
@@ -183,7 +184,10 @@ check('S7 the 17 agents have the 4 job keys; each differs from base ' + BASE + '
     const lines = text.split('\n');
     const kept = lines.filter((l) => !re.test(l.replace(/\r$/, '')));
     if (lines.length - kept.length !== 4) miss.push('agent ' + f + ' (' + (lines.length - kept.length) + ' job lines)');
-    const base = execFileSync('git', ['show', BASE + ':' + rel], { cwd: ROOT, encoding: 'utf8' });
+    // Phase 401 plan F1 (quick 261127-f1a), cause (c): the plan rewrote the triple-dash comment lines inside
+    // frontmatter, because the host ends frontmatter at the first triple dash. The same rewrite is applied to
+    // the base side before the compare. No key changed.
+    const base = F1.rewriteText(execFileSync('git', ['show', BASE + ':' + rel], { cwd: ROOT, encoding: 'utf8' })).text;
     if (kept.join('\n') !== base) miss.push('agent ' + f + ' (changed beyond the 4 job lines)');
   }
   assert.deepEqual(miss, [], miss.length + ' agents fail: ' + miss.slice(0, 8).join(', '));

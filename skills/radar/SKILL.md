@@ -20,7 +20,7 @@ cynefin_label_status: "provisional"
 teaching: "When new Claude capabilities ship that might change what MindrianOS can do, /mos:radar tracks them so you do not have to. Capability awareness as a habit, not a one-time scan."
 interactive_first_reward: "--none (scripting only)"
 allowed-tools: Read, Write, WebFetch, Glob, AskUserQuestion, Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/radar-changelog-slice.cjs" *)
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. Surfaces a capability / signal radar view on explicit navigator request; a render / inspection surface today. INV-06 promotion candidate (a future ambient signal-scan trigger is plausible), excluded for now."

@@ -21,7 +21,7 @@ cynefin_label_status: "provisional"
 teaching: "Larry walks you through three birth gates (starting point, blueprint approve, first win) so every new room begins with a clear JTBD, the right section set, and one bankable opportunity."
 interactive_first_reward: instant_brief
 allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 155.06 connector frontmatter ---
+# == Phase 155.06 connector frontmatter ==
 # ignite is the canonical front door for new room creation (GAP-6).
 # reach_id 'context_block' is in the frozen 6 (Canon Appendix D entry 15).
 # posture 'push_forward' is in the frozen 3.

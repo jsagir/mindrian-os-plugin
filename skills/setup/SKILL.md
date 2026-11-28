@@ -17,7 +17,7 @@ job_so: "let the room pull in more of my work"
 job_sentence_status: "provisional"
 teaching: "When you want to wire optional integrations like Velma or a meeting source, /mos:setup walks you through configuration. MindrianOS works without them; they make it work harder. Theo, the teaching graph, is part of MindrianOS and needs no setup."
 allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. One-time configuration surface (graph / integrations) the navigator runs deliberately; setup is an operator action, not a contextual reach."

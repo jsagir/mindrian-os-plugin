@@ -21,7 +21,7 @@ cynefin_label_status: "provisional"
 teaching: "When Larry made a recommendation and you want to know why, /mos:explain-decision shows the Navigation Engine trace for the last turn. Every recommendation has a graph path behind it."
 disable-model-invocation: true
 allowed-tools: Bash(node *), AskUserQuestion
-# --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
+# == Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

@@ -23,7 +23,7 @@ allowed-tools:
   - Bash
   - Read
   - AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. The /mos namespace entry / index surface; a meta dispatcher the navigator invokes directly, carrying no problem-state trigger of its own."

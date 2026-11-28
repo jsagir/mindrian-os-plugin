@@ -22,24 +22,24 @@ move_type: "probe"
 move_type_weak: true
 cynefin_label_status: "provisional"
 teaching: "When the team keeps wearing the same hat and missing perspectives, /mos:think-hats rotates them through de Bono's six. The discomfort is the point; that is where the new thought lives. Each hat can become a research lane: black for counterevidence, yellow for prior successes, white for missing facts."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Six Thinking Hats"]
 produces: "room/**/six-hats/*"
 inputs: []
 autonomous_safe: true
-# --- Phase 130-03 lens-engine client frontmatter ---
+# == Phase 130-03 lens-engine client frontmatter ==
 lens_type: cognitive
 lens_set: six-hats
 rotation_mode: serial
 synthesizer: tension-map
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-17]

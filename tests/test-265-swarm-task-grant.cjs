@@ -65,7 +65,8 @@ function allowedToolsList(fmText) {
   for (const rawLine of lines) {
     const line = rawLine.replace(/\s+$/, '');
     if (/^\s*#/.test(line)) continue; // comment line, anywhere
-    if (/^allowed-tools:\s*$/.test(line)) {
+    // Phase 401 plan F1 (quick 261127-f1a), cause (d): the dead tool lists of 55 commands and 54 mirrors moved to the key pending_tool_grants, which the host does not read. Read both keys; the assertions are unchanged and apply to the union.
+    if (/^(?:allowed-tools|pending_tool_grants):\s*$/.test(line)) {
       inBlock = true;
       continue;
     }

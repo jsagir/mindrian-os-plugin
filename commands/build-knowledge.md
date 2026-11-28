@@ -23,18 +23,18 @@ cynefin_label_status: "provisional"
 # ladder structure before the navigator invests further).
 interactive_first_reward: schema_preview
 teaching: "When you have data but not yet wisdom, /mos:build-knowledge climbs Ackoff's DIKW pyramid across the room. Surfaces what you know, what you can decide, and what is still raw."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Ackoff Pyramid"]
 produces: "room/**/knowledge/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash
   - Glob
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-06]

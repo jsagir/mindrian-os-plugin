@@ -49,7 +49,9 @@ const EXPECTED_FRONTMATTER = [
   '  and framework delivery patterns.',
   'license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).',
   'canon_parts: [Part 2, Part 3, Part 8, Part 9]',
-  '# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---',
+  // Phase 401 plan F1 (quick 261127-f1a) rewrote this comment line because the host ends
+  // frontmatter at the first triple dash; no key changed.
+  '# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==',
   'connector:',
   '  excluded: true',
   '  reason: "Ambient always-on infra. The Ask-Tell dial / teaching personality runs on every conversational turn; it is the substrate the reaches render through, not a problem-state-triggered reach itself."',

@@ -33,7 +33,7 @@ ui_reference: skills/ui-system/SKILL.md
 # prompt rather than granting a capability the command did not already have. Scoped to the
 # invoking turn; clears on the next message.
 allowed-tools: Read Write Bash Glob AskUserQuestion Task
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. Obsidian vault export / sync operations the navigator runs deliberately; a maintenance / archival surface with no problem-state trigger."

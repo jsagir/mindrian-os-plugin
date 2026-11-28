@@ -23,7 +23,7 @@ allowed-tools:
   - Read
   - Write
   - AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Render command. Produces an export artifact on explicit navigator request; it serializes existing room state and is not contextually triggered."

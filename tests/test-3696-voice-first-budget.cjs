@@ -146,7 +146,11 @@ leg('V3', 'body at most ' + BODY_MAX + ' B (65 percent of ' + BASE_BODY + ' B)',
 leg('V4', 'strict core share at least ' + STRICT_MIN + ' percent', strict.share >= STRICT_MIN, 'share ' + strict.share);
 leg('V5', 'loose machinery share at most ' + MACHINERY_MAX + ' percent, operation apart', loose.share.machinery <= MACHINERY_MAX, 'share ' + loose.share.machinery);
 leg('V6', 'the body names ' + OPS_REF + ' and the file exists', live.indexOf(OPS_REF) !== -1 && fs.existsSync(path.join(ROOT, OPS_REF)));
-check('V7 the frontmatter is byte-identical to the base frontmatter', frontmatterOf(live) !== '' && frontmatterOf(live) === frontmatterOf(base));
+// Phase 401 plan F1 (quick 261127-f1a) rewrote the triple-dash comment lines inside frontmatter, because the
+// host ends frontmatter at the first triple dash. The base fixture is immutable, so the same rewrite is applied
+// to the base before the compare. No key changed.
+const F1 = require(path.join(ROOT, 'scripts', 'check-frontmatter-split.cjs'));
+check('V7 the frontmatter is byte-identical to the base frontmatter', frontmatterOf(live) !== '' && frontmatterOf(live) === frontmatterOf(F1.rewriteText(base).text));
 {
   const present = level2(live).concat(bodyLinesOf(live).map(function (ln) { return /^###+ (.*)$/.exec(ln); }).filter(Boolean).map(function (m) { return norm(m[1]); }))
     .filter(function (h) { return MOVED_HEADINGS.some(function (n) { return h.indexOf(n) === 0; }); });
