@@ -89,7 +89,7 @@ const DESIGN_DEFAULTS = [
   ['dist-rebuild-release-train', '400.2-DESIGN.md', 'DEFAULT CHOSEN: leave the dist rebuild to the release train'],
 ];
 const REPORTED_PART8_COMMENTS = [
-  'agents/persona-analyst.md:58',
+  'agents/persona-analyst.md:59',
   'lib/core/bono/cell-fanout.cjs:20-21,116-118,129-130',
   'lib/core/bono/persona-research.cjs:15-16',
   'commands/bono.md:103',
