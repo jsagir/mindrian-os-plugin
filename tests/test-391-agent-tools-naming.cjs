@@ -260,7 +260,8 @@ for (const s of surfaces) {
   }
 }
 console.log('       mcp__ tokens read from tools and allowed-tools lines: ' + tokenCount);
-if (tokenCount < 40) fail('A1 the scan read a plausible number of mcp__ tokens', 'only ' + tokenCount);
+// The floor was 40 at the base (74 tokens); rule A1 of quick 261127-f1a deleted 44 entries (22 in the 10 commands, 22 in the 10 mirrors), leaving 30; the floor stays above half of the present count so an empty scan still fails.
+if (tokenCount < 20) fail('A1 the scan read a plausible number of mcp__ tokens', 'only ' + tokenCount);
 else ok('A1 the scan read a plausible number of mcp__ tokens');
 
 // A2/A3/A4 + A5
