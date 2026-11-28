@@ -121,7 +121,7 @@ function firstDashHit(text) {
 // nothing; appends zero, one, or two rows via appendRow(row). Never throws
 // (each rule is independently wrapped so one rule's fault cannot suppress
 // the other rule's finding).
-function scanTurn(text, sessionId, appendRow, userText) {
+function scanTurn(text, sessionId, appendRow, userText, gateFields) {
   const userTextSafe = typeof userText === 'string' ? userText : '';
 
   // Rule 0 (369.6-06): the denominator row. One per evaluated turn; counts only.
@@ -138,6 +138,7 @@ function scanTurn(text, sessionId, appendRow, userText) {
       result: 'evaluated',
       detail: 'isNativeHost=' + isNative,
       session_id: sessionId,
+      ...(gateFields || {}),
     });
   } catch (_e0) {
     /* a scanner fault must never block the hook */
@@ -235,6 +236,24 @@ function scanTurn(text, sessionId, appendRow, userText) {
   }
 }
 
+function voiceMarkVerdict(source, mark, post) {
+  function color(verdict) {
+    if (verdict && verdict.valid && verdict.hasMark) return verdict.color;
+    return verdict && verdict.valid ? 'none' : 'invalid';
+  }
+  const markColor = color(mark);
+  const postColor = post ? color(post) : null;
+  if (source === 'ask_user_question' || source === 'gate_render') {
+    const postText = (post && post.text) || '';
+    return markColor === 'black' && (postColor === null || /Your call:/i.test(postText) ||
+      (postColor !== 'black' && postColor !== 'none' && postColor !== 'invalid'));
+  }
+  if (source === 'your_call') return markColor === 'black';
+  if (markColor === 'black') return false;
+  if (markColor === 'none' || markColor === 'invalid') return null;
+  return true;
+}
+
 // main() -- the Stop-hook entry point. Only real work: resolve the turn
 // text, run the two rules, append findings, always end at silentSuccess().
 function main() {
@@ -249,6 +268,37 @@ function main() {
 
   let text = '';
   let userText = '';
+  let gateFields = {};
+  let gateTurn = null;
+  if (transcriptPath) {
+    try {
+      const { readGateTurn } = require('../lib/hmi/turn-text.cjs');
+      gateTurn = readGateTurn(transcriptPath, sessionId);
+      const { detectVoiceMark } = require('../lib/hmi/voice-color-mark.cjs');
+      const src = gateTurn.gate_source;
+      const markText = src === 'ask_user_question' || src === 'gate_render'
+        ? gateTurn.opener_text
+        : gateTurn.final_text;
+      const mark = detectVoiceMark(markText);
+      const postMark = gateTurn.post_text ? detectVoiceMark(gateTurn.post_text) : null;
+      const postForRule = postMark ? Object.assign({}, postMark, { text: gateTurn.post_text }) : null;
+      function color(verdict) {
+        if (verdict && verdict.valid && verdict.hasMark) return verdict.color;
+        return verdict && verdict.valid ? 'none' : 'invalid';
+      }
+      gateFields = {
+        turn_id: gateTurn.turn_id,
+        glyph_color: color(mark),
+        post_glyph_color: postMark ? color(postMark) : null,
+        gate_turn: gateTurn.gate_turn,
+        gate_source: src,
+        glyph_correct: voiceMarkVerdict(src, mark, postForRule),
+      };
+    } catch (_eGate) {
+      gateFields = {};
+    }
+  }
+
   if (transcriptPath) {
     try {
       const { readTurnText } = require('../lib/hmi/turn-text.cjs');
@@ -263,7 +313,7 @@ function main() {
   if (text) {
     try {
       const { appendVoiceStyleRow } = require('../lib/hmi/voice-style-log.cjs');
-      scanTurn(text, sessionId, appendVoiceStyleRow, userText);
+      scanTurn(text, sessionId, appendVoiceStyleRow, userText, gateFields);
     } catch (_eScan) {
       /* a logging fault must never block the hook */
     }
@@ -272,7 +322,7 @@ function main() {
   return silentSuccess();
 }
 
-module.exports = { main, scanTurn, firstDashHit, DASH_RE };
+module.exports = { main, scanTurn, firstDashHit, DASH_RE, voiceMarkVerdict };
 
 if (require.main === module) {
   try {

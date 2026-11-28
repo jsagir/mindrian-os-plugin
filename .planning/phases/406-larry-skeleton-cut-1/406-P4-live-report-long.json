@@ -1,0 +1,654 @@
+{
+  "started": "2026-11-28T04:08:49.578Z",
+  "worktree_head": "e6976cb3579db7f0d321210f36ab9cfd4296eb2a",
+  "sessions": [
+    {
+      "name": "long1",
+      "session_id": "6142b8f1-2af7-46cf-9d7c-659c5f46f8b1",
+      "plugins": [
+        "mos",
+        "cc-plugin-agents-md",
+        "cc-plugin-telemetry",
+        "cc-plugin-privacy",
+        "cc-plugin-plugin-authoring"
+      ],
+      "output_style": "default",
+      "turns_sent": 20,
+      "exit": 0,
+      "timeout": false,
+      "cost_usd": 0.48166600000000004,
+      "cards_allowed": 4,
+      "tools_denied": {},
+      "results": [
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 2
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 2
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 2
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 2
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        }
+      ],
+      "cwd_left": [],
+      "rows": [
+        {
+          "turn_id": "6fb0d7ac-6894-4f0e-8f53-58665709889d",
+          "glyph_color": "red",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "ef156b3c-d2a8-4832-96a1-a5cabfbb7c83",
+          "glyph_color": "blue",
+          "post_glyph_color": "blue",
+          "gate_turn": true,
+          "gate_source": "ask_user_question",
+          "glyph_correct": false
+        },
+        {
+          "turn_id": "84813ee4-6cd3-4d0b-897e-d4b68175875a",
+          "glyph_color": "red",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "b0be173e-61c6-4425-819c-6a4933ee8e2d",
+          "glyph_color": "yellow",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "7bb805e6-2986-4dfb-b2c2-cb9c630238c2",
+          "glyph_color": "black",
+          "post_glyph_color": null,
+          "gate_turn": true,
+          "gate_source": "your_call",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "23944412-7a42-4a09-805d-e01397114f15",
+          "glyph_color": "blue",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "22cc1058-6f1e-43c9-a5ca-8175152f9788",
+          "glyph_color": "blue",
+          "post_glyph_color": "blue",
+          "gate_turn": true,
+          "gate_source": "ask_user_question",
+          "glyph_correct": false
+        },
+        {
+          "turn_id": "9def7da3-7bc8-48f9-8a40-4632015b708e",
+          "glyph_color": "red",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "cbf7fc8c-c84a-45b8-bea3-92ec37fcae27",
+          "glyph_color": "black",
+          "post_glyph_color": null,
+          "gate_turn": true,
+          "gate_source": "your_call",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "67daa0df-c374-4dfe-8874-18f1e2e021ff",
+          "glyph_color": "white",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "6a2d6a81-2a34-46a3-854c-8839299c3bea",
+          "glyph_color": "red",
+          "post_glyph_color": "red",
+          "gate_turn": true,
+          "gate_source": "ask_user_question",
+          "glyph_correct": false
+        },
+        {
+          "turn_id": "df65ea06-9570-4056-8dd3-f2468bcac830",
+          "glyph_color": "blue",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "7a20c64f-e1c4-4cf3-b754-74e61071a676",
+          "glyph_color": "blue",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "87a91dd1-bd45-4433-aba8-d146b3c81f13",
+          "glyph_color": "black",
+          "post_glyph_color": null,
+          "gate_turn": true,
+          "gate_source": "your_call",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "dd591366-98f0-49f3-acfe-3d23fb646ce8",
+          "glyph_color": "red",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "2a686b5d-1971-47a2-99f0-b6161fb64e27",
+          "glyph_color": "red",
+          "post_glyph_color": "red",
+          "gate_turn": true,
+          "gate_source": "ask_user_question",
+          "glyph_correct": false
+        },
+        {
+          "turn_id": "a087ac65-d935-48cc-988c-6b94be54e8dc",
+          "glyph_color": "red",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "e2ad03b7-825f-4929-ab71-65b71d3c6dab",
+          "glyph_color": "black",
+          "post_glyph_color": null,
+          "gate_turn": true,
+          "gate_source": "your_call",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "d8661071-3630-41eb-bb35-fbf18d08b5e8",
+          "glyph_color": "white",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "9c11fabc-2b21-45e6-9418-3b8a34aba3cf",
+          "glyph_color": "white",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        }
+      ],
+      "counts": {
+        "rows": 20,
+        "gate": 8,
+        "gate_black": 4,
+        "gate_correct": 4,
+        "gate_by_source": {
+          "ask_user_question": 4,
+          "your_call": 4
+        },
+        "nongate": 12,
+        "nongate_black": 0,
+        "nongate_correct": 12,
+        "missing_glyph": 0,
+        "invalid_glyph": 0,
+        "post_answer": 4,
+        "post_answer_black": 0,
+        "colors": {
+          "red": 7,
+          "blue": 5,
+          "yellow": 1,
+          "black": 4,
+          "white": 3
+        }
+      },
+      "removed_from_real_home": [
+        "~/.mindrian/next-move/6142b8f1-2af7-46cf-9d7c-659c5f46f8b1.json",
+        "~/.claude/session-env/6142b8f1-2af7-46cf-9d7c-659c5f46f8b1"
+      ]
+    },
+    {
+      "name": "long2",
+      "session_id": "037c97e2-d0fb-49ca-8a0b-6d96d085503b",
+      "plugins": [
+        "mos",
+        "cc-plugin-agents-md",
+        "cc-plugin-telemetry",
+        "cc-plugin-privacy",
+        "cc-plugin-plugin-authoring"
+      ],
+      "output_style": "default",
+      "turns_sent": 20,
+      "exit": 0,
+      "timeout": false,
+      "cost_usd": 0.4821316,
+      "cards_allowed": 4,
+      "tools_denied": {},
+      "results": [
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 2
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 2
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 2
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 2
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        },
+        {
+          "subtype": "success",
+          "is_error": false,
+          "num_turns": 1
+        }
+      ],
+      "cwd_left": [],
+      "rows": [
+        {
+          "turn_id": "e3c9d621-7bb8-40bb-83c9-f88fd6942104",
+          "glyph_color": "red",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "964dca76-e539-4490-85ce-c4b13af8df94",
+          "glyph_color": "black",
+          "post_glyph_color": "red",
+          "gate_turn": true,
+          "gate_source": "ask_user_question",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "c97fabd3-aaac-4de6-89d0-7267c65e4473",
+          "glyph_color": "red",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "bc924c93-cdf7-4f0e-8964-a53bba1c1c8d",
+          "glyph_color": "red",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "63f3b3f9-8bbb-4992-888f-57b34279ab09",
+          "glyph_color": "black",
+          "post_glyph_color": null,
+          "gate_turn": true,
+          "gate_source": "your_call",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "2d5bb501-0287-463c-b921-2183e56c47a6",
+          "glyph_color": "blue",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "bcdc6784-7e73-48da-a74a-85d390b7aef2",
+          "glyph_color": "black",
+          "post_glyph_color": "blue",
+          "gate_turn": true,
+          "gate_source": "ask_user_question",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "50eaf06f-6614-4a21-b858-17489269d83e",
+          "glyph_color": "yellow",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "a3bccd0d-b18d-4709-938c-c82fbb4240aa",
+          "glyph_color": "black",
+          "post_glyph_color": null,
+          "gate_turn": true,
+          "gate_source": "your_call",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "8f1c97f2-d749-4833-bbe8-7348b824b66f",
+          "glyph_color": "white",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "a0fe18e9-85d6-46a8-8113-20282278f4d3",
+          "glyph_color": "red",
+          "post_glyph_color": "red",
+          "gate_turn": true,
+          "gate_source": "ask_user_question",
+          "glyph_correct": false
+        },
+        {
+          "turn_id": "39a9fd7b-165c-4315-9b8a-902219979dca",
+          "glyph_color": "blue",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "bb0f0121-e631-484d-be31-649a6ebec180",
+          "glyph_color": "blue",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "769d5e19-4179-44c3-8eeb-7210fe01a5a2",
+          "glyph_color": "black",
+          "post_glyph_color": null,
+          "gate_turn": true,
+          "gate_source": "your_call",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "111a4403-072d-4121-874b-88f24c37defb",
+          "glyph_color": "blue",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "9931dff0-3d43-48c2-b1ae-0f2aa91ce59f",
+          "glyph_color": "black",
+          "post_glyph_color": "blue",
+          "gate_turn": true,
+          "gate_source": "ask_user_question",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "bfe8b5f2-01b2-49f6-98de-d05e122020db",
+          "glyph_color": "red",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "30b2d89d-5dc6-471b-adeb-48490099a11d",
+          "glyph_color": "black",
+          "post_glyph_color": null,
+          "gate_turn": true,
+          "gate_source": "your_call",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "3ed77c35-5896-4942-ae30-2828041156bc",
+          "glyph_color": "white",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        },
+        {
+          "turn_id": "918d1258-d0f5-401b-946b-fb966835341e",
+          "glyph_color": "white",
+          "post_glyph_color": null,
+          "gate_turn": false,
+          "gate_source": "none",
+          "glyph_correct": true
+        }
+      ],
+      "counts": {
+        "rows": 20,
+        "gate": 8,
+        "gate_black": 7,
+        "gate_correct": 7,
+        "gate_by_source": {
+          "ask_user_question": 4,
+          "your_call": 4
+        },
+        "nongate": 12,
+        "nongate_black": 0,
+        "nongate_correct": 12,
+        "missing_glyph": 0,
+        "invalid_glyph": 0,
+        "post_answer": 4,
+        "post_answer_black": 0,
+        "colors": {
+          "red": 5,
+          "black": 7,
+          "blue": 4,
+          "yellow": 1,
+          "white": 3
+        }
+      },
+      "removed_from_real_home": [
+        "~/.mindrian/next-move/037c97e2-d0fb-49ca-8a0b-6d96d085503b.json",
+        "~/.claude/session-env/037c97e2-d0fb-49ca-8a0b-6d96d085503b"
+      ]
+    }
+  ],
+  "total_cost_usd": 0.9637976,
+  "totals": {
+    "rows": 40,
+    "gate": 16,
+    "gate_black": 11,
+    "gate_correct": 11,
+    "gate_by_source": {
+      "ask_user_question": 8,
+      "your_call": 8
+    },
+    "nongate": 24,
+    "nongate_black": 0,
+    "nongate_correct": 24,
+    "missing_glyph": 0,
+    "invalid_glyph": 0,
+    "post_answer": 8,
+    "post_answer_black": 0,
+    "colors": {
+      "red": 12,
+      "blue": 9,
+      "yellow": 2,
+      "black": 11,
+      "white": 6
+    }
+  },
+  "finished": "2026-11-28T04:14:12.226Z"
+}

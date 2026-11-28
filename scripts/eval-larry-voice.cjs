@@ -598,6 +598,7 @@ function buildJudgeArgs(spec) {
   if (model && /fable/i.test(String(model))) throw fail('model_refused', 'a model id containing fable is refused');
   const args = ['--print', '--output-format', 'json', '--tools', '', '--no-session-persistence', '--strict-mcp-config', '--disable-slash-commands',
     '--append-system-prompt', String(spec.systemText)];
+  if (spec && spec.hostLogin) args.push('--setting-sources', 'project');
   if (model) args.push('--model', String(model));
   return args;
 }
@@ -694,10 +695,11 @@ function scoreReply(reply, probe, rubric, opts) {
 // ---------------------------------------------------------------------------------------------
 // composition proof and pre-egress provenance (Codex C3, rounds 2 and 3)
 // ---------------------------------------------------------------------------------------------
-function compositionProven(init) {
+function compositionProven(init, hostLogin) {
   if (!init || typeof init !== 'object') return false;
   const empty = function (a) { return Array.isArray(a) && a.length === 0; };
-  return empty(init.plugins) && empty(init.mcp_servers) && empty(init.tools) && (!init.output_style || init.output_style === 'default');
+  const pluginsOk = hostLogin ? Array.isArray(init.plugins) && init.plugins.every(function (p) { return p && p.path === 'builtin'; }) : empty(init.plugins);
+  return pluginsOk && empty(init.mcp_servers) && empty(init.tools) && (!init.output_style || init.output_style === 'default');
 }
 
 function refusal(reason, detail) { return { ok: false, reason: reason, detail: detail || null, entries: [], refusals: [] }; }
@@ -744,7 +746,8 @@ function verifyGenerationProvenance(run, ctx) {
     return refusal(statusList.indexOf('composition_unproven') !== -1 ? 'composition_unproven' : 'cell_not_eligible', 'a probe or cell is not complete');
   }
   const replies = run.replies.replies || [];
-  if (replies.some(function (r) { return !r.composition || r.composition.proven !== true || !compositionProven(r.composition.init_event); })) return refusal('composition_unproven', 'a reply has no proven composition');
+  const hostLogin = m.credential_route === 'host_login';
+  if (replies.some(function (r) { return !r.composition || r.composition.proven !== true || !compositionProven(r.composition.init_event, hostLogin); })) return refusal('composition_unproven', 'a reply has no proven composition');
   if (m.inputs_clean !== true) return refusal('hash_mismatch_at_commit', 'probes.json, rubric.json or the agent file had an uncommitted change at generation');
   const commit = m.commit;
   if (!/^[0-9a-f]{40}$/.test(String(commit)) || !isAncestor(commit, { cwd: repoRoot })) return refusal('hash_mismatch_at_commit', 'the pinned commit is not an ancestor of HEAD');
@@ -814,28 +817,30 @@ function credentialPresent(env) {
   return ['CLAUDE_CODE_OAUTH_TOKEN', 'ANTHROPIC_API_KEY'].some(function (n) { return !!e[n]; });
 }
 
-function liveGate(env) {
+function liveGate(env, opts) {
   const e = env || process.env;
   if (e.MINDRIAN_SKIP_LIVE_CLAUDE === '1') return { ok: false, reason: 'skip_live_claude' };
+  if (opts && opts.hostLogin) return { ok: true, route: 'host_login' };
   if (!credentialPresent(e)) return { ok: false, reason: 'no_isolated_credential' };
   return { ok: true };
 }
 
 async function defaultClaudeJudge(entry, ids, ctx) {
   const iso = require('./isolate-larry-voice.cjs');
-  const gate = liveGate(ctx.env);
+  const hostLogin = !!ctx.hostLogin;
+  const gate = liveGate(ctx.env, { hostLogin: hostLogin });
   if (!gate.ok) return { refused: gate.reason };
   const items = entry.items.filter(function (it) { return ids.indexOf(it.id) !== -1; });
   const scratch = ctx.scratch || iso.makeScratch(SEAL_SCRATCH_PREFIX, { claudeCli: ctx.claudeCli });
   if (!scratch.claude) return { refused: 'claude_cli_missing' };
-  const args = buildJudgeArgs({ model: ctx.model, systemText: judgeSystemText(items) });
+  const args = buildJudgeArgs({ model: ctx.model, systemText: judgeSystemText(items), hostLogin: hostLogin });
   // the judge sees the same supplied context and turn index as the Jev payload carries
   const userMsg = 'Turn index: ' + entry.turn_index + '\n' +
     (entry.context ? 'Conversation so far:\n' + entry.context + '\n\n' : '') +
     'Navigator message:\n' + entry.prompt + '\n\nLarry reply:\n' + entry.reply +
     (entry.evidence ? '\n\nEvidence for the operation items (from the recorded tool log):\n' + entry.evidence : '');
-  const spawn = ctx.spawn || iso.spawnIsolated;
-  const r = spawn(scratch, path.join(scratch.bin, 'claude'), args.concat([userMsg]), { envOpts: { withCredential: true, parentEnv: ctx.env }, timeout: 180000 });
+  const spawn = ctx.spawn || (hostLogin ? iso.spawnHostLogin : iso.spawnIsolated);
+  const r = spawn(scratch, path.join(scratch.bin, 'claude'), args.concat([userMsg]), { envOpts: { withCredential: !hostLogin, parentEnv: ctx.env }, timeout: 180000 });
   if (r.status !== 0) return { refused: 'claude_exit_' + r.status };
   let text = String(r.stdout || '');
   try { const j = JSON.parse(text); if (typeof j.result === 'string') text = j.result; } catch (_e) { /* raw text */ }
@@ -899,6 +904,7 @@ async function scoreRun(run, opts) {
   const rubric = o.rubric || loadRubric(o.repoRoot);
   const probes = o.probes || loadProbes(o.repoRoot);
   const mode = o.judge || 'none';
+  const hostLogin = !!(o.hostLogin || (o.env || process.env).LARRY_VOICE_HOST_LOGIN === '1');
   if (['jev', 'claude', 'none', 'auto'].indexOf(mode) === -1) throw fail('judge_unknown', mode);
   const jevWanted = mode === 'jev' || mode === 'auto';
   const claudeWanted = mode === 'claude' || mode === 'auto';
@@ -950,7 +956,7 @@ async function scoreRun(run, opts) {
           probe_id: reply.probe, turn_index: probe.turn_index, prompt: probe.prompt, context: probe.context, reply: reply.text, items: judgeItems(rubric, hasLog),
           evidence: hasLog ? operationEvidenceText(reply, o.repoRoot) : '',
         };
-        const res = await claudeJudge(forJudge, ids, { env: o.env, model: o.model, scratch: o.scratch, spawn: o.spawn, claudeCli: o.claudeCli });
+        const res = await claudeJudge(forJudge, ids, { env: o.env, model: o.model, scratch: o.scratch, spawn: o.spawn, claudeCli: o.claudeCli, hostLogin: hostLogin });
         if (res && res.results) judge = { name: 'claude', results: res.results };
         else reasons.push('claude: ' + String((res && res.refused) || 'no result'));
       }
@@ -964,6 +970,7 @@ async function scoreRun(run, opts) {
     label: run.label,
     replies_sha256: run.manifest.replies_sha256,
     judge_requested: mode,
+    credential_route: hostLogin ? 'host_login' : 'isolated_credential',
     scored_at: new Date().toISOString(),
     judge_per_item: judgeSummary(entries),
     jev_refusals: jevRefusals,
@@ -1304,6 +1311,7 @@ function buildGenerateArgs(spec) {
   // no plugin directory, no tools, no saved session, no MCP servers, no slash commands
   const args = ['--print', '--output-format', 'stream-json', '--verbose', '--tools', '', '--no-session-persistence',
     '--strict-mcp-config', '--disable-slash-commands', '--system-prompt-file', String(spec.systemPromptFile)];
+  if (spec && spec.hostLogin) args.splice(args.indexOf('--system-prompt-file'), 0, '--setting-sources', 'project');
   if (model) args.push('--model', String(model));
   args.push(spec.prompt);
   return args;
@@ -1336,7 +1344,7 @@ const PROMPT_HEAD = 'Per-turn hook context for this message:\n';
  */
 function buildCellPrompt(cell, parts) {
   const c = String(cell);
-  if (['1', '2', '3', '2s', '3s'].indexOf(c) === -1) throw fail('cell_unknown', c);
+  if (['1', '2', '3', '2s', '3s', '2t'].indexOf(c) === -1) throw fail('cell_unknown', c);
   const body = String(parts.agentBody);
   const manifest = { cell: c, agent_body_sha256: sha256(Buffer.from(body)), parts: ['agent_body'] };
   let system = body;
@@ -1345,9 +1353,9 @@ function buildCellPrompt(cell, parts) {
     manifest.session_start_capture_sha256 = sha256(Buffer.from(String(parts.sessionCapture || '')));
     manifest.parts.push('session_start_capture');
   }
-  if (c === '2s' || c === '3s') {
+  if (c === '2t' || c === '2s' || c === '3s') {
     manifest.skills = [];
-    (parts.skills || []).forEach(function (s) {
+    (c === '2t' ? [] : (parts.skills || [])).forEach(function (s) {
       system += '\n\n' + SKILL_HEAD + s.path + '\n' + s.text;
       manifest.skills.push({ path: s.path, sha256: sha256(Buffer.from(String(s.text))) });
     });
@@ -1355,7 +1363,8 @@ function buildCellPrompt(cell, parts) {
     manifest.output_style_sha256 = sha256(Buffer.from(String(parts.outputStyleBody || '')));
     system += '\n\n' + PROMPT_HEAD + String(parts.userPromptCapture || '');
     manifest.user_prompt_capture_sha256 = sha256(Buffer.from(String(parts.userPromptCapture || '')));
-    manifest.parts.push('skills', 'output_style', 'user_prompt_capture');
+    if (c !== '2t') manifest.parts.push('skills');
+    manifest.parts.push('output_style', 'user_prompt_capture');
   }
   let transcriptPrefix = '';
   if (c === '3' || c === '3s') {
@@ -1392,7 +1401,8 @@ function initSummary(init) {
   if (!init) return null;
   // A missing or malformed list stays null: it is evidence that is absent, never an empty list (Codex round 4, P1).
   const names = function (a) { return Array.isArray(a) ? a.map(function (x) { return typeof x === 'string' ? x : (x && x.name) || String(x); }) : null; };
-  return { agent: init.agent || null, plugins: names(init.plugins), mcp_servers: names(init.mcp_servers), tools: names(init.tools), output_style: init.output_style || null };
+  const plugins = Array.isArray(init.plugins) ? init.plugins.map(function (x) { return x && typeof x === 'object' ? { name: x.name || null, path: x.path || null } : x; }) : null;
+  return { agent: init.agent || null, plugins: plugins, mcp_servers: names(init.mcp_servers), tools: names(init.tools), output_style: init.output_style || null };
 }
 
 function frontmatterSkills(agentText, repoRoot) {
@@ -1416,7 +1426,7 @@ async function generateRun(o) {
   const dir = resolveLabelDir(o.label, o.runsDir);
   if (fs.existsSync(path.join(dir, 'replies.json'))) throw fail('label_exists', o.label);
   const cells = (o.cells && o.cells.length ? o.cells : ['1', '2', '3', '2s', '3s']).map(String);
-  cells.forEach(function (c) { if (['1', '2', '3', '2s', '3s'].indexOf(c) === -1) throw fail('cell_unknown', c); });
+  cells.forEach(function (c) { if (['1', '2', '3', '2s', '3s', '2t'].indexOf(c) === -1) throw fail('cell_unknown', c); });
   const wanted = o.probes && o.probes.length ? o.probes : probes.probes.map(function (p) { return p.id; });
   const probeList = wanted.map(function (id) {
     const p = (probes.probes || []).filter(function (x) { return x.id === id; })[0];
@@ -1424,11 +1434,12 @@ async function generateRun(o) {
     return normalizeProbe(p);
   });
   const samples = Math.max(1, Math.min(3, Number(o.samples) || 1));
-  const gate = liveGate(env);
+  const hostLogin = !!(o.hostLogin || env.LARRY_VOICE_HOST_LOGIN === '1');
+  const gate = liveGate(env, { hostLogin: hostLogin });
   if (!gate.ok) return { exit: liveExit(77), reason: gate.reason, label: o.label };
   const scratch = iso.makeScratch(SEAL_SCRATCH_PREFIX, { claudeCli: o.claudeCli });
   if (!scratch.claude) return { exit: liveExit(77), reason: 'claude_cli_missing', label: o.label };
-  const spawn = o.spawn || iso.spawnIsolated;
+  const spawn = o.spawn || (hostLogin ? iso.spawnHostLogin : iso.spawnIsolated);
   const startClean = inputsClean(repoRoot);
   const probesBytesUsed = fs.readFileSync(path.join(repoRoot, PROBES_REL));
   const rubricBytesUsed = fs.readFileSync(path.join(repoRoot, RUBRIC_REL));
@@ -1462,19 +1473,19 @@ async function generateRun(o) {
       let statusForCell = 'complete';
       for (let s = 1; s <= samples; s += 1) {
         let userCapture = '';
-        if (cell === '2s' || cell === '3s') {
+        if (cell === '2s' || cell === '3s' || cell === '2t') {
           try { userCapture = iso.captureHookContext(scratch, { roomDir: roomDir, hook: 'user-prompt', prompt: p.prompt }).text; } catch (e) { userCapture = ''; statusForCell = 'error'; }
         }
         const built = buildCellPrompt(cell, { agentBody: agentBody, sessionCapture: sessionCapture, skills: skills, outputStyleBody: styleBody, userPromptCapture: userCapture, transcriptText: transcriptText });
         const promptFile = path.join(scratch.tmp, 'system-' + p.id + '-' + cell + '-' + s + '.txt');
         fs.writeFileSync(promptFile, built.system);
         const userPrompt = buildUserPrompt(p, built);
-        const args = buildGenerateArgs({ systemPromptFile: promptFile, prompt: userPrompt, model: o.model });
-        const r = spawn(scratch, claudeBin, args, { cwd: scratch.root, input: '', envOpts: { withCredential: true, parentEnv: env }, timeout: o.timeoutMs || 240000 });
+        const args = buildGenerateArgs({ systemPromptFile: promptFile, prompt: userPrompt, model: o.model, hostLogin: hostLogin });
+        const r = spawn(scratch, claudeBin, args, { cwd: scratch.root, input: '', envOpts: { withCredential: !hostLogin, parentEnv: env }, timeout: o.timeoutMs || 240000 });
         const parsed = r && r.status === 0 ? parseStreamJson(r.stdout) : { init: null, text: null };
         if (!parsed.text) { statusForCell = 'error'; continue; }
         const init = initSummary(parsed.init);
-        const proven = compositionProven(init);
+        const proven = compositionProven(init, hostLogin);
         if (!proven && statusForCell === 'complete') statusForCell = 'composition_unproven';
         replies.push({
           probe: p.id, cell: cell, sample: s, text: parsed.text, prompt: p.prompt, context: p.context, turn_index: p.turn_index,
@@ -1494,7 +1505,7 @@ async function generateRun(o) {
     claudeVersion: ver.status === 0 ? String(ver.stdout).trim().slice(0, 60) : null,
     executables: { node: scratch.node, claude: scratch.claude },
     used: { probes_sha256: sha256(probesBytesUsed), rubric_sha256: sha256(rubricBytesUsed), agent_body_sha256: sha256(Buffer.from(agentBody)), inputs_clean: startClean },
-    extra: { samples: samples, model: o.model || null, skipped: skipped },
+    extra: { samples: samples, model: o.model || null, skipped: skipped, credential_route: hostLogin ? 'host_login' : 'isolated_credential' },
   });
   const sealed = sealRun(repliesBytes, base, { home: o.home, create: true });
   writeRunFiles(dir, repliesBytes, sealed);
@@ -1884,6 +1895,7 @@ function parseArgs(argv) {
     if (a.indexOf('--') === 0) {
       const k = a.slice(2);
       if (k === 'json') out.json = true;
+      else if (k === 'host-login') out[k] = true;
       else { out[k] = argv[i + 1]; i += 1; }
     } else out._.push(a);
   }
@@ -1902,9 +1914,9 @@ async function cli(argv) {
       process.stdout.write('imported ' + r.replies + ' replies into ' + path.relative(REPO_ROOT, r.dir) + '\n');
       return 0;
     }
-    if (cmd === 'generate') {
+  if (cmd === 'generate') {
       if (!a.label) throw fail('usage', 'generate --label <l> [--probes ids] [--cells list] [--samples n] [--model m]');
-      const r = await generateRun({ label: a.label, probes: listArg(a.probes), cells: listArg(a.cells), samples: a.samples, model: a.model });
+      const r = await generateRun({ label: a.label, probes: listArg(a.probes), cells: listArg(a.cells), samples: a.samples, model: a.model, hostLogin: !!a['host-login'] });
       if (r.exit === 77 || (r.exit === 1 && r.reason)) { process.stdout.write('NOT RUN: ' + r.reason + '\n'); return r.exit; }
       process.stdout.write('generate ' + r.label + ': ' + (r.exit === 0 ? 'complete' : 'PARTIAL') + ', ' + r.replies + ' replies' + (Object.keys(r.skipped).length ? ', skipped ' + JSON.stringify(r.skipped) : '') + '\n');
       return r.exit;
@@ -1923,7 +1935,7 @@ async function cli(argv) {
     if (cmd === 'score') {
       if (!a.label) throw fail('usage', 'score --label <l> --judge jev|claude|none|auto');
       const run = loadRun(a.label);
-      const scores = await scoreRun(run, { judge: a.judge || 'none', model: a.model });
+      const scores = await scoreRun(run, { judge: a.judge || 'none', model: a.model, hostLogin: !!a['host-login'] });
       fs.writeFileSync(path.join(run.dir, 'scores.json'), JSON.stringify(scores, null, 2) + '\n');
       process.stdout.write('scored ' + scores.entries.length + ' replies for ' + a.label + '; judge requested ' + scores.judge_requested + '; judge per item ' + JSON.stringify(scores.judge_per_item) + '\n');
       if (scores.jev_refusals.length) process.stdout.write('jev refusals: ' + JSON.stringify(scores.jev_refusals.map(function (r) { return r.reason + (r.probe && r.probe !== '*' ? ' ' + r.probe + '/' + r.cell : ''); })) + '\n');
@@ -1966,6 +1978,8 @@ module.exports = {
   buildUserPrompt,
   buildGenerateArgs,
   buildJudgeArgs,
+  liveGate,
+  compositionProven,
   buildJudgePayload,
   verifyJudgeProvenance,
   writeRunManifest,

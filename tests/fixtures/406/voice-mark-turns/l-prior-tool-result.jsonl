@@ -1,0 +1,6 @@
+{"type":"user","message":{"role":"user","content":"typed prompt"},"uuid":"l-u1"}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"⬛ opener before another tool"},{"type":"tool_use","name":"mcp__plugin_mos_mindrian-os__context_assemble","id":"l-context","input":{}}]},"uuid":"l-a1"}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"l-context","content":"context result"}]},"uuid":"l-u2","toolUseResult":{}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"⬛ text before question card"},{"type":"tool_use","name":"AskUserQuestion","id":"l-question","input":{}}]},"uuid":"l-a2"}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"l-question","content":"answer"}]},"uuid":"l-u3","toolUseResult":{}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"🟦 text after card answer"}]},"uuid":"l-a3"}

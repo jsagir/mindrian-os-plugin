@@ -8,10 +8,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
 const style = fs.readFileSync(path.join(ROOT, 'output-styles', 'destijl.md'), 'utf8');
+const STYLE_BASE_BYTES = 8119; // stage tip 09beedc24; shared cap of 406-P3 and 406-P4
 const agent = fs.readFileSync(path.join(ROOT, 'agents', 'larry-extended.md'), 'utf8');
 let passed = 0;
 function check(name, fn) { fn(); passed += 1; console.log('PASS: ' + name); }
 const m = style.match(/^---\n([\s\S]*?)\n---\n/);
+check('style stays within the shared addition cap', () => {
+  assert.ok(Buffer.byteLength(style) - STYLE_BASE_BYTES <= 600);
+});
 check('the style is forced for the plugin', () => {
   assert.ok(m, 'no frontmatter');
   assert.ok(/^force-for-plugin:\s*true\s*$/m.test(m[1]), 'force-for-plugin: true is missing');

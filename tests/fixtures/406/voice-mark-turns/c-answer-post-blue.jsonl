@@ -1,0 +1,6 @@
+{"type": "user", "message": {"role": "user", "content": "neutral prompt"}, "uuid": "u1"}
+{"type": "assistant", "message": {"role": "assistant", "content": [{"type": "text", "text": "⬛ neutral opener"}, {"type": "tool_use", "name": "AskUserQuestion", "id": "t1", "input": {}}]}, "uuid": "a1"}
+{"type": "user", "message": {"role": "user", "content": "neutral meta"}, "uuid": "m1", "isMeta": true}
+{"type": "user", "message": {"role": "user", "content": "neutral notice"}, "uuid": "n1", "origin": {"kind": "task-notification"}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "t1", "content": "neutral answer"}]}, "uuid": "u2", "sourceToolAssistantUUID": "a1", "toolUseResult": {}}
+{"type": "assistant", "message": {"role": "assistant", "content": [{"type": "text", "text": "🟦 neutral continuation"}]}, "uuid": "a2"}

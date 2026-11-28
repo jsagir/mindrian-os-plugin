@@ -24,6 +24,7 @@ Every child process the eval starts (the room birth, the hook captures, `claude 
 | 1 | Agent body only (the P method). No skills, hooks, output style or tools. The reference cell. |
 | 2 | Cell 1 plus the captured SessionStart context of the scratch room. |
 | 3 | Cell 2 plus the rendered tool-noise transcript (`fixtures/rung3-tool-noise.jsonl`). |
+| 2t | Terminal truth cell: 2s with no skill (map N1). |
 | 2s | Shipped twin of cell 2: adds the frontmatter skills, the output style and the per-turn classifier output. |
 | 3s | Shipped twin of cell 3. |
 | 2s-live, 3s-live | Operation cells: a live session in the scratch room with the dev plugin loaded and tools on. |
@@ -50,6 +51,8 @@ Jev gets a payload only when the judge step re-derives the run's provenance firs
 When a judge-scored acceptance item drops on a probe and cell, the after side generates two more samples of that probe and cell, all three are scored by the same judge, and the median of three is compared with the before value. One retry per probe and cell per plan. Code-scored items are deterministic and never retried. Every sample stays recorded.
 
 ## The live leg rule
+
+`--host-login` is opt-in for `generate` and `score`. It uses the logged-in host with the real HOME and `--setting-sources project`; the init event may list only builtin plugins. This route is never the default. Set `LARRY_VOICE_HOST_LOGIN=1` to select it by environment.
 
 A live leg never passes silently. It exits 77 with a printed reason (NOT RUN), or exits 1 when `LARRY_VOICE_REQUIRE_LIVE=1`. A run where some cells completed and others did not exits 3. The runner refuses any model id that contains `fable`. The credential reaches a child by variable name only (`CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY`); with none set the leg records `no_isolated_credential`.
 
