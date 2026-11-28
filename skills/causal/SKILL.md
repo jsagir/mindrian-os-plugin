@@ -39,7 +39,12 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-allowed-tools: Read Write Bash Glob AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
 ---
 
 <!-- mos:firing-block v2 -->

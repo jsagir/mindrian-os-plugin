@@ -31,7 +31,13 @@ autonomous_safe: true
 # restriction list (frontmatter contract), so this removes the per-spawn
 # permission prompt rather than granting a capability the command did not
 # already have. Scoped to the invoking turn; clears on the next message.
-allowed-tools: Read Write Bash Glob AskUserQuestion Task
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+  - Task
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

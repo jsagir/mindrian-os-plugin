@@ -34,7 +34,12 @@ lens_type: cognitive
 lens_set: six-hats
 rotation_mode: serial
 synthesizer: tension-map
-allowed-tools: Read Write Bash Glob AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

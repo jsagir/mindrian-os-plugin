@@ -23,7 +23,13 @@ ui_reference: skills/ui-system/SKILL.md
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Jobs to Be Done (JTBD)"]
-allowed-tools: Read Write Bash Glob WebFetch AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - WebFetch
+  - AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

@@ -28,7 +28,12 @@ produces: "room/opportunity-bank/futures-*/**"
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools: Read Write Bash Glob AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

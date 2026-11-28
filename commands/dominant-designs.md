@@ -34,7 +34,7 @@ autonomous_safe: true
 # after the query gate card; allowed-tools is a pre-approval list, not a
 # restriction list, so this removes the per-spawn permission prompt rather
 # than granting a capability the command lacked.
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

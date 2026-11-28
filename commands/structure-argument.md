@@ -39,7 +39,7 @@ frameworks: ["The Pyramid Principle", "MECE (Mutually Exclusive, Collectively Ex
 produces: "room/**/argument/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

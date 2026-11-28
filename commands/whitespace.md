@@ -26,7 +26,7 @@ inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
 # Phase 363-19: Write is a pre-approval for the research subcommand only; it writes the question-set JSON to a scratch dir outside the room.
-allowed-tools:
+pending_tool_grants:
   - Bash
   - Read
   - Write

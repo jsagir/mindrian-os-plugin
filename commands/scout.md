@@ -34,8 +34,6 @@ allowed-tools:
   - Bash
   - WebSearch
   - mcp__tavily__tavily-search
-  - mcp__mindrian-brain__brain_query
-  - mcp__mindrian-brain__read_neo4j_cypher
   - AskUserQuestion
   - Task
 # --- Phase 143.3 connector frontmatter ---

@@ -32,7 +32,7 @@ frameworks: ["Scenario Planning"]
 produces: "room/**/futures/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

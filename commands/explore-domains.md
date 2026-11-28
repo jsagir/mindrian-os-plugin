@@ -26,7 +26,7 @@ frameworks: ["Domain Selection"]
 produces: "room/problem-definition/domain-decomposition/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

@@ -25,7 +25,10 @@ frameworks: ["Usher's Model of Cumulative Synthesis", "Extensive Searching"]
 produces: "room/**/analogies/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Bash mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Bash
+  - AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

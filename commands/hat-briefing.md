@@ -43,7 +43,7 @@ connector:
 lens_type: cognitive
 lens_set: six-hats
 rotation_mode: consume
-allowed-tools:
+pending_tool_grants:
   - Read
   - Glob
   - Bash

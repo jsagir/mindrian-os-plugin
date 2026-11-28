@@ -26,7 +26,7 @@ frameworks: ["S-Curve Analysis"]
 produces: "room/**/trends/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

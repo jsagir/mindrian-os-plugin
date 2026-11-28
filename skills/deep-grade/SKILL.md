@@ -28,7 +28,12 @@ frameworks: ["PWS Triple Validation Compass"]
 produces: "room/**/deep-grades/*"
 inputs: ["3+ room sections populated"]
 autonomous_safe: true
-allowed-tools: Read Write Bash Agent AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Agent
+  - AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

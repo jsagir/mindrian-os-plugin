@@ -55,7 +55,7 @@ produces: "room/research-plan/*"
 inputs: []
 autonomous_safe: false
 canon_parts: [3, 7, 8, 9, 11, 12]
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

@@ -22,7 +22,11 @@ frameworks: []
 produces: ""
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Bash Glob AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Bash
+  - Glob
+  - AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

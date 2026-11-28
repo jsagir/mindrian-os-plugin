@@ -31,12 +31,10 @@ produces: "room/**/rs-fetch/*"
 inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
+pending_tool_grants:
   - Bash
   - Read
   - Write
-  - mcp__mindrian-brain__brain_query
-  - mcp__mindrian-brain__read_neo4j_cypher
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

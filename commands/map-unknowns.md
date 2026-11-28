@@ -26,7 +26,7 @@ frameworks: ["Knowns and Unknowns Matrix Framework"]
 produces: "room/**/unknowns/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

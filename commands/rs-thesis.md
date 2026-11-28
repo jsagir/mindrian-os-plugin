@@ -25,7 +25,7 @@ produces: "room/**/rs-thesis/*"
 inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
+pending_tool_grants:
   - Bash
   - Read
   - AskUserQuestion

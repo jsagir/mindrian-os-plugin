@@ -38,7 +38,12 @@ requires_evidence:
   on: [market-analysis]
   dispatch: /mos:research
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 # Phase 172-12 (INV-11 reconciliation): analyze-timing is the connector home for
 # TWO reaches that land on the same command. The PRIMARY connector block declares

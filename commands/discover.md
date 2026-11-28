@@ -22,7 +22,7 @@ ui_reference: skills/ui-system/SKILL.md
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Jobs to Be Done (JTBD)"]
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

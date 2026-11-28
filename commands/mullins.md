@@ -24,7 +24,7 @@ frameworks: ["Mullins Model", "Macro Trends/Macro Trending"]
 produces: "room/**/mullins/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

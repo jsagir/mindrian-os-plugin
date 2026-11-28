@@ -25,7 +25,9 @@ frameworks: ["PWS Triple Validation Compass"]
 produces: "room/competitive-analysis/comparison/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher mcp__mindrian-brain__brain_search AskUserQuestion
+pending_tool_grants:
+  - Read
+  - AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

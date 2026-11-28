@@ -44,7 +44,11 @@ connector:
 lens_type: cognitive
 lens_set: six-hats
 rotation_mode: consume
-allowed-tools: Read Glob Bash AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Glob
+  - Bash
+  - AskUserQuestion
 ---
 
 <!-- mos:firing-block v2 -->

@@ -41,7 +41,10 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-allowed-tools: Bash Read AskUserQuestion
+pending_tool_grants:
+  - Bash
+  - Read
+  - AskUserQuestion
 ---
 
 <!-- mos:firing-block v2 -->

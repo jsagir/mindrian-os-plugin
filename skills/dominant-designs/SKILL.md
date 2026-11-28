@@ -35,7 +35,13 @@ autonomous_safe: true
 # after the query gate card; allowed-tools is a pre-approval list, not a
 # restriction list, so this removes the per-spawn permission prompt rather
 # than granting a capability the command lacked.
-allowed-tools: Read Write Bash Glob AskUserQuestion Task
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+  - Task
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

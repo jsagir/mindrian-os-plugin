@@ -25,7 +25,12 @@ frameworks: ["HSI Semantic Surprise Analysis Assistant"]
 produces: "room/opportunity-bank/hsi-scores/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

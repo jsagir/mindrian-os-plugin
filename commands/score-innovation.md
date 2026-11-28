@@ -24,7 +24,7 @@ frameworks: ["HSI Semantic Surprise Analysis Assistant"]
 produces: "room/opportunity-bank/hsi-scores/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

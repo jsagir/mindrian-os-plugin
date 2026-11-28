@@ -28,7 +28,11 @@ frameworks: ["Problem Definition Transformation Framework"]
 produces: "room/problem-definition/diagnosis/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
 # --- Phase 143.3 connector frontmatter (Phase 157-04 Task 0: wire the diagnose orphan) ---
 # --- Phase 164-03 (D-164-S4): one reach, TWO sub_modes. problem-diagnosis (classify
 #     against the PWS matrix) stays the primary connector sub_mode; issue-tree

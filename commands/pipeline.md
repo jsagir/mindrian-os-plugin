@@ -34,7 +34,7 @@ frameworks: []
 produces: null
 inputs: []
 autonomous_safe: false
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

@@ -35,7 +35,7 @@ frameworks: ["Trending to the Absurd", "S-Curve Analysis"]
 produces: "room/opportunity-bank/trending-to-absurd/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

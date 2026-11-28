@@ -26,7 +26,10 @@ produces: "room/**/rs-thesis/*"
 inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools: Bash Read AskUserQuestion
+pending_tool_grants:
+  - Bash
+  - Read
+  - AskUserQuestion
   # mcp__mindrian-brain__read_neo4j_cypher intentionally removed (BUG 2 fix):
   # RSDiscovery is USER DATA (Canon Part 8 -- LOCAL -> BRAIN: NO). The remote
   # Brain must never be called from this command. Always uses Tier 0 SQLite.

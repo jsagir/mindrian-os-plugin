@@ -26,7 +26,7 @@ frameworks: ["Jobs to Be Done (JTBD)"]
 produces: "room/**/validation/*"
 inputs: ["a customer segment defined"]
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

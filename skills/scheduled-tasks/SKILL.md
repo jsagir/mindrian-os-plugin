@@ -18,7 +18,7 @@ job_sentence_status: "provisional"
 teaching: "When you want Cowork to run something on a schedule against this room, /mos:scheduled-tasks defines the recurring job. Best for nightly grant sweeps or weekly meeting digests."
 ui_reference: skills/ui-system/SKILL.md
 surface: cowork
-allowed-tools: Read Write Glob Bash WebSearch mcp__tavily__tavily-search mcp__mindrian-brain__brain_query AskUserQuestion
+allowed-tools: Read Write Glob Bash WebSearch mcp__tavily__tavily-search AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

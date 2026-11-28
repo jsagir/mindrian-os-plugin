@@ -29,7 +29,7 @@ lens_type: cognitive
 lens_set: ['black-hat']
 rotation_mode: single
 synthesizer: tension-map
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

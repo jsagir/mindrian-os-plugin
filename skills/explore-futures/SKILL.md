@@ -33,7 +33,11 @@ frameworks: ["Scenario Planning"]
 produces: "room/**/futures/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

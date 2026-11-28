@@ -26,7 +26,7 @@ frameworks: ["Root Cause Analysis", "5 Whys Technique", "Systems Thinking"]
 produces: "room/**/root-cause/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

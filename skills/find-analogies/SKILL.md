@@ -37,7 +37,14 @@ ui_reference: skills/ui-system/SKILL.md
 # restriction list (frontmatter contract), so this removes the per-spawn permission prompt
 # rather than granting a capability the command did not already have. Scoped to the invoking
 # turn; clears on the next message.
-allowed-tools: Read Write Glob Bash mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher mcp__mindrian-brain__brain_search mcp__tavily__tavily-search AskUserQuestion Task
+pending_tool_grants:
+  - Read
+  - Write
+  - Glob
+  - Bash
+  - mcp__tavily__tavily-search
+  - AskUserQuestion
+  - Task
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

@@ -27,7 +27,7 @@ frameworks: ["Problem Definition Transformation Framework"]
 produces: "room/problem-definition/diagnosis/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

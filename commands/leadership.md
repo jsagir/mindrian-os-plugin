@@ -24,7 +24,7 @@ frameworks: ["Adaptive Leadership"]
 produces: "room/team-execution/leadership/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

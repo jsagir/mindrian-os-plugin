@@ -45,7 +45,7 @@ requires_evidence:
   on: [market-analysis]
   dispatch: /mos:research
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

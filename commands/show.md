@@ -21,7 +21,7 @@ frameworks: []
 produces: ""
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Bash
   - Glob

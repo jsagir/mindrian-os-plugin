@@ -65,7 +65,7 @@ persistence: memory_event
 # permission prompt rather than granting a capability the command did not
 # already have. Scoped to the invoking turn; clears on the next message.
 # AskUserQuestion carries the brief card and the persona card of the deep cycle.
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

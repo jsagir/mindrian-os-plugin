@@ -26,7 +26,7 @@ frameworks: ["Jobs to Be Done (JTBD)"]
 produces: "room/market-analysis/user-needs/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

@@ -25,11 +25,9 @@ produces: "room/**/rs-explain/*"
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
+pending_tool_grants:
   - Bash
   - Read
-  - mcp__mindrian-brain__brain_ask
-  - mcp__mindrian-brain__brain_search
   - AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:

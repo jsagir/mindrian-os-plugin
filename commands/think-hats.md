@@ -33,7 +33,7 @@ lens_type: cognitive
 lens_set: six-hats
 rotation_mode: serial
 synthesizer: tension-map
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

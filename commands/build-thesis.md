@@ -38,7 +38,7 @@ requires_evidence:
   on: [financial-model, business-model]
   dispatch: /mos:research
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

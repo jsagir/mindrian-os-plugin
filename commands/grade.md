@@ -30,7 +30,7 @@ autonomous_safe: true
 # restriction list (frontmatter contract), so this removes the per-spawn
 # permission prompt rather than granting a capability the command did not
 # already have. Scoped to the invoking turn; clears on the next message.
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

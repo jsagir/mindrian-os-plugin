@@ -50,7 +50,14 @@ autonomous_safe: true
 emits_evidence_claims: true
 # Write is a pre-approval for writing the JSON input files the research-planner CLI reads
 # (edits, rows, follow-ups, selections), outside the room until filing.
-allowed-tools: Read Bash Agent Write WebSearch WebFetch AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Bash
+  - Agent
+  - Write
+  - WebSearch
+  - WebFetch
+  - AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

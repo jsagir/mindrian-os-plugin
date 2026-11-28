@@ -27,7 +27,7 @@ frameworks: ["PWS Triple Validation Compass"]
 produces: "room/**/deep-grades/*"
 inputs: ["3+ room sections populated"]
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

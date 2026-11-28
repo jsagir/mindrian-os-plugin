@@ -27,7 +27,12 @@ frameworks: ["Beautiful Question Framework"]
 produces: "room/problem-definition/beautiful-question/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

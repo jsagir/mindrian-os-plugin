@@ -40,7 +40,7 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-allowed-tools:
+pending_tool_grants:
   - Bash
   - Read
   - AskUserQuestion

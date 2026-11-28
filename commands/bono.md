@@ -34,7 +34,7 @@ frameworks: ["Six Thinking Hats"]
 produces: "room/solution-design/*"
 inputs: []
 autonomous_safe: false
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

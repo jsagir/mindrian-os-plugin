@@ -33,7 +33,12 @@ frameworks: ["The Pyramid Principle"]
 produces: "room/**/reasoning/*"
 inputs: []
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion Task
+pending_tool_grants:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
   # Task is pre-approval here (see docs/SUBAGENT-DISPATCH-GRANTS.md): Phase 1 below
   # dispatches one subagent per populated room section in one turn (up to 11 on a
   # full --regenerate-all run), and without the grant each spawn triggers the normal
@@ -41,6 +46,7 @@ allowed-tools: Read Write Bash Glob AskUserQuestion Task
   # restriction list, so this removes prompts rather than granting a capability the
   # command did not already have. Registry row: data/subagent-dispatch-grants.json
   # (commands/mos-reason.md, token Task, status pending until plan 265-23 ratifies).
+  - Task
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

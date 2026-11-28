@@ -26,7 +26,7 @@ frameworks: ["Beautiful Question Framework"]
 produces: "room/problem-definition/beautiful-question/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash

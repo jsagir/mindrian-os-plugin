@@ -24,7 +24,6 @@ allowed-tools:
   - Bash
   - WebSearch
   - mcp__tavily__tavily-search
-  - mcp__mindrian-brain__brain_query
   - AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
