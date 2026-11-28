@@ -16,8 +16,8 @@
  *     distributed" sentence survives verbatim.
  *   MOAT-04: the dated amendment doc records all four cross-cutting flags
  *     this phase surfaced.
- *   MOAT-05: zero entitlement-check code ships this phase, and the CLI key
- *     ceremony has not moved yet.
+ *   MOAT-05: zero entitlement-check code ships this phase, and the CLI
+ *     carries no key ceremony (removed on purpose by quick 261005-l8g).
  *
  * Run BEFORE the doctrine edits land, this test demonstrably FAILS -- that
  * RED run is filed in 269-01-SUMMARY.md (the can-fail proof convention).
@@ -206,7 +206,7 @@ test('MOAT-04: the amendment doc records all four cross-cutting flags', () => {
 // ---------------------------------------------------------------------------
 // MOAT-05: zero entitlement-check code ships this phase.
 // ---------------------------------------------------------------------------
-test('MOAT-05: zero entitlement-check code ships this phase, CLI key ceremony unmoved', () => {
+test('MOAT-05: zero entitlement-check code ships this phase, CLI carries no key ceremony', () => {
   assert.ok(
     !fs.existsSync(path.join(REPO_ROOT, 'lib', 'core', 'entitlement.cjs')),
     'Phase 269 ships zero entitlement-check code -- lib/core/entitlement.cjs existing means the deferred engineering family was executed against an interim Theo cutover state'
@@ -214,8 +214,8 @@ test('MOAT-05: zero entitlement-check code ships this phase, CLI key ceremony un
 
   const cli = fs.readFileSync(CLI_PATH, 'utf8');
   assert.ok(
-    cli.includes('Optional -- connect the Brain for enriched intelligence:'),
-    'bin/cli.js must still contain this verbatim string -- the CLI key ceremony has not moved yet and its wording is the anchor that proves it'
+    cli.includes('Theo needs no key, so there is nothing'),
+    'bin/cli.js must contain this verbatim string -- quick 261005-l8g (commit a2126a394, SEED-119) removed the CLI key ceremony on purpose and this wording is the accepted anchor that proves it'
   );
 });
 
