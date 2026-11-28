@@ -150,3 +150,4 @@ Written before the first edit of Task 4 (part 3 of 3; continuation run; Task 0 s
 - Checker note: 13 Brain entries sit in the host-read `tools:` key of 5 agent files (brain-query, grading, investor, persona-analyst, research); rule A1 does not cover `tools:`. Open for slice 3a and owner ruling O8.
 - NEEDS_HUMAN: tests/test-391-agent-tools-naming.cjs leg A1 floor of 40 mcp tokens (30 after the planned Brain deletion).
 - Next: the main session runs the outside evidence (a) to (e).
+- Resolved (2026-11-28, by the orchestrating session under the delegation of owner ruling OR-61): the NEEDS_HUMAN item of leg A1. The floor moved from 40 to 20 in commit 1d2428189. 30 mcp__ tokens remain after rule A1.
