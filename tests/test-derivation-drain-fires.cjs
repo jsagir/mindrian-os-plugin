@@ -133,15 +133,22 @@ async function main() {
     //     (the "within a session, not sitting for days" property NAV-03 names).
     const label3 = 'NAV-03: hooks.json wires brain-derivation-drain.cjs on UserPromptSubmit';
     try {
+      // Phase 400.5 Path H (plan 13 contract): the six UserPromptSubmit hooks run in one dispatcher process.
+      // The drain runs per turn as the check brain-derivation-drain of the one dispatcher entry.
       const hooksRaw = fs.readFileSync(HOOKS_JSON, 'utf8');
       const hooks = JSON.parse(hooksRaw);
-      assert.ok(/brain-derivation-drain/.test(hooksRaw),
-        label3 + ': hooks.json must reference brain-derivation-drain');
       const ups = hooks && hooks.hooks && hooks.hooks.UserPromptSubmit;
       assert.ok(Array.isArray(ups), label3 + ': hooks.UserPromptSubmit must be an array');
-      const wired = JSON.stringify(ups).includes('brain-derivation-drain.cjs');
-      assert.ok(wired,
-        label3 + ': brain-derivation-drain.cjs must be wired under the UserPromptSubmit event');
+      const cmds = [];
+      for (const g of ups) for (const h of (g.hooks || [])) if (h.type === 'command') cmds.push(h.command);
+      assert.equal(cmds.length, 1, label3 + ': UserPromptSubmit must hold one command; got ' + cmds.length);
+      assert.ok(cmds[0].includes('scripts/userprompt-dispatch.cjs"'),
+        label3 + ': the one UserPromptSubmit command must be the dispatcher; got ' + cmds[0]);
+      const { CHECKS } = require(path.join(REPO, 'scripts', 'userprompt-dispatch.cjs'));
+      const hit = CHECKS.filter(function (c) { return c.file === 'scripts/brain-derivation-drain.cjs'; });
+      assert.equal(hit.length, 1, label3 + ': CHECKS must hold one brain-derivation-drain check; got ' + hit.length);
+      assert.equal(hit[0].id, 'brain-derivation-drain', label3 + ': check id ' + hit[0].id);
+      assert.deepEqual(hit[0].argv, [], label3 + ': check argv ' + JSON.stringify(hit[0].argv));
       ok(label3);
     } catch (e) {
       fail(label3, e);

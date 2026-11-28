@@ -109,6 +109,22 @@ const P4004 = {
   ],
 };
 const HOOK_BUDGET_REVIEW_MS = 150;
+// Phase 400.5 Path H (plan 13 contract): the six UserPromptSubmit hooks run in one dispatcher process.
+// P4005 records the change against the base count: 6 entries removed, 1 entry added.
+// The count stays relative to the base, never an absolute number.
+const P4005 = {
+  removed: [
+    { event: 'UserPromptSubmit', sub: 'admin-command-gate.cjs' },
+    { event: 'UserPromptSubmit', sub: 'intent-classifier.cjs"' },
+    { event: 'UserPromptSubmit', sub: 'first-install-router.cjs' },
+    { event: 'UserPromptSubmit', sub: 'brain-derivation-drain.cjs' },
+    { event: 'UserPromptSubmit', sub: 'jtbd-update.cjs" userprompt' },
+    { event: 'UserPromptSubmit', sub: 'auto-explore-drain.cjs' },
+  ],
+  added: [
+    { event: 'UserPromptSubmit', sub: 'userprompt-dispatch.cjs', timeout: 3 },
+  ],
+};
 // Phase 400.2.1 S5 (owner ruling 2026-11-26, "A: screen with a hook"): one PreToolUse entry was ADDED on purpose, the
 // reader search guard of /mos:persona on WebSearch and WebFetch. It carries no onFailure key and fails closed inside.
 const P40021 = {
@@ -116,7 +132,8 @@ const P40021 = {
     { event: 'PreToolUse', sub: 'persona-reader-search-guard-hook.cjs', timeout: 5 },
   ],
 };
-const EXPECTED = 46 - P385.removed.length - P389.removed.length + P386.added.length + P370.added.length + P40021.added.length;
+const EXPECTED = 46 - P385.removed.length - P389.removed.length + P386.added.length + P370.added.length + P40021.added.length
+  - P4005.removed.length + P4005.added.length;
 
 let failed = 0;
 function check(name, fn) {
@@ -167,13 +184,10 @@ const TABLE = [
   ['PostToolUse', 'memory-artifact-graph-hook.cjs', 5],
   ['PostToolUse', 'query-efficiency-telemetry.cjs', 3],
   ['PostToolUse', 'brain-response-sanitize-hook.cjs', 5],
-  ['UserPromptSubmit', 'admin-command-gate.cjs', 3],
-  // Phase 400.4 QA-F11: node direct, 400.3-15 pattern (no cmd or bash step before node).
-  ['UserPromptSubmit', 'intent-classifier.cjs"', 5],
-  ['UserPromptSubmit', 'first-install-router.cjs', 3],
-  ['UserPromptSubmit', 'brain-derivation-drain.cjs', 3],
-  ['UserPromptSubmit', 'jtbd-update.cjs" userprompt', 3],
-  ['UserPromptSubmit', 'auto-explore-drain.cjs', 3],
+  // Phase 400.5 Path H (plan 13 contract): the six UserPromptSubmit hooks run in one dispatcher process.
+  // The six rows (admin 3, intent-classifier 5, router 3, drain 3, jtbd userprompt 3, auto-explore 3)
+  // became one dispatcher row; node direct, 400.3-15 pattern (no cmd or bash step before node).
+  ['UserPromptSubmit', 'userprompt-dispatch.cjs', 3],
   ['FileChanged', 'run-hook.cmd" on-file-changed', 3],
   ['CwdChanged', 'run-hook.cmd" on-cwd-changed', 45],
   ['SubagentStop', 'run-hook.cmd" on-agent-complete', 45],
@@ -274,6 +288,25 @@ check('A4 the DD-1 table matches every entry exactly once', () => {
     must(hit[0].h.timeout === secs, event + ' ' + sub + ' timeout is ' + hit[0].h.timeout + ', table says ' + secs);
   }
   must(used.size === entries.length, 'rows cover ' + used.size + ' of ' + entries.length + ' entries');
+});
+
+// Phase 400.5 Path H (plan 13 contract): the six UserPromptSubmit hooks run in one dispatcher process.
+check('A4b the dispatcher CHECKS hold the six removed scripts with their argv', () => {
+  const { CHECKS } = require('../scripts/userprompt-dispatch.cjs');
+  const want = [
+    ['admin-command-gate', 'scripts/admin-command-gate.cjs', []],
+    ['intent-classifier', 'scripts/intent-classifier.cjs', []],
+    ['first-install-router', 'scripts/first-install-router.cjs', []],
+    ['brain-derivation-drain', 'scripts/brain-derivation-drain.cjs', []],
+    ['jtbd-update', 'scripts/jtbd-update.cjs', ['userprompt']],
+    ['auto-explore-drain', 'scripts/auto-explore-drain.cjs', []],
+  ];
+  must(CHECKS.length === want.length, 'CHECKS has ' + CHECKS.length + ' entries');
+  want.forEach(([id, file, argv], i) => {
+    must(CHECKS[i].id === id, 'CHECKS[' + i + '].id is ' + CHECKS[i].id + ', expected ' + id);
+    must(CHECKS[i].file === file, id + ' file is ' + CHECKS[i].file);
+    must(JSON.stringify(CHECKS[i].argv) === JSON.stringify(argv), id + ' argv is ' + JSON.stringify(CHECKS[i].argv));
+  });
 });
 
 check('A5 only the three guard hooks have onFailure, and it is exactly "block"', () => {

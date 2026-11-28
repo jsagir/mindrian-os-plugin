@@ -311,8 +311,14 @@ const D7H_ENTRIES = [
   const hooks = JSON.parse(readRel('hooks/hooks.json'));
   const promptCmds = [];
   JSON.stringify(hooks.hooks.UserPromptSubmit || [], function (k, v) { if (k === 'command') promptCmds.push(v); return v; });
+  // Phase 400.5 Path H (plan 13 contract): the six UserPromptSubmit hooks run in one dispatcher process.
+  // Assert the one dispatcher command, then read the six check scripts from its CHECKS export,
+  // so RT1 reads the same scripts as before the switch.
+  if (!(promptCmds.length === 1 && promptCmds[0].indexOf('scripts/userprompt-dispatch.cjs"') !== -1)) {
+    failLine('RT1: UserPromptSubmit is not the one dispatcher command', promptCmds.join(' | '));
+  }
   const scripts = new Set();
-  promptCmds.forEach(function (c) { (c.match(/scripts\/[A-Za-z0-9_.-]+/g) || []).forEach(function (s) { scripts.add(s); }); });
+  require('../scripts/userprompt-dispatch.cjs').CHECKS.forEach(function (c) { scripts.add(c.file); });
   const callers = Array.from(scripts).filter(function (s) {
     try { return /\b(context_assemble|suggest_next)\b|logMemoryEvent\([^)]*turn/i.test(readRel(s)); } catch (_e) { return false; }
   });

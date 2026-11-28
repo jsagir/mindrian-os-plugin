@@ -504,6 +504,13 @@ let STDIN_CWD;
 // Phase 400.4 plan 14 (QA-F12 D1): which leg of resolveSessionRoom answered the NAV block site this turn
 // ('session.primary', 'cwd.room_root', 'reg.active'), for the decision trace. Reset every turn by setTurnInput.
 let TURN_ROOM_SOURCE = null;
+// Phase 400.5 CONTEXT 5e (b): the deadlineAt of the run() turn (epoch ms), null on the CLI path. Reset by setTurnInput.
+let TURN_DEADLINE_AT = null;
+
+// True only when deadlineAt is a finite number and the time is at or past it.
+function deadlinePassed(deadlineAt) {
+  return typeof deadlineAt === 'number' && Number.isFinite(deadlineAt) && Date.now() >= deadlineAt;
+}
 
 function setTurnInput(raw) {
   STDIN_RAW = typeof raw === 'string' ? raw : '';
@@ -512,6 +519,7 @@ function setTurnInput(raw) {
   TURN_IS_HARNESS = harnessVerdict(STDIN_MESSAGE);
   STDIN_CWD = extractCwd(STDIN_RAW);
   TURN_ROOM_SOURCE = null;
+  TURN_DEADLINE_AT = null;
   // A binding read memoized for an earlier turn must not answer this turn (a long-lived process runs many turns).
   SESSION_BINDING_CACHE = null;
 }
@@ -3800,6 +3808,8 @@ module.exports = {
   NAV_HARD_TIMEOUT_MS: NAV_HARD_TIMEOUT_MS,
   // Phase 400.4 plan 12: the in-process entry point and its two parts.
   run: run,
+  // Phase 400.5 CONTEXT 5e (b): the deadline check of the two late engine writes.
+  deadlinePassed: deadlinePassed,
   setTurnInput: setTurnInput,
   runTurn: runTurn,
 };
@@ -3827,6 +3837,8 @@ async function runTurn() {
   mintoDrainFirst();
   // The engine closure below can run after the turn was abandoned; it keeps the writer of THIS turn.
   const emit = OUT;
+  // The engine closure keeps the deadline of its own turn, the same rule as emit.
+  const turnDeadlineAt = TURN_DEADLINE_AT;
 try {
   const injectionStart = Date.now();
   const code = main();
@@ -4218,12 +4230,14 @@ try {
           traceEntry.nav_block_bytes = navBlockBytesLocal;
           traceEntry.nav_suppressed = (block === NAV_UNCHANGED_MARKER);
         }
+        // Phase 400.5 CONTEXT 5e (b): a cut turn writes no trace entry and no NAV hash, as a host-killed process did.
+        if (deadlinePassed(turnDeadlineAt)) return null;
         persistDecisionTrace(roomDir, sessionId, traceEntry);
         if (block && block.length > 0) {
           try { emit(block + '\n'); } catch (_) {}
         }
         // Idempotent on a suppressed turn (writes the SAME hash back).
-        if (navBlockHashLocal) {
+        if (navBlockHashLocal && !deadlinePassed(turnDeadlineAt)) {
           writeNavBlockHash(roomDir, sessionId, navBlockHashLocal, navBlockBytesLocal);
         }
         return null;
@@ -4260,6 +4274,7 @@ async function runOnce(input, opts) {
   try {
     setTurnInput(input);
     const deadlineAt = opts && Number.isFinite(opts.deadlineAt) ? opts.deadlineAt : null;
+    TURN_DEADLINE_AT = deadlineAt;
     let turn = runTurn();
     if (deadlineAt !== null) {
       const waitMs = Math.max(0, deadlineAt - Date.now());

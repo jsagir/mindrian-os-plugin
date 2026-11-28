@@ -90,9 +90,11 @@ check('the census dropped by exactly one command (UserPromptSubmit one less) and
   // and PreToolUse are one higher, and the two onFailure block commands stay the same.
   // Phase 400.2.1 (S5, owner ruling 2026-11-26 "A: screen with a hook") ADDED one more PreToolUse command on purpose:
   // the reader search guard of /mos:persona (matcher WebSearch and WebFetch, timeout 5, no onFailure key).
+  // Phase 400.5 Path H (plan 13 contract): the six UserPromptSubmit hooks run in one dispatcher process:
+  // the six UserPromptSubmit commands became one dispatcher command (6 removed, 1 added).
   const expected = Object.assign({}, BEFORE, {
-    total: BEFORE.total - 1 + 1 + 1,
-    UserPromptSubmit: BEFORE.UserPromptSubmit - 1,
+    total: BEFORE.total - 1 + 1 + 1 - 6 + 1,
+    UserPromptSubmit: BEFORE.UserPromptSubmit - 1 - 6 + 1,
     PreToolUse: BEFORE.PreToolUse + 1 + 1,
   });
   assert.deepStrictEqual(now, expected);
@@ -100,8 +102,16 @@ check('the census dropped by exactly one command (UserPromptSubmit one less) and
 
 check('the first-install router group stays in UserPromptSubmit and exactly three commands carry onFailure block', () => {
   const doc = loadHooks();
-  const router = commandsOf(doc, 'UserPromptSubmit').filter((c) => c.command.includes('first-install-router.cjs'));
-  assert.strictEqual(router.length, 1, 'router commands ' + router.length);
+  // Phase 400.5 Path H (plan 13 contract): the six UserPromptSubmit hooks run in one dispatcher process:
+  // the router runs inside the one dispatcher command, as the check first-install-router of CHECKS.
+  const cmds = commandsOf(doc, 'UserPromptSubmit');
+  assert.strictEqual(cmds.length, 1, 'UserPromptSubmit commands ' + cmds.length);
+  assert.ok(cmds[0].command.includes('scripts/userprompt-dispatch.cjs"'), 'the one command is not the dispatcher: ' + cmds[0].command);
+  const { CHECKS } = require('../scripts/userprompt-dispatch.cjs');
+  const router = CHECKS.filter((c) => c.file === 'scripts/first-install-router.cjs');
+  assert.strictEqual(router.length, 1, 'router checks ' + router.length);
+  assert.strictEqual(router[0].id, 'first-install-router', 'router check id ' + router[0].id);
+  assert.deepStrictEqual(router[0].argv, [], 'router check argv ' + JSON.stringify(router[0].argv));
   let blockers = 0;
   for (const ev of Object.keys(doc.hooks || {})) {
     for (const c of commandsOf(doc, ev)) if (c.onFailure === 'block') blockers++;

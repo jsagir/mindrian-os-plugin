@@ -18,13 +18,14 @@
 // copy. Nothing touches the real home or ~/MindrianRooms.
 
 const fs = require('node:fs');
-const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const GOLDEN_PATH = path.join(ROOT, 'tests', 'fixtures', '400.4', 'hook-golden.json');
-const helpers = require(path.join(ROOT, 'tests', 'helpers', 'isolated-home-36925.cjs'));
+// Phase 400.5 plan 02: the case list, the fixtures and the masks live in one helper, shared with the dispatcher parity test.
+const parity = require(path.join(ROOT, 'tests', 'helpers', 'userprompt-parity-400-4.cjs'));
+const { CASES, MASKS, freshCopy, childEnv, maskResult } = parity;
 
 const ARGS = process.argv.slice(2);
 const CAPTURE = ARGS.includes('--capture');
@@ -32,29 +33,7 @@ const GOLDEN = ARGS.includes('--golden');
 const onlyIdx = ARGS.indexOf('--only');
 const ONLY = onlyIdx >= 0 && ARGS[onlyIdx + 1] ? new Set(ARGS[onlyIdx + 1].split(',')) : null;
 
-const SCRIPTS = [
-  { id: 'admin-command-gate', file: 'scripts/admin-command-gate.cjs', argv: [] },
-  { id: 'intent-classifier', file: 'scripts/intent-classifier.cjs', argv: [] },
-  { id: 'first-install-router', file: 'scripts/first-install-router.cjs', argv: [] },
-  { id: 'brain-derivation-drain', file: 'scripts/brain-derivation-drain.cjs', argv: [] },
-  { id: 'jtbd-update', file: 'scripts/jtbd-update.cjs', argv: ['userprompt'] },
-  { id: 'auto-explore-drain', file: 'scripts/auto-explore-drain.cjs', argv: [] },
-].filter((s) => !ONLY || ONLY.has(s.id));
-
-function promptJson(prompt) {
-  return function (ctx) {
-    return JSON.stringify({ prompt, session_id: 'sess-400412', cwd: ctx.cwd, hook_event_name: 'UserPromptSubmit' });
-  };
-}
-
-const CASES = [
-  { id: 'E1', fixture: 'virgin', input: () => '' },
-  { id: 'E2', fixture: 'virgin', input: () => 'not json' },
-  { id: 'E3', fixture: 'room', input: promptJson('hello there') },
-  { id: 'E4', fixture: 'room', input: promptJson('/mos:admin') },
-  { id: 'E5', fixture: 'room', input: promptJson('what should I work on next for this venture') },
-  { id: 'E6', fixture: 'virgin', input: promptJson('hello') },
-];
+const SCRIPTS = parity.SCRIPTS.filter((s) => !ONLY || ONLY.has(s.id));
 
 let failures = 0;
 function check(name, cond, detail) {
@@ -62,99 +41,11 @@ function check(name, cond, detail) {
   else { failures++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); }
 }
 
-// ---------- work area, fixtures ----------
+// ---------- work area ----------
 
-const TMP = fs.realpathSync(os.tmpdir());
-const WORK = fs.mkdtempSync(path.join(TMP, 'mos400412-w-'));
-const TO_REMOVE = [WORK];
-process.on('exit', () => { for (const d of TO_REMOVE) { try { fs.rmSync(d, { recursive: true, force: true }); } catch (_e) { /* best effort */ } } });
+const WORK = fs.mkdtempSync(path.join(parity.TMP, 'mos400412-w-'));
+process.on('exit', () => { try { fs.rmSync(WORK, { recursive: true, force: true }); } catch (_e) { /* best effort */ } });
 
-const PREFIX = 'mos400412-';
-const TEMPLATES = {};
-
-function buildTemplate(kind) {
-  if (TEMPLATES[kind]) return TEMPLATES[kind];
-  const root = fs.mkdtempSync(path.join(TMP, PREFIX));
-  TO_REMOVE.push(root);
-  const roomsHome = path.join(root, 'rooms');
-  fs.mkdirSync(roomsHome, { recursive: true });
-  if (kind === 'room') {
-    const saved = Object.assign({}, process.env);
-    try {
-      helpers.birthFixtureRoom({ iso: { home: root, roomsHome }, slug: 'qa-fixture', ventureText: 'A fixture venture for the 400.4 run export tests' });
-    } finally {
-      for (const k of Object.keys(process.env)) { if (!(k in saved)) delete process.env[k]; }
-      Object.assign(process.env, saved);
-    }
-  }
-  TEMPLATES[kind] = { root, kind };
-  return TEMPLATES[kind];
-}
-
-function rewritePaths(dir, from, to) {
-  // Same-length names, so a byte replace keeps every file valid (a sqlite page included).
-  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-    const p = path.join(dir, e.name);
-    if (e.isDirectory()) rewritePaths(p, from, to);
-    else if (e.isFile()) {
-      const buf = fs.readFileSync(p);
-      if (buf.indexOf(from) === -1) continue;
-      fs.writeFileSync(p, Buffer.from(buf.toString('latin1').split(from).join(to), 'latin1'));
-    }
-  }
-}
-
-function freshCopy(kind) {
-  const tpl = buildTemplate(kind);
-  const root = fs.mkdtempSync(path.join(TMP, PREFIX));
-  fs.cpSync(tpl.root, root, { recursive: true });
-  if (root.length !== tpl.root.length) throw new Error('fixture root names differ in length');
-  rewritePaths(root, tpl.root, root);
-  const roomDir = path.join(root, 'rooms', 'qa-fixture');
-  return {
-    root,
-    home: root,
-    roomsHome: path.join(root, 'rooms'),
-    roomDir,
-    cwd: kind === 'room' ? roomDir : root,
-    cleanup() { try { fs.rmSync(root, { recursive: true, force: true }); } catch (_e) { /* best effort */ } },
-  };
-}
-
-function childEnv(fx, extra) {
-  const env = {
-    PATH: process.env.PATH,
-    HOME: fx.home,
-    USERPROFILE: fx.home,
-    MINDRIAN_ROOMS_HOME: fx.roomsHome,
-    CLAUDE_PLUGIN_ROOT: ROOT,
-    USER: 'randomcustomer',
-    USERNAME: 'randomcustomer',
-    MINDRIAN_ADMIN_IDENTITY_PATH: path.join(fx.root, 'no-such-admin-identity.json'),
-    TMPDIR: TMP,
-  };
-  return Object.assign(env, extra || {});
-}
-
-// ---------- masks ----------
-
-const MASKS = [
-  'the fixture copy root path -> <ROOT>',
-  'node process warning lines (a line that starts with (node:PID), and the --trace-warnings hint) are dropped (the CLI shows them, a sink never does)',
-  'ISO timestamps -> <TS>',
-  'a number followed by ms -> <N>ms',
-];
-function mask(text, root) {
-  let t = String(text || '');
-  if (root) t = t.split(root).join('<ROOT>');
-  t = t.split('\n').filter((l) => !/^\(node:\d+\)|--trace-warnings/.test(l)).join('\n');
-  t = t.replace(/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?Z?/g, '<TS>');
-  t = t.replace(/\b\d+(\.\d+)?ms\b/g, '<N>ms');
-  return t;
-}
-function maskResult(r, root) {
-  return { code: r.code, stdout: mask(r.stdout, root), stderr: mask(r.stderr, root) };
-}
 function same(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
 function brief(o) { return JSON.stringify(o).slice(0, 400); }
 

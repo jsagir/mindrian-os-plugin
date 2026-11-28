@@ -294,9 +294,17 @@ function cleanup(roomDir) {
   try { h = JSON.parse(fs.readFileSync(HOOKS_JSON, 'utf8')); }
   catch (e) { fail('Class 9: hooks.json registration', 'invalid JSON: ' + e.message); return; }
 
-  const upsStr = JSON.stringify(h.hooks && h.hooks.UserPromptSubmit || []);
+  // Phase 400.5 Path H (plan 13 contract): the six UserPromptSubmit hooks run in one dispatcher process.
+  // The userprompt leg runs as the check jtbd-update (argv ['userprompt']) of the one dispatcher entry.
+  const upsCmds = [];
+  for (const g of (h.hooks && h.hooks.UserPromptSubmit) || []) for (const x of (g.hooks || [])) if (x.type === 'command') upsCmds.push(x.command);
   const stopStr = JSON.stringify(h.hooks && h.hooks.Stop || []);
-  const upsHas = upsStr.indexOf('jtbd-update.cjs') !== -1 && upsStr.indexOf('userprompt') !== -1;
+  let upsHas = false;
+  if (upsCmds.length === 1 && upsCmds[0].indexOf('scripts/userprompt-dispatch.cjs"') !== -1) {
+    const { CHECKS } = require(path.join(REPO_ROOT, 'scripts', 'userprompt-dispatch.cjs'));
+    const hit = CHECKS.filter((c) => c.file === 'scripts/jtbd-update.cjs');
+    upsHas = hit.length === 1 && hit[0].id === 'jtbd-update' && JSON.stringify(hit[0].argv) === JSON.stringify(['userprompt']);
+  }
   // Phase 385-09: the live Stop payload carries no reply text, so the Stop leg was
   // always a no-op and its hooks.json entry was removed. The script keeps its stop path.
   const stopHas = stopStr.indexOf('jtbd-update.cjs') !== -1;

@@ -136,7 +136,7 @@
     {
       "id": "binding-gate-injection",
       "rule": "A [BINDING: call the AskUserQuestion tool ...] marker is injected into the model's context on a UserPromptSubmit turn.",
-      "mechanism": "scripts/intent-classifier.cjs",
+      "mechanism": "scripts/userprompt-dispatch.cjs",
       "hook_event": "UserPromptSubmit",
       "policy_file": null,
       "rung_today": null,
@@ -144,7 +144,7 @@
       "floor": "none",
       "floor_source": null,
       "arbiter_input": true,
-      "reason": "scripts/intent-classifier.cjs's emitBindingGate (F.8) is the live proof-of-mechanism named in the WATCH file: a [BINDING: call the AskUserQuestion tool ...] marker fired on the 'less like Larry' complaint itself, again on the rollback question, and on six consecutive turns of an unrelated command-inventory conversation (incidents 1, 2, 3, 4 and 4b). Proposed logged rather than declared because it already has real observable fires worth an evidence log, not just a report line. hooks/hooks.json dispatches this rule with node directly on scripts/intent-classifier.cjs (Phase 400.4 QA-F11: no cmd or bash step before node); the mechanism field above names the literal dispatch path."
+      "reason": "scripts/intent-classifier.cjs's emitBindingGate (F.8) is the live proof-of-mechanism named in the WATCH file: a [BINDING: call the AskUserQuestion tool ...] marker fired on the 'less like Larry' complaint itself, again on the rollback question, and on six consecutive turns of an unrelated command-inventory conversation (incidents 1, 2, 3, 4 and 4b). Proposed logged rather than declared because it already has real observable fires worth an evidence log, not just a report line. hooks/hooks.json dispatches this rule with node directly on scripts/intent-classifier.cjs (Phase 400.4 QA-F11: no cmd or bash step before node); the mechanism field above names the literal dispatch path. Phase 400.5 (Path H, CONTEXT 5e): hooks.json runs this rule through scripts/userprompt-dispatch.cjs, which calls run() of scripts/intent-classifier.cjs in-process."
     },
     {
       "id": "hmi-compliance-poll",
@@ -162,7 +162,7 @@
     {
       "id": "admin-command-gate",
       "rule": "An admin-only slash command is rejected on a UserPromptSubmit turn from a non-admin identity.",
-      "mechanism": "scripts/admin-command-gate.cjs",
+      "mechanism": "scripts/userprompt-dispatch.cjs",
       "hook_event": "UserPromptSubmit",
       "policy_file": null,
       "rung_today": null,
@@ -170,12 +170,12 @@
       "floor": "enforced",
       "floor_source": "Canon Part 11 (Invocation Constitution)",
       "arbiter_input": false,
-      "reason": "Access control, not persona. It runs first in the UserPromptSubmit chain for exactly that reason. Never a weighted input to the arbiter."
+      "reason": "Access control, not persona. It runs first in the UserPromptSubmit chain for exactly that reason. Never a weighted input to the arbiter. Phase 400.5 (Path H, CONTEXT 5e): hooks.json runs this rule through scripts/userprompt-dispatch.cjs, which calls run() of scripts/admin-command-gate.cjs in-process."
     },
     {
       "id": "first-install-router",
       "rule": "The first user sentence on a fresh install is classified locally and, on a match, fires the 30-Second MVA Instant Brief as the first reward, strictly before any investment ask.",
-      "mechanism": "scripts/first-install-router.cjs",
+      "mechanism": "scripts/userprompt-dispatch.cjs",
       "hook_event": "UserPromptSubmit",
       "policy_file": null,
       "rung_today": null,
@@ -183,7 +183,7 @@
       "floor": "enforced",
       "floor_source": "docs/reward-before-investment-rule.md",
       "arbiter_input": false,
-      "reason": "A floor on the first turn only. The hooked-model first-step rule owns turn 1 end to end; the arbiter's contribution to turn 1 is to stay invisible and to not fire a compliance card over the room's variable reward, never to override which reward fires or when."
+      "reason": "A floor on the first turn only. The hooked-model first-step rule owns turn 1 end to end; the arbiter's contribution to turn 1 is to stay invisible and to not fire a compliance card over the room's variable reward, never to override which reward fires or when. Phase 400.5 (Path H, CONTEXT 5e): hooks.json runs this rule through scripts/userprompt-dispatch.cjs, which calls run() of scripts/first-install-router.cjs in-process."
     }
   ],
   "prose_mandates": [

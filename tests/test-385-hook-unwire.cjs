@@ -193,9 +193,18 @@ check('no command in the Stop array runs jtbd-update.cjs', () => {
   assert.strictEqual(hits.length, 0, hits.length + ' Stop command(s) still run jtbd-update.cjs');
 });
 
+// Phase 400.5 Path H (plan 13 contract): the six UserPromptSubmit hooks run in one dispatcher process.
+// The jtbd-update userprompt check runs inside scripts/userprompt-dispatch.cjs: assert the one
+// dispatcher entry, and assert exactly one jtbd-update check with argv ['userprompt'] in CHECKS.
 check('UserPromptSubmit keeps exactly one jtbd-update.cjs userprompt command', () => {
-  const n = commandsOf(loadHooks(), 'UserPromptSubmit').filter((c) => c.command.includes('jtbd-update.cjs" userprompt')).length;
-  assert.strictEqual(n, 1, 'UserPromptSubmit has ' + n + ' jtbd-update.cjs userprompt commands');
+  const cmds = commandsOf(loadHooks(), 'UserPromptSubmit');
+  assert.strictEqual(cmds.length, 1, 'UserPromptSubmit has ' + cmds.length + ' commands');
+  assert.ok(cmds[0].command.includes('scripts/userprompt-dispatch.cjs"'), 'the one command is not the dispatcher: ' + cmds[0].command);
+  const { CHECKS } = require('../scripts/userprompt-dispatch.cjs');
+  const hits = CHECKS.filter((c) => c.file === 'scripts/jtbd-update.cjs');
+  assert.strictEqual(hits.length, 1, 'CHECKS has ' + hits.length + ' jtbd-update.cjs checks');
+  assert.strictEqual(hits[0].id, 'jtbd-update', 'the check id is ' + hits[0].id);
+  assert.deepStrictEqual(hits[0].argv, ['userprompt'], 'the check argv is ' + JSON.stringify(hits[0].argv));
 });
 
 // ---- Plan 385-10: query-efficiency telemetry on Grep and Glob only ----
