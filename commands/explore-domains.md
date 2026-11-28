@@ -20,19 +20,19 @@ cynefin_label_status: "provisional"
 # structure before the navigator invests in the full 5-lens decomposition).
 interactive_first_reward: schema_preview
 teaching: "When the problem could live in any of several domains, /mos:explore-domains maps the territory through IKA and Feynman decomposition. Surfaces where to look before you commit."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Domain Selection"]
 produces: "room/problem-definition/domain-decomposition/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-01]

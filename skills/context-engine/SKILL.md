@@ -4,7 +4,7 @@ description: >
   Session context management and user memory. Relevant for managing USER.md,
   tracking user preferences, and providing context-aware greetings across sessions.
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Ambient always-on infra. Assembles conversational context every turn; a continuous substrate skill with no discrete problem-state trigger."

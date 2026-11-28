@@ -23,7 +23,7 @@ cynefin_label_status: "provisional"
 teaching: "When a meeting was filed earlier and the room has since grown, /mos:reanalyze re-runs the cascade pattern detection. New context can change what an old meeting meant."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

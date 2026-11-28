@@ -9,7 +9,7 @@ tools:
   - Glob
 hitl_shape: "F.8"
 hitl_why: "The seven rubric categories (eligibility/process/budget/legal/reporting/market/ip) are examined as an independent panel in any order, an unordered basket -- same framing as persona-analyst.md's own F.8, whose de Bono hats are likewise unordered."
-# --- grade-grant reviewer-panel connector frontmatter (generated via build-connector-registry --check) ---
+# == grade-grant reviewer-panel connector frontmatter (generated via build-connector-registry --check) ==
 # This agent rides the FROZEN context_block reach with a NEW grant-reviewer sub_mode. It
 # is NEVER a 7th reach: it is a new SIBLING dispatch target, mirroring how persona-analyst.md
 # already shares context_block with its own persona-hats sub_mode. framework stays null

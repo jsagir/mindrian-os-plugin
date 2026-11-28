@@ -22,7 +22,7 @@ allowed-tools:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 # /mos:skill is the born-WIRED front door: it PROPOSES a materialization (a single
 # approve-or-reject Decision-Gate fork), so it declares the 11-key connector block
 # AND hitl_shape: F.0 (R16). A new tool identity rides sub_mode: expert-skill, never

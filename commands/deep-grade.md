@@ -21,19 +21,19 @@ teaching: "When you need a calibrated grade on the room's quality, /mos:deep-gra
 # Remediation (showing the anonymized calibration distribution on cold
 # invocation) is a follow-up phase, not this plan's scope.
 interactive_first_reward: calibration_distribution_preview
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["PWS Triple Validation Compass"]
 produces: "room/**/deep-grades/*"
 inputs: ["3+ room sections populated"]
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash
   - Agent
   - AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-06, SENS-07]

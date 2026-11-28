@@ -20,14 +20,14 @@ cynefin_label_status: "provisional"
 renaming_to: fingerprint
 renaming_target_version: "v1.14.0"
 teaching: "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Renaming to /mos:fingerprint in v1.14.0 (functional behavior unchanged)."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["HSI Semantic Surprise Analysis Assistant"]
 produces: "room/**/diagnostics/*"
 inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-01]
@@ -40,7 +40,7 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-allowed-tools:
+pending_tool_grants:
   - Bash
   - Read
   - AskUserQuestion

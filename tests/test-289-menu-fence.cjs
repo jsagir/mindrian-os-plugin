@@ -88,10 +88,14 @@ function splitFrontmatter(lines) {
 
 // allowed-tools as a list of names, from the frontmatter lines. Handles a
 // block list, an inline [a, b] list and a comma string.
+// Phase 401 plan F1 (quick 261127-f1a), cause (d): the dead tool lists of 55 commands and 54 mirrors moved to the key pending_tool_grants, which the host does not read. Read both keys; the assertions are unchanged and apply to the union.
 function allowedTools(fm) {
-  const idx = fm.findIndex((l) => /^allowed-tools\s*:/.test(l));
+  return toolsUnder(fm, 'allowed-tools').concat(toolsUnder(fm, 'pending_tool_grants'));
+}
+function toolsUnder(fm, key) {
+  const idx = fm.findIndex((l) => new RegExp('^' + key + '\\s*:').test(l));
   if (idx < 0) return [];
-  const first = fm[idx].replace(/^allowed-tools\s*:/, '').trim();
+  const first = fm[idx].replace(new RegExp('^' + key + '\\s*:'), '').trim();
   const out = [];
   if (first.length > 0) {
     first

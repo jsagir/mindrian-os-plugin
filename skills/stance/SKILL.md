@@ -23,7 +23,7 @@ interactive_first_reward: "--none (diagnostic surface)"
 teaching: "When you want Larry to shift how he talks to you this session -- pull evidence, deliver decisively, stay Socratic, or challenge you -- /mos:stance flips the dial in one confirm. Offered when relevant, never forced."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Bash AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Ambient always-on affordance; the navigator invokes it deliberately at any turn, carrying no problem-state trigger of its own -- mirrors the larry-personality / rooms.md exclusion pattern."

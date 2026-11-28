@@ -25,7 +25,7 @@ interactive_first_reward: schema_preview
 teaching: "When a room section drifts from its BRAIN.md derivation, /mos:brain-derive rebuilds the per-section Brain context now. Run after large filings or before a decision gate."
 disable-model-invocation: false
 allowed-tools: Bash(node *), AskUserQuestion
-# --- Phase 245-02 CIRS R1 wire (Canon Part 11), promoting the Phase 172-06 exclude ---
+# == Phase 245-02 CIRS R1 wire (Canon Part 11), promoting the Phase 172-06 exclude ==
 # The 172-06 exclude named its own promotion condition: "INV-06 promotion
 # candidate (a future mindrian-operation counterpart could make derivation
 # contextually triggered), excluded for now." That counterpart now ships: the

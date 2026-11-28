@@ -25,7 +25,7 @@ allowed-tools:
   - Read
   - Bash
   - AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Ambient always-on affordance; the navigator invokes it deliberately at any turn, carrying no problem-state trigger of its own -- mirrors the larry-personality / rooms.md exclusion pattern."

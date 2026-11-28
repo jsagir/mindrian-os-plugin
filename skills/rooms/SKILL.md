@@ -18,7 +18,7 @@ teaching: "When you have multiple venture rooms and need to switch, list, or arc
 interactive_first_reward: --none (scripting only)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. Multi-room registry management the navigator drives deliberately; an operator surface with no problem-state trigger."

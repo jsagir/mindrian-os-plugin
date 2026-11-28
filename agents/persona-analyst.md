@@ -12,7 +12,7 @@ tools:
   - WebFetch
   - mcp__plugin_mos_mindrian-brain__brain_search
   - mcp__plugin_mos_mindrian-brain__brain_query
-# --- Phase 144.1 connector frontmatter (generated via build-connector-registry --check) ---
+# == Phase 144.1 connector frontmatter (generated via build-connector-registry --check) ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-06]

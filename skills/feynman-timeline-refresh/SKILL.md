@@ -24,7 +24,7 @@ frameworks: []
 produces: "room/*/FEYNMAN.md"
 inputs: []
 autonomous_safe: true
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. Regenerates the FEYNMAN.md auto-timeline; a maintenance refresh fired by the session-start cascade or manual run, not a contextual reach."

@@ -18,19 +18,19 @@ move_type: "analyze"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When the team feels wrong-shaped for the stage, /mos:leadership diagnoses which leadership pattern you actually need. Different stages of a venture need different leadership shapes."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Adaptive Leadership"]
 produces: "room/team-execution/leadership/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-05]

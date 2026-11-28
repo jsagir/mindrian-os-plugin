@@ -22,7 +22,7 @@ deprecated_removal: "v1.14.0"
 teaching: "Deprecated alias. Use /mos:doctor --heal-room to repair structural drift; the canonical heal logic lives in doctor class E. Scheduled removal: v1.14.0."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read Write AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. Repairs / heals room or install state when the navigator or recovery flow runs it; a maintenance action, not a navigator problem-state reach."

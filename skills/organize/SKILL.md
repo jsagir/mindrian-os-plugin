@@ -26,7 +26,7 @@ deprecated_removal: "v1.14.0"
 teaching: "Deprecated alias. Use /mos:rooms organize to manage the room portfolio hierarchy; organize is folded into the multi-room surface. Scheduled removal: v1.14.0."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Write Bash Glob Grep AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Utility command. Reorganizes / files room artifacts on explicit navigator request; a housekeeping action today. INV-06 promotion candidate (a future contextual trigger on filing pressure is plausible), excluded for now."

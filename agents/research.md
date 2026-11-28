@@ -17,7 +17,7 @@ tools:
   - mcp__pinecone-brain__search-records
   - Read
   - Write
-# --- Phase 144.1 connector frontmatter ---
+# == Phase 144.1 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-04, SENS-06]

@@ -38,10 +38,18 @@ function readCommand(name) {
 }
 
 // Extract the allowed-tools block from a command's frontmatter (between the two --- fences).
+// Phase 401 plan F1 (quick 261127-f1a), cause (d) and checker edit C2: the dead tool lists of 55 commands
+// and 54 mirrors moved to the key pending_tool_grants, which the host does not read. Read both keys and join
+// the 2 blocks; the Brain assertion applies to the union, and leg 1a asserts the joined block is not empty.
 function allowedToolsBlock(src) {
   const fm = src.split('---')[1] || '';
-  const m = fm.match(/allowed-tools:[\s\S]*?(?=\n[a-zA-Z#][^\n]*:\s|$)/);
-  return m ? m[0] : '';
+  const out = [];
+  for (const key of ['allowed-tools', 'pending_tool_grants']) {
+    const m = fm.match(new RegExp(key + ':[\\s\\S]*?(?=\\n[a-zA-Z#][^\\n]*:\\s|$)'));
+    if (m) out.push(m[0]);
+  }
+  // A line that matches /^\s*#/ is a comment, not an entry (checker edit C1 of the F1 plan).
+  return out.join('\n').split('\n').filter((l) => !/^\s*#/.test(l)).join('\n');
 }
 
 async function main() {
@@ -49,6 +57,7 @@ async function main() {
   for (const cmd of ['rs-experts.md', 'rs-thesis.md']) {
     const src = readCommand(cmd);
     const tools = allowedToolsBlock(src);
+    assert.ok(/\n\s*-\s*\S/.test(tools), cmd + ' tool list block must not be empty (checker edit C2)');
     assert.equal(
       /mcp__mindrian[-_]brain/.test(tools) || /read_neo4j_cypher/.test(tools),
       false,

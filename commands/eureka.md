@@ -41,7 +41,7 @@ allowed-tools:
   - Bash
   - Write
   - AskUserQuestion
-# --- Phase 216-03 connector frontmatter (born-wired, Canon Part 11 CIRS R1) ---
+# == Phase 216-03 connector frontmatter (born-wired, Canon Part 11 CIRS R1) ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-13]

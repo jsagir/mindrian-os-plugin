@@ -29,15 +29,19 @@ move_type: "probe"
 move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When you have a room and a question but no time to run the research by hand, /mos:intel-pipeline reads your active JTBD, breaks it into research dimensions, fans out a small set of evidence passes, scores them, and closes the loop into your graph. You approve three things along the way: the orientation, the fan size, and the final ruling. It never writes to the graph or re-points your JTBD without you."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: meta
 frameworks: []
 produces: null
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools: Read Write Glob Bash mcp__mindrian-brain__brain_ask mcp__mindrian-brain__brain_search
-# --- Phase 223 CIRS connector ---
+pending_tool_grants:
+  - Read
+  - Write
+  - Glob
+  - Bash
+# == Phase 223 CIRS connector ==
 # /mos:intel-pipeline is a standing meta-orchestrator: the spine OFFERS a governed
 # research pass, the navigator CONFIRMS it at the F.1 calibrate gate. It is NOT a
 # 7th reach (Canon Part 11 R3/R4). reach_id 'context_block' is in the frozen 6

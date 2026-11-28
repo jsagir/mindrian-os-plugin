@@ -24,7 +24,7 @@ allowed-tools:
   - Read
   - Bash
   - AskUserQuestion
-# --- Phase 219-04 connector frontmatter (born-wired, Canon Part 11 CIRS R1 / D-10) ---
+# == Phase 219-04 connector frontmatter (born-wired, Canon Part 11 CIRS R1 / D-10) ==
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-14]

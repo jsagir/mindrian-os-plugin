@@ -28,8 +28,8 @@ interactive_first_reward: "--none (scripting only)"
 # removes the per-spawn permission prompt rather than granting a capability the
 # command did not already have. Scoped to the invoking turn; clears on the next
 # message.
-allowed-tools: Read Write Glob Bash WebSearch mcp__tavily__tavily-search mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher AskUserQuestion Task
-# --- Phase 143.3 connector frontmatter ---
+allowed-tools: Read Write Glob Bash WebSearch mcp__tavily__tavily-search AskUserQuestion Task
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

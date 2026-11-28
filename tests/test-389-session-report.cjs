@@ -72,8 +72,12 @@ check('Gate: D7 is APPROVE (otherwise this plan changes nothing)', tok.d7 === 'A
 const ALIAS = tok.d8 !== 'NO-ALIAS';
 
 // ---- Test 1 ----
-const oldCmd = blob(OLD_CMD_BLOB);
-const oldSkill = blob(OLD_SKILL_BLOB);
+// Phase 401 plan F1 (quick 261127-f1a), cause (c): the plan rewrote the triple-dash comment lines inside
+// frontmatter, because the host ends frontmatter at the first triple dash. The same rewrite is applied to the
+// old blobs before the compare. No key changed.
+const F1 = require(path.join(ROOT, 'scripts', 'check-frontmatter-split.cjs'));
+const oldCmd = F1.rewriteText(blob(OLD_CMD_BLOB)).text;
+const oldSkill = F1.rewriteText(blob(OLD_SKILL_BLOB)).text;
 for (const f of ['commands/session-report.md', 'skills/session-report/SKILL.md']) {
   check('Test 1: ' + f + ' exists', exists(f));
 }

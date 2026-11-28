@@ -22,7 +22,7 @@ allowed-tools:
   - Bash
   - Glob
   - AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 # new-surface declares no frameworks: block; the connector carries framework: null
 # and filing: none with NO decision surface that fires a command, so the WFL-01
 # firesCommand gate does not fire (mirrors commands/new-project.md). surface: F.1

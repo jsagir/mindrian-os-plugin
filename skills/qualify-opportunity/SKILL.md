@@ -22,7 +22,7 @@ move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When the harvest sensor surfaces a candidate, /mos:qualify-opportunity puts the decision where it belongs: with you. The card shows WHY the candidate qualified (the Q1..Q8 rubric verdicts plus machine-readiness components), so you learn the qualification tests while you decide. Rejection teaches as much as approval - a Skip becomes graph data the ranker learns from."
 allowed-tools: Read Bash AskUserQuestion
-# --- Phase 219-04 connector frontmatter (born-wired, Canon Part 11 CIRS R1 / D-10) ---
+# == Phase 219-04 connector frontmatter (born-wired, Canon Part 11 CIRS R1 / D-10) ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

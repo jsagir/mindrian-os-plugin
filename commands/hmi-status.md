@@ -26,7 +26,7 @@ allowed-tools:
   - Bash
   - Read
   - AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. Inspects HMI / dial render status; an internal diagnostics surface the maintainer runs deliberately, not a contextual reach."

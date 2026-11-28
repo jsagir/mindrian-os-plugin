@@ -22,7 +22,7 @@ move_type_weak: false
 cynefin_label_status: "provisional"
 teaching: "When you need to track grants and investors as a real pipeline, /mos:funding manages the lifecycle from spotted to applied to decided. Funding is a process, not a one-shot event."
 allowed-tools: Read Write Bash Glob AskUserQuestion
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []

@@ -23,7 +23,7 @@ teaching: "When you just installed MindrianOS, /mos:onboard walks you through th
 interactive_first_reward: reframe_question
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Write Bash WebFetch AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# == Phase 172-06 CIRS R1 exclude (Canon Part 11) ==
 connector:
   excluded: true
   reason: "Lifecycle command. The onboarding / first-run flow; a one-time setup surface driven by install state, not by a navigator problem-state trigger."

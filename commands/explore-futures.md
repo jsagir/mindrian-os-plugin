@@ -26,18 +26,18 @@ cynefin_label_status: "provisional"
 # synthesis structure before the navigator invests in the full projection).
 interactive_first_reward: schema_preview
 teaching: "When the path forward branches into multiple plausible futures, /mos:explore-futures synthesizes TTA, Scenario, and S-Curve views. Helps you choose without pretending you can predict."
-# --- Phase 122 workflow-layer frontmatter ---
+# == Phase 122 workflow-layer frontmatter ==
 kind: methodology
 frameworks: ["Scenario Planning"]
 produces: "room/**/futures/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
+pending_tool_grants:
   - Read
   - Write
   - Bash
   - Glob
-# --- Phase 143.3 connector frontmatter ---
+# == Phase 143.3 connector frontmatter ==
 connector:
   connects_to_spine: true
   sensor_triggers: []
