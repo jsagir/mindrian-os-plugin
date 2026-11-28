@@ -37,6 +37,9 @@
  *   record-ruling --room <dir> --run <id> --answer <file>  (the navigator ruling on a tension; the only writer of the rulings store)
  *   compare --room <dir> --deep <id> --quick <id>  (one merged deep run and one merged quick run of one brief, side by side)
  *
+ * Maintenance subcommand (not a step of a run, not in SUBCOMMANDS):
+ *   disarm-reader-screen [--run <id>]          (the off switch of the reader search screen: removes the marker of a run, or all)
+ *
  * Every subcommand prints one JSON object. A refusal is data: {ok: false, reason}
  * with exit code 0. Exit code 2 is a usage error (unknown subcommand, missing flag).
  *
@@ -53,15 +56,26 @@ const crypto = require('crypto');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const ops = require(path.join(REPO_ROOT, 'lib', 'core', 'persona-ops.cjs'));
+// Phase 400.2.1: the identity screen, the light ledger read and the reader search marker live in one small module, so
+// the reader search guard hook does not load this door.
+const screenMod = require(path.join(REPO_ROOT, 'lib', 'core', 'persona-reader-screen.cjs'));
+const {
+  readJsonFile, reviewsDirOf, findRunDir, readLedger,
+  IDENTITY_STOP_LIST, IDENTITY_MIN_LETTERS, identityTokens, readVentureName, teamFileBaseNames, properNounCandidates,
+  roomIdentityScreen, handleHitsScreen, screenSearchText,
+  READER_MARKER_SCHEMA, READER_MARKER_MAX_AGE_MS, READER_MARKER_RE, DISARM_COMMAND,
+  readerMarkerDir, removeReaderMarker, liveReaderMarkers, readerSearchVerdict,
+} = screenMod;
 
 const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'run-research', 'check', 'merge', 'record-ruling', 'compare']);
 const USAGE = 'usage: persona-hats.cjs <' + SUBCOMMANDS.join('|') + '> --room <dir> ...';
+// Round 3: the off switch of the reader search screen (owner ruling "Fail closed, plus an off switch").
+const DISARM_SUBCOMMAND = 'disarm-reader-screen';
+const DISARM_USAGE = 'usage: persona-hats.cjs disarm-reader-screen [--run <run_id>]';
 
 const HATS = Object.freeze(Object.keys(ops.HAT_DEFINITIONS));
-const RUN_ID_RE = /^\d{8}-\d{6}-[0-9a-f]{4}$/;
 const SCRATCH_RE = /^mos-persona-(\d{8}-\d{6}-[0-9a-f]{4})-[0-9a-f]{16}$/;
 const SCRATCH_MAX_AGE_MS = 24 * 3600 * 1000;
-const MAX_JSON_BYTES = 262144;
 const BRIEF_KEYS = ['schema', 'target', 'governing_question', 'sub_questions', 'reading_list', 'mode', 'triage'];
 const TRIAGE_KEYS = ['recommended', 'reason'];
 
@@ -88,35 +102,6 @@ function parseFlags(argv) {
     }
   }
   return { flags, positional };
-}
-
-/**
- * Read one JSON file. Never throws. Refuses a file that is too large.
- * @returns {{ok: true, value: *, sha256: string} | {ok: false, reason: string}}
- */
-function readJsonFile(p, options) {
-  const o = options || {};
-  let st;
-  try {
-    st = o.noSymlink ? fs.lstatSync(p) : fs.statSync(p);
-  } catch (e) {
-    return { ok: false, reason: 'file_unreadable' };
-  }
-  if (!st.isFile()) return { ok: false, reason: o.noSymlink ? 'not_a_regular_file' : 'file_unreadable' };
-  if (st.size > MAX_JSON_BYTES) return { ok: false, reason: 'file_too_large' };
-  let bytes;
-  try {
-    bytes = fs.readFileSync(p);
-  } catch (e) {
-    return { ok: false, reason: 'file_unreadable' };
-  }
-  let value;
-  try {
-    value = JSON.parse(bytes.toString('utf8'));
-  } catch (e) {
-    return { ok: false, reason: 'schema_invalid:json' };
-  }
-  return { ok: true, value, sha256: crypto.createHash('sha256').update(bytes).digest('hex') };
 }
 
 /** Write JSON through a temporary file in the same directory and a rename. */
@@ -340,40 +325,6 @@ function slugOf(question) {
 // Ledger (S-8): only this door writes run.json
 // ---------------------------------------------------------------------------
 
-function reviewsDirOf(roomResolved) {
-  return path.join(roomResolved, 'personas', 'hat-reviews');
-}
-
-function findRunDir(roomResolved, runId) {
-  if (typeof runId !== 'string' || !RUN_ID_RE.test(runId)) return null;
-  let entries;
-  try {
-    entries = fs.readdirSync(reviewsDirOf(roomResolved), { withFileTypes: true });
-  } catch (e) {
-    return null;
-  }
-  for (const e of entries) {
-    if (e.isDirectory() && e.name.startsWith(runId + '-') && fs.existsSync(path.join(reviewsDirOf(roomResolved), e.name, 'run.json'))) {
-      return path.join(reviewsDirOf(roomResolved), e.name);
-    }
-  }
-  return null;
-}
-
-/** Read the ledger of a run. @returns {{ok: true, dir, ledger} | {ok: false, reason}} */
-function readLedger(roomDir, runId) {
-  const roomResolved = path.resolve(roomDir);
-  const dir = findRunDir(roomResolved, runId);
-  if (!dir) return { ok: false, reason: 'run_not_found' };
-  const r = readJsonFile(path.join(dir, 'run.json'));
-  if (!r.ok) return { ok: false, reason: 'ledger_invalid' };
-  const l = r.value;
-  if (!l || l.schema !== 'mos.persona-run/1' || l.run_id !== runId || !l.steps || !l.hats) return { ok: false, reason: 'ledger_invalid' };
-  // IN-03: brief_hash names a store file; a hand-edited value must not reach a path.
-  if (typeof l.brief_hash !== 'string' || !/^[0-9a-f]{64}$/.test(l.brief_hash)) return { ok: false, reason: 'ledger_invalid' };
-  return { ok: true, dir, ledger: l };
-}
-
 function writeLedger(dir, ledger) {
   atomicWriteJson(path.join(dir, 'run.json'), ledger);
 }
@@ -396,6 +347,62 @@ function markStep(ledger, step, state, now) {
 
 function runMapPath(homeDir, runId) {
   return path.join(homeDir, 'persona-hats', 'runs', runId + '.json');
+}
+
+// ---------------------------------------------------------------------------
+// Phase 400.2.1 (S5): the reader search marker. Owner rulings 2026-11-26: "A: screen with a hook" and "Fail closed,
+// plus an off switch". While a marker exists, scripts/persona-reader-search-guard-hook.cjs screens each WebSearch query
+// and each WebFetch url with the identity screen of the room of the run (lib/core/persona-reader-screen.cjs). run-research
+// writes the marker (and plan-research when it skips run-research), merge removes it, disarm-reader-screen removes it on
+// the navigator's request, and a marker older than READER_MARKER_MAX_AGE_MS is stale. The marker holds no screen token.
+// ---------------------------------------------------------------------------
+
+/**
+ * Write the marker of a run. Never throws. Round 3 (M2): the screen is armed only when the room identity screen runs
+ * (the room states a name); otherwise no marker is written and the state is not_armed:no_room_name.
+ * @returns {string} armed, or not_armed:<reason>
+ */
+function writeReaderMarker(homeDir, runId, roomResolved, now, readingList) {
+  let ran = false;
+  try { ran = roomIdentityScreen(roomResolved, readingList).ran === true; } catch (e) { ran = false; }
+  if (!ran) return 'not_armed:no_room_name';
+  try {
+    const dir = readerMarkerDir(homeDir);
+    ensurePrivateDir(dir);
+    const at = now instanceof Date ? now : new Date();
+    atomicWriteJson(path.join(dir, runId + '.json'), {
+      schema: READER_MARKER_SCHEMA,
+      run_id: runId,
+      room: roomResolved,
+      created_at: at.toISOString(),
+      expires_at: new Date(at.getTime() + READER_MARKER_MAX_AGE_MS).toISOString(),
+    }, 0o600);
+    return 'armed';
+  } catch (e) {
+    return 'not_armed:' + (e && e.code ? e.code : 'error');
+  }
+}
+
+/**
+ * Round 3 (owner ruling "Fail closed, plus an off switch"): the off switch of the reader search screen. It removes the
+ * marker of one run (--run <id>), or every marker when no run is named. It is a maintenance subcommand, not a step of
+ * a run: it writes no ledger, and the merge of a disarmed run says that the screen was removed before the merge.
+ * @returns {{ok: true, removed: string[]} | {ok: false, reason: string}}
+ */
+function cmdDisarmReaderScreen(args, deps) {
+  const home = homeDirOf(deps);
+  const runId = args && typeof args.runId === 'string' ? args.runId : null;
+  if (runId !== null && !READER_MARKER_RE.test(runId + '.json')) return { ok: false, reason: 'run_id_invalid' };
+  let names = [];
+  try { names = fs.readdirSync(readerMarkerDir(home)); } catch (e) { names = []; }
+  const removed = [];
+  for (const name of names) {
+    const m = READER_MARKER_RE.exec(name);
+    if (!m || (runId !== null && m[1] !== runId)) continue;
+    if (removeReaderMarker(home, m[1])) removed.push(m[1]);
+    else return { ok: false, reason: 'remove_failed', removed };
+  }
+  return { ok: true, removed: removed.sort() };
 }
 
 function ensurePrivateDir(dir) {
@@ -1141,7 +1148,9 @@ function perHatRules(hat, reading, ctx) {
         lines.push('none_found_with_evidence');
       } else {
         const own = Array.isArray(r.self_search_strings) ? r.self_search_strings : [];
-        if (c.researchState === 'ran_empty') out.none_found_basis = 'door_search_empty';
+        // Phase 400.2.1 (S4): a door search whose results were all below the relevance floor ran and found nothing usable.
+        const floorOnly = c.researchState === 'fetched_not_wired' && c.researchReason === 'below_relevance_floor';
+        if (c.researchState === 'ran_empty' || floorOnly) out.none_found_basis = 'door_search_empty';
         else if (own.length >= 1) out.none_found_basis = 'self_reported_search';
         else lines.push('none_found_without_search');
         if (out.none_found_basis) {
@@ -1604,6 +1613,26 @@ function cmdPlanResearch(args, deps) {
   return planFirst(roomResolved, lr, map, deps);
 }
 
+// Phase 400.2.1 (S10): one fixed sentence that says how to fix a refused handle, by reason (and by lens for the nature
+// handle of Green). A reason with no entry gets no guidance key. The sentences hold no handle text.
+const REFUSAL_GUIDANCE = Object.freeze({
+  handle_not_generic_shape: 'A handle is 1 to 4 lower-case words, with letters and spaces only; the door adds the qualifier of the hat. Shorten it, then edit the string on the card or run the handles step again.',
+  handle_has_digit: 'A handle holds no digit. Write the number as a general word, or leave it out.',
+  room_identity_word: 'A handle holds no name or word of the room (the venture, a team file, or a proper noun of the reading list). Use the general word of the field instead.',
+  egress_violation: 'The text did not pass the egress check of the door. Remove every name, address, number or other room detail.',
+});
+const NATURE_GUIDANCE = Object.freeze({
+  handle_not_generic_shape: 'A nature handle is 1 to 6 lower-case words, with letters and spaces only and no qualifier, for example "organisms that recover metals". Shorten it; until then Green has no AskNature search in this run.',
+});
+
+/** Add the guidance sentence of a refusal to a refused_shown entry. @returns {Object} the entry */
+function withGuidance(entry) {
+  const table = entry && entry.lens === NATURE_LENS ? Object.assign({}, REFUSAL_GUIDANCE, NATURE_GUIDANCE) : REFUSAL_GUIDANCE;
+  const g = entry && typeof entry.reason === 'string' && Object.prototype.hasOwnProperty.call(table, entry.reason) ? table[entry.reason] : null;
+  if (g) entry.guidance = g;
+  return entry;
+}
+
 function planFirst(roomResolved, lr, map, deps) {
   const ledger = lr.ledger;
   const screen = roomIdentityScreen(roomResolved, ledger.brief && ledger.brief.reading_list);
@@ -1652,7 +1681,7 @@ function planFirst(roomResolved, lr, map, deps) {
       const s = c.ok ? composeString(hat, c.handle) : c;
       if (!s.ok) {
         rec.refused.push({ reason: s.reason });
-        refusedShown.push({ hat, text: typeof raw === 'string' ? raw.slice(0, SHOWN_TEXT_MAX) : null, reason: s.reason });
+        refusedShown.push(withGuidance({ hat, text: typeof raw === 'string' ? raw.slice(0, SHOWN_TEXT_MAX) : null, reason: s.reason }));
         refusedCount += 1;
         continue;
       }
@@ -1686,7 +1715,7 @@ function planFirst(roomResolved, lr, map, deps) {
         const s = c.ok ? composeNatureString(c.handle) : c;
         if (!s.ok) {
           rec.nature = { state: 'not_planned:' + s.reason };
-          refusedShown.push({ hat, lens: NATURE_LENS, text: natureRaw.slice(0, SHOWN_TEXT_MAX), reason: s.reason });
+          refusedShown.push(withGuidance({ hat, lens: NATURE_LENS, text: natureRaw.slice(0, SHOWN_TEXT_MAX), reason: s.reason }));
           refusedCount += 1;
         } else {
           rec.nature = { state: 'planned', lens: NATURE_LENS, text: s.text, q_hash: s.q_hash, handle: s.handle };
@@ -1739,6 +1768,9 @@ function planFirst(roomResolved, lr, map, deps) {
   ledger.research = { strings_approved: approved, strings_refused: refusedCount };
   markStep(ledger, 'plan_research', 'done', now);
   if (planned.length === 0) markStep(ledger, 'run_research', 'skipped', now);
+  // Phase 400.2.1 (S5): with run-research skipped, the readings come next, so the reader search screen is armed here.
+  const armed = planned.length === 0 ? writeReaderMarker(homeDirOf(deps), ledger.run_id, roomResolved, now, ledger.brief && ledger.brief.reading_list) : null;
+  if (armed) ledger.reader_search_screen = armed;
   try {
     writeLedger(lr.dir, ledger);
   } catch (e) {
@@ -1748,7 +1780,7 @@ function planFirst(roomResolved, lr, map, deps) {
   for (const hat of consumed) {
     try { fs.rmSync(path.join(hatDirOf(map, hat), 'handles.json'), { force: true }); } catch (e) { /* the scratch tree is removed at merge */ }
   }
-  return planOutput(ledger, plan, refusedShown);
+  return planOutput(ledger, plan, refusedShown, armed ? { reader_search_screen: armed } : undefined);
 }
 
 /** Check the shape of the edited-strings file (S-3b). @returns {string|null} a reason */
@@ -1810,7 +1842,7 @@ function planEdit(roomResolved, lr, map, args, deps) {
   const refusedShown = [];
   const accepted = [];
   for (const edit of er.value.edits) {
-    const refuse = (reason) => refusedShown.push({ hat: edit.hat.slice(0, 20), text: edit.text.slice(0, SHOWN_TEXT_MAX), reason });
+    const refuse = (reason) => refusedShown.push(withGuidance({ hat: edit.hat.slice(0, 20), text: edit.text.slice(0, SHOWN_TEXT_MAX), reason }));
     if (!RESEARCH_HATS.includes(edit.hat)) { refuse('hat_never_searches'); continue; }
     const rec = plan.hats[edit.hat];
     const at = isPlain(rec) && rec.state === 'planned' && Array.isArray(rec.strings) ? rec.strings.findIndex(s => s.q_hash === edit.q_hash_replaced) : -1;
@@ -1885,19 +1917,10 @@ const SELF_SEARCH_PARTIAL_LINE = 'self_search_screen_partial';
  */
 function screenReportedStrings(strings, screen) {
   const list = Array.isArray(strings) ? strings.filter(x => typeof x === 'string') : [];
-  const rs = require(path.join(REPO_ROOT, 'lib', 'core', 'rs-egress-prompts.cjs'));
   const screenRan = Boolean(screen) && screen.ran === true && typeof screen.has === 'function';
   let suspected = 0;
-  for (const text of list) {
-    let hit = false;
-    try {
-      rs.auditQueryString(text, 'persona-hats');
-    } catch (e) {
-      hit = true;
-    }
-    if (!hit && screenRan && handleHitsScreen(identityTokens(text), screen)) hit = true;
-    if (hit) suspected += 1;
-  }
+  // Phase 400.2.1 (S5): one screen function for this after-the-fact count and for the reader search hook.
+  for (const text of list) if (screenSearchText(text, screen)) suspected += 1;
   return { checked: list.length, suspected, screen_partial: !screenRan };
 }
 
@@ -1938,7 +1961,7 @@ function judgeReading(hat, dir, ctx) {
     rec.reading = cite.state;
     return out;
   }
-  const rules = perHatRules(hat, reading, { researchState: ctx.researchState });
+  const rules = perHatRules(hat, reading, { researchState: ctx.researchState, researchReason: ctx.researchReason });
   // FS-9: the after-the-fact screen of the strings that the hat reports. It adds rule lines and never drops the reading.
   const lines = rules.lines.slice();
   if (RESEARCH_HATS.includes(hat) && Array.isArray(reading.self_search_strings) && reading.self_search_strings.length > 0) {
@@ -1963,6 +1986,16 @@ function judgeReading(hat, dir, ctx) {
  * counts-only ledger of Blue (S-9). It reads no file of the Blue directory and writes only ledger.json
  * there.
  */
+/** Round 3 (S4): the dropped count of each researching hat from the run record (0 when its door search did not run). */
+function droppedCountsOf(ledger) {
+  const out = {};
+  for (const hat of RESEARCH_HATS) {
+    const e = ledger && isPlain(ledger.hats) ? ledger.hats[hat] : null;
+    out[hat] = e && Number.isInteger(e.dropped_below_floor) ? e.dropped_below_floor : 0;
+  }
+  return out;
+}
+
 function cmdCheck(args, deps) {
   const roomResolved = roomDirCheck(args && args.roomDir);
   if (!roomResolved) return { ok: false, reason: 'room_not_found' };
@@ -1985,6 +2018,8 @@ function cmdCheck(args, deps) {
   const screen = roomIdentityScreen(roomResolved, ledger.brief && ledger.brief.reading_list);
   const notRun = [];
   const perHat = {};
+  // Phase 400.2.1 (S8): the positions of each hat that ran, by sub-question id, for the coverage of the Blue ledger.
+  const positionsOf = {};
   const personaNotRun = (persona) => {
     if (persona === 'refused') return 'not_run:persona_refused';
     if (persona === 'build_failed') return 'not_run:persona_build_failed';
@@ -2003,9 +2038,13 @@ function cmdCheck(args, deps) {
     } else if (!dir) {
       rec.reading = 'not_run:no_reading_file';
     } else {
-      const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: map.packs, screen });
+      const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research, researchReason: entry.research_reason, packs: map.packs, screen });
       Object.assign(rec, judged.rec);
       if (judged.none_found_basis) entry.none_found_basis = judged.none_found_basis;
+      if (judged.value && Array.isArray(judged.value.positions)) {
+        positionsOf[hat] = {};
+        for (const p of judged.value.positions) if (isPlain(p) && typeof p.sub_question === 'string') positionsOf[hat][p.sub_question] = p.value;
+      }
     }
     if (rec.reading !== 'ran') notRun.push({ hat, reason: rec.reading.replace(/^(not_run|rejected):/, '') + '', state: rec.reading });
     entry.reading = rec.reading;
@@ -2049,6 +2088,20 @@ function cmdCheck(args, deps) {
       door_items: doorItemsOf(hat),
     };
   }
+  // Phase 400.2.1 (S8): coverage of each sub-question. For each id: the count of hats with a position, the count with
+  // no_position, and the state of each reading hat (covered, no_position or not_run). No position value and no line.
+  ledgerBlue.coverage = subQuestionIds.map((id) => {
+    const byHat = {};
+    let positions = 0;
+    let noPosition = 0;
+    for (const hat of READ_HATS) {
+      const ran = perHat[hat].reading === 'ran' && positionsOf[hat];
+      const v = ran ? positionsOf[hat][id] : undefined;
+      if (!ran || v === undefined) byHat[hat] = 'not_run';
+      else if (v === 'no_position') { byHat[hat] = 'no_position'; noPosition += 1; } else { byHat[hat] = 'covered'; positions += 1; }
+    }
+    return { sub_question: id, positions, no_position: noPosition, by_hat: byHat };
+  });
   const bluePath = path.join(blueDir, 'ledger.json');
   try {
     atomicWriteJson(bluePath, ledgerBlue);
@@ -2067,7 +2120,7 @@ function cmdCheck(args, deps) {
     states[hat] = { reading: perHat[hat].reading, rule_lines: perHat[hat].rule_lines, evidence_items: perHat[hat].evidence_items, self_found_sources: perHat[hat].self_found_sources };
     if (ledger.hats[hat].none_found_basis) states[hat].none_found_basis = ledger.hats[hat].none_found_basis;
   }
-  return { ok: true, run_id: ledger.run_id, hats: states, not_run: notRun, blue_ledger: bluePath };
+  return { ok: true, run_id: ledger.run_id, hats: states, not_run: notRun, blue_ledger: bluePath, dropped_below_floor: droppedCountsOf(ledger) };
 }
 
 // ---------------------------------------------------------------------------
@@ -2100,6 +2153,7 @@ const ARTIFACT_LABELS = Object.freeze({
   tension_state: 'state: ',
   tension_id: 'tension id: ',
   settled_on: 'settled on {date}: {ruling}',
+  settled_on_delegated: 'settled on {date}: {ruling} (delegated to Larry)',
   stored_line: 'stored {hat}: ',
   no_tension: 'The tension map found no tension.',
   three_pairs: 'The tension map knows three hat pairs: yellow and black, green and black, red and white. Opposite positions of any other pair are shown in the dissent register only.',
@@ -2135,11 +2189,15 @@ const ARTIFACT_LABELS = Object.freeze({
   found_summary: 'summary: ',
   reported_strings: 'Search strings the hat reports it sent (not approved on a card):',
   prompt_rule: "A hat's own searches follow a prompt rule only. No code checked them before they left the machine.",
+  reader_screen_rule: "A hat's own searches passed the reader search screen of the door before they left the machine. The screen blocks room words; it cannot catch a figure or a detail with no screened word.",
+  reader_screen_lapsed: "The reader search screen of this run expired or was removed before the merge. No code screened the own searches of the hats after that point.",
+  dropped_below_floor: 'door results dropped by the relevance floor: ',
   host_web_limit: 'Provider host-web: the assistant ran the web search. Code cannot prove that it searched exactly the approved string.',
   section_rulings: '## Rulings',
   ruling_value: 'ruling: ',
   ruling_side_hat: 'side hat: ',
   ruling_date: 'ruled on: ',
+  ruling_delegated: 'delegated to Larry: yes',
   quick_label: 'Quick mode: one context, no research. Checks that need evidence were not run.',
 });
 
@@ -2291,7 +2349,7 @@ function buildArtifact(record, readings, packs) {
       field('tension_pair', t.pair.join(' and '));
       for (const hat of t.pair) push(posLine(sq.id, hat));
       if (t.state === 'settled' && isPlain(t.stored_lines)) {
-        push(fillLabel('settled_on', { date: String(t.ruled_at).slice(0, 10), ruling: t.ruling }));
+        push(fillLabel(t.delegated === true ? 'settled_on_delegated' : 'settled_on', { date: String(t.ruled_at).slice(0, 10), ruling: t.ruling }));
         for (const hat of t.pair) field('stored_line', typeof t.stored_lines[hat] === 'string' ? t.stored_lines[hat] : '', { hat });
       }
       field('tension_state', t.state);
@@ -2364,9 +2422,14 @@ function buildArtifact(record, readings, packs) {
     const pack = packs[hat] || { items: [], strings: [] };
     const found = readings[hat] && Array.isArray(readings[hat].self_found_sources) ? readings[hat].self_found_sources : [];
     const strings = readings[hat] && Array.isArray(readings[hat].self_search_strings) ? readings[hat].self_search_strings : [];
-    if (pack.items.length === 0 && found.length === 0 && strings.length === 0) continue;
+    // Round 3 (S4, owner ruling "Keep, loosen a bit"): the count of door results that the relevance floor dropped, for
+    // each hat whose door search ran (the run record holds it from run-research).
+    const hatRec = isPlain(record.hats) && isPlain(record.hats[hat]) ? record.hats[hat] : {};
+    const dropped = Number.isInteger(hatRec.dropped_below_floor) ? hatRec.dropped_below_floor : null;
+    if (pack.items.length === 0 && found.length === 0 && strings.length === 0 && dropped === null) continue;
     anySource = true;
     field('heading', hat);
+    if (dropped !== null) field('dropped_below_floor', String(dropped));
     for (const it of pack.items) {
       field('source_id', it.id);
       field('source_title', it.title);
@@ -2392,7 +2455,13 @@ function buildArtifact(record, readings, packs) {
   }
   if (!anySource) push(L.none);
   if (RESEARCH_HATS.some(hat => packs[hat] && packs[hat].items.some(it => it.provider === HOST_WEB_PROVIDER))) push(L.host_web_limit);
-  if (anyString) push(L.prompt_rule);
+  // Phase 400.2.1 (S5): a run whose reader search screen was armed says so; an older run keeps the prompt-rule line.
+  // Round 3 (M2): armed and live at the merge: the screen line; armed but expired or removed: the lapsed line; never
+  // armed (no room name, or an older run): the prompt-rule line, which says that no code checked the searches.
+  if (anyString) {
+    const st = record.reader_search_screen;
+    push(st === 'armed' ? L.reader_screen_rule : (st === 'lapsed' ? L.reader_screen_lapsed : L.prompt_rule));
+  }
   return out.join('\n') + '\n';
 }
 
@@ -2522,6 +2591,8 @@ function cleanupRun(map, homeDir, runId) {
     }
   }
   try { fs.rmSync(runMapPath(homeDir, runId), { force: true }); } catch (e) { ok = false; }
+  // Phase 400.2.1 (S5): the run is closed, so the reader search screen of this run stops.
+  if (!removeReaderMarker(homeDir, runId)) ok = false;
   return ok;
 }
 
@@ -2570,7 +2641,7 @@ async function cmdMerge(args, deps) {
       verdict[hat] = { state: entry.reading };
       continue;
     }
-    const judged = judgeReading(hat, hatDirOf(map, hat), { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: map.packs, screen });
+    const judged = judgeReading(hat, hatDirOf(map, hat), { runId: ledger.run_id, subQuestionIds, researchState: entry.research, researchReason: entry.research_reason, packs: map.packs, screen });
     if (judged.rec.reading_sha256 !== entry.reading_sha256) {
       verdict[hat] = { state: 'rejected:changed_after_check' };
     } else if (judged.rec.reading !== 'ran') {
@@ -2642,6 +2713,8 @@ async function cmdMerge(args, deps) {
     ? { edited_strings: edited, cards: counts.counts.cards, stops: counts.counts.stops, agent_runs: counts.counts.agent_runs, reported_by: 'command' }
     : { edited_strings: edited, cards: null, stops: null, agent_runs: null, reported_by: 'not_reported' };
   ledger.timestamps.merged_at = now.toISOString();
+  // Round 3 (M2): an armed screen whose marker expired or was removed before the merge did not screen the whole run.
+  if (ledger.reader_search_screen === 'armed' && !liveReaderMarkers(homeDir, now).some(m => m.run_id === ledger.run_id)) ledger.reader_search_screen = 'lapsed';
   markStep(ledger, 'merge', 'done', now);
 
   // 5. The artifact, the copies of the readings, the session log, the run record, then the cleanup.
@@ -2698,6 +2771,7 @@ async function cmdMerge(args, deps) {
     same_position: samePosition,
     hats: hatsOut,
     not_run: notRun,
+    dropped_below_floor: droppedCountsOf(ledger),
     session_log: sessionLog,
     cleanup: cleaned ? 'done' : 'failed',
   };
@@ -2854,12 +2928,18 @@ async function mergeQuickRun(roomResolved, lr, args, deps) {
 // ---------------------------------------------------------------------------
 
 const RULINGS_FILE = 'tension-rulings.json';
-const RULINGS_SCHEMA = 'mos.persona-tension-rulings/1';
+// Phase 400.2.1 (S6): schema 2 adds the optional entry key delegated (always true). The door reads schema 1 and schema 2.
+// It writes schema 2 only when an entry is delegated, else schema 1 (round 3, N3). A door of an older plugin version
+// refuses a schema 2 store (rulings_store_invalid): the break is recorded in the phase SUMMARY.
+const RULINGS_SCHEMA = 'mos.persona-tension-rulings/2';
+const RULINGS_SCHEMA_V1 = 'mos.persona-tension-rulings/1';
 const RULING_ANSWER_SCHEMA = 'mos.persona-ruling-answer/1';
-const RULING_VALUES = Object.freeze(['side_a', 'side_b', 'both_hold', 'defer']);
+// Phase 400.2.1 (S6): delegated means the navigator hands the ruling to Larry. The entry then holds larry_pick (one of
+// STORED_RULINGS). The store keeps the pick as the ruling and adds delegated: true, so the record shows who decided.
+const RULING_VALUES = Object.freeze(['side_a', 'side_b', 'both_hold', 'defer', 'delegated']);
 const STORED_RULINGS = Object.freeze(['side_a', 'side_b', 'both_hold']);
 const RULING_ANSWER_KEYS = Object.freeze(['schema', 'run_id', 'rulings']);
-const RULING_ENTRY_KEYS = Object.freeze(['tension_id', 'ruling', 'reason', 'reopen']);
+const RULING_ENTRY_KEYS = Object.freeze(['tension_id', 'ruling', 'reason', 'reopen', 'larry_pick', 'navigator_confirmed']);
 const STORE_ENTRY_KEYS = Object.freeze(['ruling', 'reason', 'ruled_at', 'run_id', 'sub_question_text', 'pair', 'lines']);
 const MAX_RULINGS_PER_ANSWER = 75;
 const TENSION_ID_RE = /^[0-9a-f]{64}$/;
@@ -2872,7 +2952,11 @@ function rulingsStorePath(roomResolved) {
 function storeEntryValid(e) {
   if (!isPlain(e)) return false;
   const keys = Object.keys(e);
-  if (keys.length !== STORE_ENTRY_KEYS.length || !STORE_ENTRY_KEYS.every(k => keys.includes(k))) return false;
+  // Phase 400.2.1 (S6): one optional key, delegated, which is always true when present. A store without it stays valid.
+  const hasDelegated = keys.includes('delegated');
+  if (hasDelegated && e.delegated !== true) return false;
+  const want = STORE_ENTRY_KEYS.length + (hasDelegated ? 1 : 0);
+  if (keys.length !== want || !STORE_ENTRY_KEYS.every(k => keys.includes(k))) return false;
   if (!STORED_RULINGS.includes(e.ruling)) return false;
   if (typeof e.reason !== 'string' || e.reason.length > 280) return false;
   if (typeof e.ruled_at !== 'string' || !ISO_RE.test(e.ruled_at)) return false;
@@ -2901,11 +2985,14 @@ function readRulingsStore(roomDir) {
   if (!r.ok || !isPlain(r.value)) return { ok: false, reason: 'rulings_store_invalid' };
   const v = r.value;
   const keys = Object.keys(v);
-  if (keys.length !== 2 || !keys.includes('schema') || !keys.includes('rulings') || v.schema !== RULINGS_SCHEMA || !isPlain(v.rulings)) {
+  const known = v.schema === RULINGS_SCHEMA || v.schema === RULINGS_SCHEMA_V1;
+  if (keys.length !== 2 || !keys.includes('schema') || !keys.includes('rulings') || !known || !isPlain(v.rulings)) {
     return { ok: false, reason: 'rulings_store_invalid' };
   }
   for (const id of Object.keys(v.rulings)) {
     if (!TENSION_ID_RE.test(id) || !storeEntryValid(v.rulings[id])) return { ok: false, reason: 'rulings_store_invalid' };
+    // A schema 1 store has no delegated key.
+    if (v.schema === RULINGS_SCHEMA_V1 && Object.prototype.hasOwnProperty.call(v.rulings[id], 'delegated')) return { ok: false, reason: 'rulings_store_invalid' };
   }
   return { ok: true, rulings: v.rulings };
 }
@@ -2918,6 +3005,7 @@ function markSettled(tensions, stored) {
     t.state = 'settled';
     t.ruling = e.ruling;
     t.ruled_at = e.ruled_at;
+    if (e.delegated === true) t.delegated = true; else delete t.delegated;
     t.stored_lines = { [t.pair[0]]: typeof e.lines[t.pair[0]] === 'string' ? e.lines[t.pair[0]] : '', [t.pair[1]]: typeof e.lines[t.pair[1]] === 'string' ? e.lines[t.pair[1]] : '' };
   }
 }
@@ -2940,6 +3028,13 @@ function rulingAnswerRefusal(answer, runId) {
     }
     if (typeof e.tension_id !== 'string' || !TENSION_ID_RE.test(e.tension_id)) return at + '.tension_id';
     if (!RULING_VALUES.includes(e.ruling)) return at + '.ruling';
+    // Phase 400.2.1 (S6): larry_pick is checked whenever it is present. A delegated ruling needs a valid pick and the
+    // confirmation of the navigator: Larry picks, the navigator confirms, and only then the door stores the ruling.
+    if (e.larry_pick !== undefined && !STORED_RULINGS.includes(e.larry_pick)) return at + '.larry_pick';
+    if (e.ruling === 'delegated' && e.larry_pick === undefined) return at + '.larry_pick';
+    if (e.ruling !== 'delegated' && e.larry_pick !== undefined) return at + '.larry_pick';
+    if (e.navigator_confirmed !== undefined && (e.ruling !== 'delegated' || e.navigator_confirmed !== true)) return at + '.navigator_confirmed';
+    if (e.ruling === 'delegated' && e.navigator_confirmed !== true) return 'delegated_not_confirmed';
     if (e.reason !== undefined && (typeof e.reason !== 'string' || e.reason.length > 280)) return at + '.reason';
     if (e.reopen !== undefined && typeof e.reopen !== 'boolean') return at + '.reopen';
     if (seen.has(e.tension_id)) return 'schema_invalid:duplicate_tension';
@@ -2982,6 +3077,7 @@ function applyRulingsToArtifactText(text, tensions) {
       lines.push(L.tension_id + t.id);
       lines.push(L.ruling_value + t.ruling);
       lines.push(L.ruling_side_hat + (t.ruling === 'side_a' ? t.pair[0] : (t.ruling === 'side_b' ? t.pair[1] : L.none)));
+      if (t.delegated === true) lines.push(L.ruling_delegated);
       lines.push(L.ruling_date + String(t.ruled_at).slice(0, 10));
     });
   }
@@ -3028,6 +3124,8 @@ function cmdRecordRuling(args, deps) {
   const bad = rulingAnswerRefusal(read.value, ledger.run_id);
   if (bad) return { ok: false, reason: bad };
   const answer = read.value;
+  // Phase 400.2.1 (S6): a quick run has no navigator card for a delegated ruling, so it takes none.
+  if (ledger.mode === 'quick' && answer.rulings.some(e => e.ruling === 'delegated')) return { ok: false, reason: 'delegated_not_in_quick_mode' };
 
   const tensions = Array.isArray(ledger.tensions) ? ledger.tensions : [];
   const byId = {};
@@ -3063,6 +3161,7 @@ function cmdRecordRuling(args, deps) {
       delete t.ruling;
       delete t.ruled_at;
       delete t.stored_lines;
+      delete t.delegated;
       reopened.push(e.tension_id);
     } else if (e.ruling === 'defer') {
       t.ruling = 'defer';
@@ -3070,21 +3169,24 @@ function cmdRecordRuling(args, deps) {
       deferred.push(e.tension_id);
     } else {
       const sq = ledger.sub_questions.find(s => s.id === t.sub_question);
-      setEntries[e.tension_id] = {
-        ruling: e.ruling,
+      const delegated = e.ruling === 'delegated';
+      const ruling = delegated ? e.larry_pick : e.ruling;
+      setEntries[e.tension_id] = Object.assign({
+        ruling,
         reason: typeof e.reason === 'string' ? e.reason.trim() : '',
         ruled_at: nowIso,
         run_id: ledger.run_id,
         sub_question_text: sq ? sq.text : '',
         pair: t.pair.slice(),
         lines: Object.assign({}, t.lines),
-      };
+      }, delegated ? { delegated: true } : {});
       storeChanged = true;
       t.state = 'settled';
-      t.ruling = e.ruling;
+      t.ruling = ruling;
       t.ruled_at = nowIso;
+      if (delegated) t.delegated = true; else delete t.delegated;
       delete t.stored_lines;
-      recorded.push({ tension_id: e.tension_id, ruling: e.ruling, side_hat: e.ruling === 'side_a' ? t.pair[0] : (e.ruling === 'side_b' ? t.pair[1] : null) });
+      recorded.push(Object.assign({ tension_id: e.tension_id, ruling, side_hat: ruling === 'side_a' ? t.pair[0] : (ruling === 'side_b' ? t.pair[1] : null) }, delegated ? { delegated: true } : {}));
     }
   }
 
@@ -3097,7 +3199,10 @@ function cmdRecordRuling(args, deps) {
         const nextStore = Object.assign({}, fresh.rulings);
         for (const id of removedIds) delete nextStore[id];
         for (const id of Object.keys(setEntries)) nextStore[id] = setEntries[id];
-        atomicWriteJson(rulingsStorePath(roomResolved), { schema: RULINGS_SCHEMA, rulings: nextStore });
+        // Round 3 (N3): schema 2 only when an entry is delegated, so a store with no delegation stays readable by an
+        // older door.
+        const anyDelegated = Object.keys(nextStore).some(id => nextStore[id].delegated === true);
+        atomicWriteJson(rulingsStorePath(roomResolved), { schema: anyDelegated ? RULINGS_SCHEMA : RULINGS_SCHEMA_V1, rulings: nextStore });
         return { ok: true };
       });
       if (!written.ok) return { ok: false, reason: written.reason === 'store_busy' ? 'rulings_store_busy' : written.reason };
@@ -3129,15 +3234,16 @@ function cmdRecordRuling(args, deps) {
       try {
         for (const r of recorded) {
           const t = byId[r.tension_id];
-          const res = navigation.logMemoryEvent(db, 'decision_captured', {
+          // Phase 400.2.1 (S6): a delegated ruling adds one boolean, delegated: true. Other events keep their key list.
+          const res = navigation.logMemoryEvent(db, 'decision_captured', Object.assign({
             source: 'persona-hats',
             tension_id: r.tension_id,
             ruling: r.ruling,
             run_id: ledger.run_id,
             sub_question_id: t.sub_question,
             pair: t.pair.slice(),
-            dedupe_key: 'persona-ruling:' + r.tension_id + ':' + r.ruling,
-          }, { now: () => now.getTime() });
+            dedupe_key: 'persona-ruling:' + r.tension_id + ':' + r.ruling + (r.delegated === true ? ':delegated' : ''),
+          }, r.delegated === true ? { delegated: true } : {}), { now: () => now.getTime() });
           if (res && res.ok) logged += 1; else if (!failure) failure = 'event_refused:' + safeKeyName(res && res.reason);
         }
       } catch (e) {
@@ -3164,153 +3270,6 @@ function cmdRecordRuling(args, deps) {
 // ---------------------------------------------------------------------------
 // Phase 400.2-10: the Part 8 controls on a door search string (PS-01)
 // ---------------------------------------------------------------------------
-
-// Generic words that are common in room and venture names and are valid domain words. A token on this list is never
-// a screened word (the full-venture-name rule still applies). "clean room design" is not refused in a room named room.
-const IDENTITY_STOP_LIST = Object.freeze([
-  'room', 'venture', 'project', 'company', 'startup', 'labs', 'group', 'systems', 'solutions', 'technologies',
-  'global', 'health', 'energy', 'data', 'market', 'platform', 'network', 'digital', 'research', 'design', 'care',
-  'food', 'water', 'power', 'cloud', 'mobile', 'smart', 'green', 'blue', 'open', 'new', 'test', 'demo',
-]);
-
-const IDENTITY_MIN_LETTERS = 4;
-const IDENTITY_FILE_CAP = 200;
-const IDENTITY_READ_CAP = 262144;
-const UNKNOWN_VENTURE = 'unknown venture';
-
-/** Lower-case a text and split it on every character outside a-z and 0-9. */
-function identityTokens(text) {
-  return String(text == null ? '' : text).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
-}
-
-/** The venture name, read with the two rules of extractDomainSignals (venture: line, else the first heading). */
-function readVentureName(roomResolved) {
-  let state = '';
-  try {
-    state = fs.readFileSync(path.join(roomResolved, 'STATE.md'), 'utf8');
-  } catch (e) {
-    return null;
-  }
-  const m = state.match(/venture:\s*(.+)/i);
-  if (m) return m[1].trim();
-  const h = state.match(/^#\s+(.+)/m);
-  if (h) return h[1].trim();
-  return null;
-}
-
-/** Base names (no extension) of the files under team/, to a depth of 3. */
-function teamFileBaseNames(roomResolved) {
-  const out = [];
-  function walk(dir, depth) {
-    if (depth > 3 || out.length >= IDENTITY_FILE_CAP) return;
-    let entries;
-    try {
-      entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch (e) {
-      return;
-    }
-    for (const ent of entries) {
-      if (out.length >= IDENTITY_FILE_CAP) return;
-      if (ent.isDirectory()) walk(path.join(dir, ent.name), depth + 1);
-      else if (ent.isFile()) out.push(path.basename(ent.name, path.extname(ent.name)));
-    }
-  }
-  walk(path.join(roomResolved, 'team'), 1);
-  return out;
-}
-
-/**
- * Proper-noun candidates of a text: a word that starts with a capital letter and is not the first word of a line
- * (a heading or a list item counts as a line) or of a sentence. A limit that the card covers: an abbreviation such
- * as "Dr." ends a sentence for this rule.
- */
-function properNounCandidates(text) {
-  const out = [];
-  const lines = String(text).split(/\r?\n/);
-  for (const line of lines) {
-    const re = /[A-Za-z][A-Za-z0-9'’]*/g;
-    let m;
-    while ((m = re.exec(line)) !== null) {
-      const before = line.slice(0, m.index).replace(/[\s"'“”‘’(\[\]*_`>#-]+$/, '');
-      const first = before === '' || /[.!?]$/.test(before);
-      if (!first && /^[A-Z]/.test(m[0])) out.push(m[0]);
-    }
-  }
-  return out;
-}
-
-/**
- * The room identity screen (DESIGN 8). It collects the names of the room that must not enter a search string.
- * It returns {ran, venture_name_found, tokens_checked} as visible fields. The token set, the venture tokens and the
- * methods are not enumerable, so no serialised form holds a token.
- * @param {string} roomDir
- * @param {string[]} [readingList] - room-relative paths of the reading-list files
- */
-function roomIdentityScreen(roomDir, readingList) {
-  const roomResolved = path.resolve(roomDir);
-  const ventureName = readVentureName(roomResolved);
-  const ventureTokens = ventureName ? identityTokens(ventureName) : [];
-  const found = ventureName !== null && ventureTokens.length > 0 && ventureName.toLowerCase().trim() !== UNKNOWN_VENTURE;
-  const tokens = new Set();
-  if (found) {
-    for (const t of ventureTokens) tokens.add(t);
-    for (const t of identityTokens(path.basename(roomResolved))) tokens.add(t);
-    for (const name of teamFileBaseNames(roomResolved)) for (const t of identityTokens(name)) tokens.add(t);
-    const list = Array.isArray(readingList) ? readingList : [];
-    let realRoom = null;
-    try { realRoom = fs.realpathSync(roomResolved); } catch (e) { realRoom = null; }
-    for (const rel of list) {
-      if (typeof rel !== 'string' || rel.length === 0 || rel.length > 300) continue;
-      try {
-        const abs = path.resolve(roomResolved, rel.replace(/\\/g, '/'));
-        const back = path.relative(roomResolved, abs);
-        if (back === '' || back.startsWith('..') || path.isAbsolute(back)) continue;
-        const real = fs.realpathSync(abs);
-        const inside = realRoom ? path.relative(realRoom, real) : '..';
-        if (inside === '' || inside.startsWith('..') || path.isAbsolute(inside)) continue;
-        if (!fs.statSync(real).isFile()) continue;
-        const buf = fs.readFileSync(real);
-        const text = buf.slice(0, IDENTITY_READ_CAP).toString('utf8');
-        for (const cand of properNounCandidates(text)) for (const t of identityTokens(cand)) tokens.add(t);
-      } catch (e) {
-        // An unreadable reading-list file adds no token. The card stays the final control.
-      }
-    }
-  }
-  const screen = {
-    ran: found,
-    venture_name_found: found,
-    tokens_checked: found ? tokens.size : 0,
-  };
-  const hidden = {
-    counts: () => ({ ran: screen.ran, venture_name_found: screen.venture_name_found, tokens_checked: screen.tokens_checked }),
-    has: (token) => found && tokens.has(String(token).toLowerCase()),
-    ventureTokens: found ? ventureTokens.slice() : [],
-    toJSON: () => ({ ran: screen.ran, venture_name_found: screen.venture_name_found, tokens_checked: screen.tokens_checked }),
-  };
-  for (const k of Object.keys(hidden)) {
-    Object.defineProperty(screen, k, { value: hidden[k], enumerable: false, writable: false, configurable: false });
-  }
-  return screen;
-}
-
-/** True when the handle tokens hold a screened word or the full venture name (DESIGN 8, match rule). */
-function handleHitsScreen(handleTokens, screen) {
-  for (const t of handleTokens) {
-    if (t.length >= IDENTITY_MIN_LETTERS && !IDENTITY_STOP_LIST.includes(t) && screen.has(t)) return true;
-  }
-  const v = screen.ventureTokens;
-  if (v.length > 0 && v.length <= handleTokens.length) {
-    for (let i = 0; i + v.length <= handleTokens.length; i += 1) {
-      let same = true;
-      for (let j = 0; j < v.length; j += 1) {
-        if (handleTokens[i + j] !== v[j]) { same = false; break; }
-      }
-      if (same) return true;
-    }
-  }
-  return false;
-}
 
 /**
  * The four checks on a proposed handle, in a fixed order (DESIGN 4.5): the content fence on the raw text, the
@@ -3554,6 +3513,8 @@ function stringState(record) {
   if (withResults.length === 0) return make('ran_empty', null, partial);
   if (r.db_present !== true) return make('fetched_not_wired:no_db', 'no_db', partial);
   if (attempts.length > 0) return make('fetched_not_wired:wire_failed', 'wire_failed', partial);
+  // Phase 400.2.1 (S4): every finding was below the relevance floor, so none was wired.
+  if (Number.isInteger(r.dropped_below_floor) && r.dropped_below_floor > 0) return make('fetched_not_wired:below_relevance_floor', 'below_relevance_floor', partial);
   if (!Number.isInteger(r.findings) || r.findings === 0) return make('fetched_not_wired:filtered', 'filtered', partial);
   return make('fetched_not_wired:wire_failed', 'wire_failed', partial);
 }
@@ -3608,12 +3569,73 @@ function newStringRecord(s, dbPresent) {
   };
 }
 
+// Phase 400.2.1 (S4), INTERIM: the relevance floor of a door finding. A lexical floor cannot keep a paraphrase and cannot
+// drop every homonym; a semantic reranker is the full fix. The handle words are the words of the approved string minus
+// the hat qualifier and minus the closed list of function words below, in their order, each with a final s removed.
+// A finding passes when its title, or its summary, holds two handle words next to each other (in either order, round 3)
+// once the function words
+// of that text are removed (each text is checked on its own, so a pair never joins the end of the title and the start
+// of the summary), or when title and summary hold every handle word. A one-word handle needs that word.
+// Each dropped finding is counted and listed in the run output.
+const RELEVANCE_FUNCTION_WORDS = Object.freeze(['of', 'the', 'a', 'an', 'in', 'on', 'for', 'to', 'and', 'or', 'that', 'with', 'by', 'from', 'before', 'after']);
+const DROPPED_SHOWN_MAX = 10;
+
+/** One word, with a final s removed, for a plural-tolerant compare. */
+function relevanceStem(w) {
+  return w.length > 3 && w.endsWith('s') ? w.slice(0, -1) : w;
+}
+
+/** The content words of a text, in order and stemmed: the function words are removed. Pure. */
+function contentWords(text) {
+  return identityTokens(text).filter(w => !RELEVANCE_FUNCTION_WORDS.includes(w)).map(relevanceStem);
+}
+
+/** The handle words of an approved string, in order (see above). Pure. @returns {string[]} */
+function handleTermsOf(hat, text) {
+  const qual = identityTokens(ops.HAT_RESEARCH_QUALIFIER[hat] || '');
+  let words = identityTokens(text);
+  // The qualifier is the last words of a normal string (composeString); the nature string has none.
+  if (qual.length > 0 && words.length > qual.length && words.slice(-qual.length).join(' ') === qual.join(' ')) words = words.slice(0, -qual.length);
+  return contentWords(words.join(' '));
+}
+
+/** True when the finding meets the relevance floor. No handle words: no floor. Pure. */
+function meetsRelevanceFloor(terms, finding) {
+  if (!Array.isArray(terms) || terms.length === 0) return true;
+  const f = isPlain(finding) ? finding : {};
+  const title = contentWords(String(f.title || ''));
+  const summary = contentWords(String(f.summary || ''));
+  const have = new Set(title.concat(summary));
+  if (terms.every(t => have.has(t))) return true;
+  const pairs = new Set();
+  for (const words of [title, summary]) {
+    for (let i = 0; i + 1 < words.length; i += 1) pairs.add(words[i] + ' ' + words[i + 1]);
+  }
+  // Round 3 (owner ruling "Keep, loosen a bit"): a reversed adjacent pair counts too, so "specification and
+  // verification" keeps a result for the handle words "verification specification".
+  for (let i = 0; i + 1 < terms.length; i += 1) {
+    if (pairs.has(terms[i] + ' ' + terms[i + 1]) || pairs.has(terms[i + 1] + ' ' + terms[i])) return true;
+  }
+  return false;
+}
+
 /**
  * One wire call of a finding, with the target fixed to the section of the personas, and the attempt kept on the string
  * record. DESIGN 4.4: a finding informs the section of the personas, never a section named after the search string. The
  * research leg of Bono files each finding under its string; the wrapper fixes the target before the write.
  */
 function wireAndRecord(record, wireFn, dbArg, p) {
+  // Phase 400.2.1 (S4): a finding below the relevance floor is not wired. It is counted and listed, never dropped silently.
+  if (Array.isArray(record.terms) && !meetsRelevanceFloor(record.terms, p && p.finding)) {
+    const f0 = isPlain(p && p.finding) ? p.finding : {};
+    record.dropped_below_floor = (record.dropped_below_floor || 0) + 1;
+    if (!Array.isArray(record.dropped)) record.dropped = [];
+    if (record.dropped.length < DROPPED_SHOWN_MAX) {
+      const strip = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'evidence-claim.cjs')).stripInjectionSpans;
+      record.dropped.push({ title: strip(typeof f0.title === 'string' ? f0.title : '').slice(0, PACK_TITLE_MAX), url: String(typeof f0.url === 'string' ? f0.url : '').slice(0, PACK_URL_MAX) });
+    }
+    return { ok: false, reason: 'below_relevance_floor' };
+  }
   let res = null;
   const decision = Object.assign({}, isPlain(p && p.decision) ? p.decision : {}, { target_section: PERSONA_TARGET_SECTION, target_kind: 'local' });
   const params = Object.assign({}, p, { decision });
@@ -3645,7 +3667,13 @@ async function fetchHatStrings(hat, rec, strings, roomResolved, db, deps, hostIn
   const extractFn = typeof d.extractContext === 'function' ? d.extractContext : extractor.extractContext;
   const frozen = (Array.isArray(rec.lens_set) ? rec.lens_set : []).map(e => ({ lens: e.lens, weight: e.weight }));
   const records = new Map();
-  for (const s of strings) records.set(s.text, newStringRecord(s, db !== null && db !== undefined));
+  for (const s of strings) {
+    const r = newStringRecord(s, db !== null && db !== undefined);
+    r.terms = handleTermsOf(hat, s.text);
+    r.dropped_below_floor = 0;
+    r.dropped = [];
+    records.set(s.text, r);
+  }
 
   const dispatchCell = async (cell) => {
     const record = records.get(cell.subdomain);
@@ -3945,6 +3973,10 @@ async function cmdRunResearch(args, deps) {
 
   for (const hat of RESEARCH_HATS) {
     ledger.hats[hat].research = results[hat].state;
+    // Round 3 (S4): the dropped count of each hat whose door search ran, for every later output and the review.
+    if (Array.isArray(results[hat].fetched) && results[hat].fetched.length > 0) {
+      ledger.hats[hat].dropped_below_floor = results[hat].fetched.reduce((n, f) => n + (Number.isInteger(f.record.dropped_below_floor) ? f.record.dropped_below_floor : 0), 0);
+    } else delete ledger.hats[hat].dropped_below_floor;
     if (results[hat].reason) ledger.hats[hat].research_reason = results[hat].reason;
     else delete ledger.hats[hat].research_reason;
   }
@@ -3967,6 +3999,10 @@ async function cmdRunResearch(args, deps) {
   const sealed = sealPacks(ledger, map);
   if (!sealed.ok) return sealed;
   markStep(ledger, 'run_research', 'done', now);
+  // Phase 400.2.1 (S5): the readings come next; arm the reader search screen until merge. The ledger keeps the state,
+  // so the review artifact says whether the own searches of the hats passed the screen.
+  const readerScreen = writeReaderMarker(homeDirOf(deps), ledger.run_id, roomResolved, now, ledger.brief && ledger.brief.reading_list);
+  ledger.reader_search_screen = readerScreen;
   try {
     writeRunMap(homeDirOf(deps), map);
     writeLedger(lr.dir, ledger);
@@ -3978,6 +4014,8 @@ async function cmdRunResearch(args, deps) {
   const reasons = {};
   const stringsOut = {};
   const itemsOut = {};
+  const droppedOut = {};
+  const plainLines = [];
   for (const hat of HATS) {
     if (!RESEARCH_HATS.includes(hat)) { hats[hat] = 'never_searches'; continue; }
     hats[hat] = results[hat].state;
@@ -3993,7 +4031,16 @@ async function cmdRunResearch(args, deps) {
       substitute_calls: f.record.substitute_calls,
       recovery_action: f.record.recovery_action,
       host: f.record.host.map(h => Object.assign({}, h)),
+      dropped_below_floor: Number.isInteger(f.record.dropped_below_floor) ? f.record.dropped_below_floor : 0,
+      dropped: Array.isArray(f.record.dropped) ? f.record.dropped.map(d => Object.assign({}, d)) : [],
     }, f.nature === true ? { nature: true } : {}));
+    // Phase 400.2.1 (S4): the findings that the relevance floor kept out of the room graph and the pack.
+    droppedOut[hat] = results[hat].fetched.reduce((n, f) => n + (Number.isInteger(f.record.dropped_below_floor) ? f.record.dropped_below_floor : 0), 0);
+    for (const f of results[hat].fetched) {
+      for (const h of f.record.host) {
+        if (h.reason === 'provider_failed:host_off_site') plainLines.push(offSiteLine(hat, h.lens, h.refused));
+      }
+    }
   }
   return {
     ok: true,
@@ -4004,8 +4051,24 @@ async function cmdRunResearch(args, deps) {
     strings: stringsOut,
     nature: natureState,
     evidence_items: itemsOut,
+    dropped_below_floor: droppedOut,
+    plain_lines: plainLines,
+    reader_search_screen: readerScreen,
     counts: { strings_approved: ledger.research.strings_approved, strings_refused: ledger.research.strings_refused },
   };
+}
+
+/**
+ * Phase 400.2.1 (S7): the plain sentence for a host search whose every result was off the site of its lens. Fixed text;
+ * it holds the hat, the lens, the site and a count, and never a search string or a result.
+ */
+function offSiteLine(hat, lens, refused) {
+  const driver = require(path.join(REPO_ROOT, 'lib', 'lens-engine', 'source-lens-driver.cjs'));
+  const dl = (driver._internal.DOMAIN_LENSES || {})[lens];
+  const site = dl && Array.isArray(dl.domains) && dl.domains.length > 0 ? dl.domains[0] + (dl.pathPrefix || '') : 'the site of the lens';
+  const label = dl ? dl.label : lens;
+  const n = Number.isInteger(refused) ? refused : 0;
+  return 'The ' + label + ' search of ' + hat + ' found no page on ' + site + ': the host web search gave ' + n + ' result' + (n === 1 ? '' : 's') + ' from other sites, and the door refused them. This search counts as not run, not as an empty answer.';
 }
 
 // ---------------------------------------------------------------------------
@@ -4133,6 +4196,14 @@ function cmdCompare(args, deps) {
 function main(argv, deps) {
   const args = Array.isArray(argv) ? argv : [];
   const sub = args[0];
+  // Round 3: the maintenance subcommand disarm-reader-screen [--run <id>] is not a step of a run (not in SUBCOMMANDS).
+  if (sub === DISARM_SUBCOMMAND) {
+    const { flags } = parseFlags(args.slice(1));
+    if (flags.run === true) { process.stderr.write(DISARM_USAGE + '\nmissing value: --run\n'); process.exitCode = 2; return undefined; }
+    const result = cmdDisarmReaderScreen({ runId: typeof flags.run === 'string' ? flags.run : null }, deps);
+    process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+    return result;
+  }
   if (SUBCOMMANDS.indexOf(sub) === -1) {
     process.stderr.write(USAGE + '\n');
     process.exitCode = 2;
@@ -4310,6 +4381,20 @@ module.exports = {
   HOST_WEB_PROVIDER,
   stringState,
   hatResearchState,
+  READER_MARKER_MAX_AGE_MS,
+  DISARM_SUBCOMMAND,
+  cmdDisarmReaderScreen,
+  readerMarkerDir,
+  writeReaderMarker,
+  removeReaderMarker,
+  liveReaderMarkers,
+  screenSearchText,
+  readerSearchVerdict,
+  REFUSAL_GUIDANCE,
+  NATURE_GUIDANCE,
+  handleTermsOf,
+  meetsRelevanceFloor,
+  offSiteLine,
   handlesNeeded,
   readHandlesStore,
   sealPacks,

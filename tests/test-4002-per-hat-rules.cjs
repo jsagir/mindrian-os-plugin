@@ -400,7 +400,7 @@ check('P12. the Blue ledger holds integers and state names only', () => {
   const blue = JSON.parse(text);
   assert.equal(blue.schema, 'mos.persona-blue-ledger/1');
   assert.equal(blue.run_id, run.res.run_id);
-  assert.deepEqual(Object.keys(blue), ['schema', 'run_id', 'hats', 'sub_questions', 'strings_approved', 'strings_refused']);
+  assert.deepEqual(Object.keys(blue), ['schema', 'run_id', 'hats', 'sub_questions', 'strings_approved', 'strings_refused', 'coverage']);
   assert.equal(blue.sub_questions, 2);
   assert.deepEqual(Object.keys(blue.hats), HATS);
   const BANNED = ['title', 'url', 'line', 'handle', 'text', 'summary'];

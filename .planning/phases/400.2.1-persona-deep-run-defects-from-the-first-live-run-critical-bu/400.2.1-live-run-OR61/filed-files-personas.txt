@@ -1,0 +1,14 @@
+./black-quokka-scratch.md
+./blue-quokka-scratch.md
+./green-quokka-scratch.md
+./hat-reviews/20261128-011450-fef2-what-must-be-true-before/20261128-011450-fef2-what-must-be-true-before.md
+./hat-reviews/20261128-011450-fef2-what-must-be-true-before/readings/black.json
+./hat-reviews/20261128-011450-fef2-what-must-be-true-before/readings/blue.json
+./hat-reviews/20261128-011450-fef2-what-must-be-true-before/readings/green.json
+./hat-reviews/20261128-011450-fef2-what-must-be-true-before/readings/red.json
+./hat-reviews/20261128-011450-fef2-what-must-be-true-before/readings/white.json
+./hat-reviews/20261128-011450-fef2-what-must-be-true-before/readings/yellow.json
+./hat-reviews/20261128-011450-fef2-what-must-be-true-before/run.json
+./red-quokka-scratch.md
+./white-quokka-scratch.md
+./yellow-quokka-scratch.md

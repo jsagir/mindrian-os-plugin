@@ -109,7 +109,14 @@ const P4004 = {
   ],
 };
 const HOOK_BUDGET_REVIEW_MS = 150;
-const EXPECTED = 46 - P385.removed.length - P389.removed.length + P386.added.length + P370.added.length;
+// Phase 400.2.1 S5 (owner ruling 2026-11-26, "A: screen with a hook"): one PreToolUse entry was ADDED on purpose, the
+// reader search guard of /mos:persona on WebSearch and WebFetch. It carries no onFailure key and fails closed inside.
+const P40021 = {
+  added: [
+    { event: 'PreToolUse', sub: 'persona-reader-search-guard-hook.cjs', timeout: 5 },
+  ],
+};
+const EXPECTED = 46 - P385.removed.length - P389.removed.length + P386.added.length + P370.added.length + P40021.added.length;
 
 let failed = 0;
 function check(name, fn) {
@@ -150,6 +157,7 @@ const TABLE = [
   ['PreToolUse', 'card-before-answer-hook.cjs', 3],
   ['PreToolUse', 'web-credential-guard-hook.cjs', 5],
   ['PreToolUse', 'review-contract-hook.cjs', 3],
+  ['PreToolUse', 'persona-reader-search-guard-hook.cjs', 5],
   ['PostToolUse', 'run-hook.cmd" post-write', 5],
   ['PostToolUse', 'frontmatter-schema-validator.cjs', 5],
   ['PostToolUse', 'async-artifact-auto-commit.cjs', 5],
@@ -226,7 +234,7 @@ check('A1 shape: only timeout and onFailure differ from ' + BASE_SHA, () => {
   }
   // Plan 386-36 and plan 370-06: take the deliberate additions (P386, P370) out of the
   // current document before the comparison, because the base commit does not hold them.
-  const addedAll = P386.added.concat(P370.added);
+  const addedAll = P386.added.concat(P370.added).concat(P40021.added);
   const current = JSON.parse(JSON.stringify(doc));
   for (const ev of Object.keys(current.hooks || {})) {
     current.hooks[ev] = (current.hooks[ev] || []).filter((group) => !(group.hooks || []).some((h) =>
@@ -268,16 +276,18 @@ check('A4 the DD-1 table matches every entry exactly once', () => {
   must(used.size === entries.length, 'rows cover ' + used.size + ' of ' + entries.length + ' entries');
 });
 
-check('A5 only the two guard hooks have onFailure, and it is exactly "block"', () => {
+check('A5 only the three guard hooks have onFailure, and it is exactly "block"', () => {
   // Owner card C2 of Phase 391 (answer APPLY, 2026-11-08, plan 391-08) added the web
-  // credential guard to the Part 8 egress guard. No observer hook carries the key.
+  // credential guard to the Part 8 egress guard. Phase 400.2.1 (owner ruling 2026-11-26,
+  // "Fail closed, plus an off switch") added the persona reader search guard. No observer
+  // hook carries the key.
   const withKey = entries.filter((e) => Object.prototype.hasOwnProperty.call(e.h, 'onFailure'));
-  for (const tail of ['part8-egress-guard-hook.cjs', 'web-credential-guard-hook.cjs']) {
+  for (const tail of ['part8-egress-guard-hook.cjs', 'web-credential-guard-hook.cjs', 'persona-reader-search-guard-hook.cjs']) {
     const guard = entries.filter((e) => e.h.command.indexOf(tail) !== -1);
     must(guard.length === 1, tail + ' entries: ' + guard.length);
     must(guard[0].h.onFailure === 'block', tail + ' onFailure is ' + JSON.stringify(guard[0].h.onFailure));
   }
-  must(withKey.length === 2, 'entries with an onFailure key: ' + withKey.length);
+  must(withKey.length === 3, 'entries with an onFailure key: ' + withKey.length);
 });
 
 check('A5b P370 the review contract hook: Write matcher, timeout 3, no onFailure, budget far below the timeout', () => {
@@ -289,6 +299,22 @@ check('A5b P370 the review contract hook: Write matcher, timeout 3, no onFailure
   must(!Object.prototype.hasOwnProperty.call(hit[0].h, 'onFailure'), 'the hook must not carry onFailure');
   must(10 * HOOK_BUDGET_REVIEW_MS <= hit[0].h.timeout * 1000,
     'ten times the review budget (' + (10 * HOOK_BUDGET_REVIEW_MS) + ' ms) exceeds the timeout (' + (hit[0].h.timeout * 1000) + ' ms)');
+});
+
+// Phase 400.2.1: the stated latency budget of one reader search guard call on the worst-case room (12 reading-list
+// files of 256 KiB, the largest reading list, plus 200 team files and 2,000 artifacts). Measured cold p95 373 to 615 ms
+// on 2026-11-26 (three runs, n=10 to 20, WSL2), recorded in 400.2.1-RESEARCH.md; tests/test-40021-reader-search-hook.cjs
+// H9 measures it again on every run. The margin is five times, not ten: the worst case reads about 3 MiB of text.
+const HOOK_BUDGET_READER_MS = 1000;
+check('A5c P40021 the reader search guard: WebSearch and WebFetch matcher, timeout 5, onFailure block, budget far below the timeout', () => {
+  const hit = entries.filter((e) => e.h.command.indexOf('persona-reader-search-guard-hook.cjs') !== -1);
+  must(hit.length === 1, 'reader search guard entries: ' + hit.length);
+  must(hit[0].event === 'PreToolUse', 'event is ' + hit[0].event);
+  must(hit[0].group.matcher === '^(?:WebSearch|WebFetch)$', 'matcher is ' + hit[0].group.matcher);
+  must(hit[0].h.timeout === 5, 'timeout is ' + hit[0].h.timeout);
+  must(hit[0].h.onFailure === 'block', 'onFailure is ' + JSON.stringify(hit[0].h.onFailure));
+  must(5 * HOOK_BUDGET_READER_MS <= hit[0].h.timeout * 1000,
+    'five times the reader budget (' + (5 * HOOK_BUDGET_READER_MS) + ' ms) exceeds the timeout (' + (hit[0].h.timeout * 1000) + ' ms)');
 });
 
 check('A6 ambient-stop keeps timeout 5 and async true', () => {

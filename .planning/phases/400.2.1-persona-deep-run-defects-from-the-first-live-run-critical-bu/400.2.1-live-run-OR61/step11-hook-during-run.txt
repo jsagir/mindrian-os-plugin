@@ -1,0 +1,2 @@
+Canon Part 8 (hat reader search, run 20261128-011450-fef2): the search text holds a room detail or could not be screened (reason room_identity_word). The request was blocked and nothing was sent. Search with general words of the field, with no venture name, person name, figure or other room detail. To stop this screen, run: node "<HOME>/dev/MindrianOS-Plugin-40021s/scripts/persona-hats.cjs" disarm-reader-screen --run 20261128-011450-fef2
+exit=2
