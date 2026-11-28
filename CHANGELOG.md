@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.96 (in progress)
+## [2.0.0-beta.97] - 2026-11-28
 
 ### Fixed
 - **A decision card no longer blocks a turn by mistake.** The check waits a bounded time for the room file (Phase 402, card-fire fix).
