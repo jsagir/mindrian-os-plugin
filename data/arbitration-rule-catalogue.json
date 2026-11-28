@@ -22,7 +22,8 @@
       "auto-explore-drain.cjs": "Drains the auto-explore fingerprint queue in the background; bookkeeping over prior tool-use telemetry, not a judgment over the current turn.",
       "run-hook.cmd on-stop": "The generic Stop-hook dispatcher for room-context persistence (session save state, room binding refresh); a routing indirection to per-room bookkeeping, not itself a rule that judges or blocks.",
       "web-credential-guard-hook.cjs": "A credential-only PreToolUse check on the web lines (native WebSearch, WebFetch and the Tavily tools), plan 386-36. It matches credential shapes and nothing else, so it is a safeguard on what leaves, not an arbitration rule over Larry's conversational judgment.",
-      "review-contract-hook.cjs": "A PreToolUse check on the Write tool for grade and deep-grade reviews, plan 370-06. It matches the fixed review shape and the internal-name list of data/review-contract.json and nothing else; it runs in log-only mode (owner answer O6B), so it records rule ids, classes and lines and never blocks. It is a file-shape check on a deliverable, not an arbitration rule over Larry's conversational judgment."
+      "review-contract-hook.cjs": "A PreToolUse check on the Write tool for grade and deep-grade reviews, plan 370-06. It matches the fixed review shape and the internal-name list of data/review-contract.json and nothing else; it runs in log-only mode (owner answer O6B), so it records rule ids, classes and lines and never blocks. It is a file-shape check on a deliverable, not an arbitration rule over Larry's conversational judgment.",
+      "ambient-stop.cjs": "The async Stop entry of the ambient trigger (Phase 355.1 AMB-06). It evaluates the room delta after the turn, writes nothing to stdout and exits 0 on every path, so it cannot block or change the current turn. The only human decision it leads to is the answer on a gate card. Background machinery, not a rule that judges a turn."
     },
     "named_assumption": "The langtalks consult's own flag, quoted: the floor-versus-weighted-input classification is an engineering decision with no corpus backing, so every row below is arguable and each carries its own reason so the navigator can overrule it row by row."
   },
@@ -52,6 +53,19 @@
       "floor_source": "Canon Part 9 (Memory Locality); the per-session room-binding write-scope gate",
       "arbiter_input": false,
       "reason": "Same should-not-be-touched bucket as the Part 8 egress guard. It protects which room a write lands in, which is a data-boundary and security concern, not a persona decision about how Larry teaches. Never an arbiter input."
+    },
+    {
+      "id": "card-before-answer",
+      "rule": "On the CLI a gate is answered only from its card: a gate_answer call that carries a gate id and a chosen list is denied when the card of the gate was never shown as an AskUserQuestion, or when the answer on the card does not name what gate_answer names.",
+      "mechanism": "scripts/card-before-answer-hook.cjs",
+      "hook_event": "PreToolUse",
+      "policy_file": null,
+      "rung_today": null,
+      "rung_proposed": "blocking",
+      "floor": "enforced",
+      "floor_source": "Quick 261005-mux (a yes is a card, never prose); agents/larry-extended.md, section Decision Gates; Canon Part 9 (docs/MINDRIAN-CANON.md); SEED-021",
+      "arbiter_input": false,
+      "reason": "A consent control, not a persona decision: it protects that an approval came from the navigator and not from the model. The hook denies the tool call today through permissionDecision deny at exit 0. It fails open: a case it cannot judge (an unreadable hook input, no readable transcript, no gate id or no chosen entry in the call, a gate id outside the read window, a card with no readable options, a card call with no id, a card answer not yet in the transcript, an internal error) is allowed with one surface_degraded line on stderr, and the hooks.json entry carries no onFailure key, so a timeout or a crash of the hook does not block (only the Part 8 guard and the web credential guard carry onFailure block). Claude Desktop chat loads no hooks; the cure there is the card_pending refusal in lib/mcp/tools/gate.cjs. Never a weighted input: the arbiter must never emit a value that licenses an answer without the card."
     },
     {
       "id": "gate-card-fire",
