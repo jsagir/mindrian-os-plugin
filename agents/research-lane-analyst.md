@@ -12,6 +12,7 @@ tools:
   - Read
 allowed-tools:
   - Read
+omitClaudeMd: true
 # == Phase 363 Plan 18 CIRS R1 exclude (Canon Part 7, Canon Part 11) ==
 # Reuse before build, checked against every agent on disk: agents/research.md carries Write and
 # two Brain MCP tools and composes its own queries; agents/dominant-design-researcher.md and

@@ -513,9 +513,9 @@
       "date": "2026-09-14",
       "domain": "code",
       "leverage": "Agent frontmatter omitClaudeMd runs a plugin subagent without user, project and local CLAUDE.md. agents/research-lane-analyst.md lists the key as supported but does not set it; a candidate for its never-see-room-content (Part 8) isolation.",
-      "destination": "agents/research-lane-analyst.md",
-      "status": "dormant",
-      "evidence": "Version 2.1.271 (released 2026-09-14). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.271, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+      "destination": "tests/helpers/omit-claudemd-list.cjs",
+      "status": "adopting",
+      "evidence": "Version 2.1.271 (released 2026-09-14). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.271, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02. K5 probe 2026-11-28, Claude Code 2.1.332: omitClaudeMd removed the project and user CLAUDE.md from a plugin subagent; memory file removed true; scratch delta 37 bytes removed per spawn (canary files only)."
     },
     {
       "capability": "plugin-cli-json-output-and-accept-command",

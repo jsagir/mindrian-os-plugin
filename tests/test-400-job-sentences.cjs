@@ -15,6 +15,7 @@ const ROOT = path.resolve(__dirname, '..');
 const js = require(path.join(ROOT, 'lib/core/job-sentence.cjs'));
 const { parseFrontmatter } = require(path.join(ROOT, 'scripts/build-command-registry.cjs'));
 const { SKIP_LIST } = require(path.join(ROOT, 'scripts/build-skill-mirrors.cjs'));
+const { OMIT_CLAUDE_MD } = require(path.join(ROOT, 'tests/helpers/omit-claudemd-list.cjs'));
 
 let failed = 0;
 let passed = 0;
@@ -182,8 +183,17 @@ check('S7 the 17 agents have the 4 job keys; each differs from base ' + BASE + '
     const text = fs.readFileSync(path.join(ROOT, rel), 'utf8');
     miss.push(...labelErrors('agent ' + f, parseFrontmatter(text)));
     const lines = text.split('\n');
-    const kept = lines.filter((l) => !re.test(l.replace(/\r$/, '')));
-    if (lines.length - kept.length !== 4) miss.push('agent ' + f + ' (' + (lines.length - kept.length) + ' job lines)');
+    let s7Lines = lines;
+    if (OMIT_CLAUDE_MD.includes(f.replace(/\.md$/, ''))) {
+      let omitCount = 0;
+      s7Lines = lines.filter((line) => {
+        if (line.replace(/\r$/, '') === 'omitClaudeMd: true') { omitCount += 1; return false; }
+        return true;
+      });
+      if (omitCount !== 1) miss.push('agent ' + f + ' (omitClaudeMd lines: ' + omitCount + ')');
+    }
+    const kept = s7Lines.filter((l) => !re.test(l.replace(/\r$/, '')));
+    if (s7Lines.length - kept.length !== 4) miss.push('agent ' + f + ' (' + (s7Lines.length - kept.length) + ' job lines)');
     // Phase 401 plan F1 (quick 261127-f1a), cause (c): the plan rewrote the triple-dash comment lines inside
     // frontmatter, because the host ends frontmatter at the first triple dash. The same rewrite is applied to
     // the base side before the compare. No key changed.
