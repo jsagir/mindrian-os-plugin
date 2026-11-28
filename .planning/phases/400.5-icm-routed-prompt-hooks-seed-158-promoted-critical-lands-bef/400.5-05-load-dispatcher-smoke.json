@@ -1,0 +1,351 @@
+{
+  "label": "dispatcher",
+  "arm": "contention",
+  "smoke": true,
+  "head": "bcf9502d4712e428ef52d8aeaceee26b805a2059",
+  "claude_version": "2.1.332 (Claude Code)",
+  "node": "v22.23.1",
+  "cores": 12,
+  "H": 1,
+  "host_command": "claude -p --input-format stream-json --output-format stream-json --verbose --include-hook-events --replay-user-messages --plugin-dir <repo root> --setting-sources project --model haiku --tools \"\" --session-id <uuid> --debug-file <scratch>/host-debug.log",
+  "removed_env_keys": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_SESSION_ID",
+    "MINDRIAN_BRAIN_KEY",
+    "MINDRIAN_EUREKA_ROOT",
+    "MOS_LIVE_LOAD"
+  ],
+  "plugins": [
+    {
+      "name": "mos",
+      "is_repo_root": true
+    },
+    {
+      "name": "cc-plugin-agents-md",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-telemetry",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-privacy",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-plugin-authoring",
+      "is_repo_root": false
+    }
+  ],
+  "seed_missed_turn": true,
+  "prompts": [
+    {
+      "i": 1,
+      "token": "t4005-ea9d86-1",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 246,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": true,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 19647
+    },
+    {
+      "i": 2,
+      "token": "t4005-ea9d86-2",
+      "runs": 1,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 650,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": true,
+      "wall_ms": 12298
+    }
+  ],
+  "per_hook": {
+    "(no command)": {
+      "runs": 2,
+      "cancels": 0,
+      "p95_duration_ms": null
+    }
+  },
+  "summary": {
+    "prompts_sent": 2,
+    "results": 2,
+    "cancel_total": 0,
+    "prompts_with_runs_below_H": 0,
+    "runs_source": "s2_hook_started",
+    "p50_overhead_ms": 246,
+    "p95_overhead_ms": 650,
+    "skip_note_prompts": [
+      1
+    ],
+    "loadavg_min": 1.1,
+    "loadavg_max": 2.44,
+    "io_pressure_avg10_max": 1.57,
+    "writer": {
+      "cycles": 0,
+      "busy": 0,
+      "other": 0
+    },
+    "host_pids": 1,
+    "session_ids": [
+      "own"
+    ],
+    "real_rooms_touched": false,
+    "unmapped_attachments": 0
+  },
+  "sources": {
+    "s1_path": "<HOME>/.claude/projects/-tmp-mos-load-400-5-SuKOS8-rooms-load-room-400-5/<UUID>.jsonl",
+    "s2_subtypes_seen": [
+      "hook_response",
+      "hook_started"
+    ],
+    "s2_field_names": [
+      "exit_code",
+      "hook_event",
+      "hook_id",
+      "hook_name",
+      "outcome",
+      "output",
+      "session_id",
+      "stderr",
+      "stdout",
+      "subtype",
+      "type",
+      "uuid"
+    ],
+    "s3_sample_masked": [
+      "2026-11-28T08:11:03.545Z [DEBUG] Hooks: Checking first line for async: {\"continue\":true,\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"MindrianOS prompt help was skipped on 1 earlier prompt(s): hook_timeout\\n\\nVoice reminder: open with one move glyph and Larry | Mindri",
+      "2026-11-28T08:11:03.545Z [DEBUG] Hooks: Parsed initial response: {\"continue\":true,\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"MindrianOS prompt help was skipped on 1 earlier prompt(s): hook_timeout\\n\\nVoice reminder: open with one move glyph and Larry | MindrianOS. ",
+      "2026-11-28T08:11:03.555Z [DEBUG] Hooks: UserPromptSubmit [node \"<REPO>/scripts/userprompt-dispatch.cjs\"] (plugin mos@inline) finished with status 0 (246ms)"
+    ],
+    "s3_unmapped_cancels": 0,
+    "s4_turns": 2
+  },
+  "trace_turns": [
+    [
+      {
+        "ev": "start",
+        "k": 8,
+        "t": 25
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "admin-command-gate",
+        "t": 26
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "admin-command-gate",
+        "t": 27,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "intent-classifier",
+        "t": 27
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "intent-classifier",
+        "t": 157,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "first-install-router",
+        "t": 157
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "first-install-router",
+        "t": 215,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "brain-derivation-drain",
+        "t": 215
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "brain-derivation-drain",
+        "t": 218,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "jtbd-update",
+        "t": 218
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "jtbd-update",
+        "t": 226,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 8,
+        "id": "auto-explore-drain",
+        "t": 226
+      },
+      {
+        "ev": "end",
+        "k": 8,
+        "id": "auto-explore-drain",
+        "t": 227,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 8,
+        "t": 228,
+        "code": 0,
+        "elapsed_ms": 228
+      }
+    ],
+    [
+      {
+        "ev": "start",
+        "k": 9,
+        "t": 64
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "admin-command-gate",
+        "t": 65
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "admin-command-gate",
+        "t": 68,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "intent-classifier",
+        "t": 69
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "intent-classifier",
+        "t": 344,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "first-install-router",
+        "t": 344
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "first-install-router",
+        "t": 552,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "brain-derivation-drain",
+        "t": 552
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "brain-derivation-drain",
+        "t": 566,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "jtbd-update",
+        "t": 567
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "jtbd-update",
+        "t": 579,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "begin",
+        "k": 9,
+        "id": "auto-explore-drain",
+        "t": 579
+      },
+      {
+        "ev": "end",
+        "k": 9,
+        "id": "auto-explore-drain",
+        "t": 586,
+        "outcome": "ok",
+        "trip": false
+      },
+      {
+        "ev": "exit",
+        "k": 9,
+        "t": 588,
+        "code": 0,
+        "elapsed_ms": 588
+      }
+    ]
+  ],
+  "marker_after": {
+    "k": 9,
+    "state": "done",
+    "pending": 0
+  },
+  "flags": {
+    "host_started": true,
+    "prompt_timeout": false,
+    "foreign_session": false,
+    "transcript_found": true
+  },
+  "loadavg_start": "1.10 0.87 1.71 1/897 943377",
+  "verdict": "PASS",
+  "first_not_ok": null
+}
